@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/script.js"></script>
+</head>
+<body onload="loadAttendance(); setInterval(loadAttendance, 2000);">
+
+<h1>Attendance</h1>
+<p>Total checked in: <span id="count">0</span></p>
+
+<ul id="list"></ul>
+
+</body>
+</html>
