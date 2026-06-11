@@ -27,14 +27,13 @@ async function loadAttendance() {
 
     list.innerHTML = "";
 
-    Object.keys(data).forEach(name => {
-        const li = document.createElement("li");
-        li.textContent = name;
-        list.appendChild(li);
-    });
-
-    const count = document.getElementById("count");
-    if (count) {
-        count.innerText = Object.keys(data).length;
-    }
+    data.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = item.name; 
+    list.appendChild(li);
+});
+const count = document.getElementById("count");
+if (count) {
+    count.innerText = data.length;
+}
 }
