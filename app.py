@@ -81,7 +81,7 @@ def checkin():
         if name in attendance:
             return jsonify({"message": "Already checked in"})
 
-        current_time = datetime.now().strftime("%H:%M:%S")
+        current_time = datetime.now().strftime("%H:%M:")
         save_data(name, current_time)
 
         return jsonify({"message": "Checked in successfully"})
