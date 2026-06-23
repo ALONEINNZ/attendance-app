@@ -14,8 +14,12 @@ app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "main.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "main.db")
 
-load_dotenv(Path(".env"))
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
+print("MAIL USER:", os.getenv("USERNAME"))
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 
 app.config["SECRET_KEY"] = os.getenv("KEY", "dev-secret-key")
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
@@ -30,14 +34,17 @@ app.config.update(
     MAIL_USE_TLS=True,
     MAIL_USE_SSL=False,
 )
-
+print("EMAIL:", os.getenv("USERNAME"))
+print("PASSWORD:", os.getenv("PASSWORD"))
 mail = Mail(app)
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
 
 def get_db():
-    return sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def init_db():
@@ -51,7 +58,7 @@ def init_db():
             password TEXT NOT NULL,
             code TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
-            verify_key TEXT NOT NULL,
+            verify_key TEXT UNIQUE NOT NULL,
             is_verified INTEGER DEFAULT 0,
             pfp TEXT DEFAULT NULL
         )
@@ -80,30 +87,28 @@ def login_required(f):
 
 
 def send_email(user_email, verify_key):
-    try:
-        if not user_email.lower().endswith(SCHOOL_EMAIL_DOMAIN):
-            print("Email blocked: not Burnside email")
-            flash("Please use your Burnside school email!")
-            return False
+    if not user_email.lower().endswith(SCHOOL_EMAIL_DOMAIN):
+        return False, "Please use your Burnside school email."
 
+    try:
         link = url_for("verify", verify_key=verify_key, _external=True)
 
         msg = Message(
             subject="Verify your email",
             sender=app.config["MAIL_USERNAME"],
             recipients=[user_email],
-            body=f"Click this link to verify your account:\n{link}",
+            body=f"Click this link to verify your account:\n\n{link}",
         )
 
         mail.send(msg)
         print("EMAIL SENT TO:", user_email)
-        return True
+        return True, None
 
     except Exception as e:
         print("EMAIL FAILED:", e)
-        flash(f"Email failed: {e}")
-        return False
-    
+        return False, str(e)
+
+
 @app.route("/")
 def home():
     return render_template("Home.html")
@@ -122,54 +127,71 @@ def signup():
 
         if not username or not password or not confirm_password or not email or not code:
             error = "Please fill in all fields."
+
         elif password != confirm_password:
-            error = "Passwords don't match!"
+            error = "Passwords don't match."
+
         elif len(password) < 8:
             error = "Password must be at least 8 characters."
+
         elif len(username) > 10:
-            error = "Username too long."
+            error = "Username must be 10 characters or less."
+
         elif not code.isdigit() or len(code) != 5:
             error = "Invalid student ID."
+
         elif not email.endswith(SCHOOL_EMAIL_DOMAIN):
             error = "Email must be a Burnside school email."
+
         elif email.split("@")[0] != code:
             error = "Email must match your student ID."
+
         else:
             conn = get_db()
             cursor = conn.cursor()
 
-            cursor.execute(
-                "SELECT id FROM users WHERE username = ? OR code = ? OR email = ?",
-                (username, code, email),
-            )
+            cursor.execute("""
+                SELECT username, code, email, is_verified 
+                FROM users 
+                WHERE username = ? OR code = ? OR email = ?
+            """, (username, code, email))
+
             existing_user = cursor.fetchone()
 
             if existing_user:
-                error = "User already exists."
-            else:
-                verify_key = secrets.token_urlsafe(32)
-                hashed_password = generate_password_hash(password)
+                if existing_user["is_verified"] == 0:
+                    error = "Account already exists but is not verified. Check your email."
+                else:
+                    error = "User already exists."
 
-                cursor.execute("""
-                    INSERT INTO users 
-                    (username, password, code, email, verify_key, is_verified)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (username, hashed_password, code, email, verify_key, 0))
-
-                conn.commit()
                 conn.close()
+                return render_template("signup.html", header="signup", error=error)
 
-                if not send_email(email, verify_key):
-                    error = "Account made, but email failed. Check terminal."
-                    return render_template("signup.html", header="signup", error=error)
-                
-                return render_template(
-                    "login.html",
-                    header="login",
-                    error="Account created. Check your email to verify."
-                )
+            verify_key = secrets.token_urlsafe(32)
 
+            email_sent, email_error = send_email(email, verify_key)
+
+            if not email_sent:
+                conn.close()
+                error = f"Email failed: {email_error}"
+                return render_template("signup.html", header="signup", error=error)
+
+            hashed_password = generate_password_hash(password)
+
+            cursor.execute("""
+                INSERT INTO users 
+                (username, password, code, email, verify_key, is_verified)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (username, hashed_password, code, email, verify_key, 0))
+
+            conn.commit()
             conn.close()
+
+            return render_template(
+                "login.html",
+                header="login",
+                error="Account created. Check your email to verify."
+            )
 
     return render_template("signup.html", header="signup", error=error)
 
@@ -179,10 +201,27 @@ def verify(verify_key):
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE users SET is_verified = 1 WHERE verify_key = ?",
-        (verify_key,)
-    )
+    cursor.execute("""
+        SELECT id 
+        FROM users 
+        WHERE verify_key = ?
+    """, (verify_key,))
+
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return render_template(
+            "login.html",
+            header="login",
+            error="Invalid verification link."
+        )
+
+    cursor.execute("""
+        UPDATE users 
+        SET is_verified = 1 
+        WHERE verify_key = ?
+    """, (verify_key,))
 
     conn.commit()
     conn.close()
@@ -206,8 +245,8 @@ def login():
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT id, username, password, code, email, verify_key, is_verified, pfp
-            FROM users
+            SELECT * 
+            FROM users 
             WHERE username = ?
         """, (username,))
 
@@ -216,14 +255,18 @@ def login():
 
         if user is None:
             error = "User not found."
-        elif user[6] == 0:
+
+        elif user["is_verified"] == 0:
             error = "Not verified. Check your email."
-        elif check_password_hash(user[2], password):
-            session["username"] = user[1]
-            session["code"] = user[3]
-            session["email"] = user[4]
-            session["pfp"] = user[7]
+
+        elif check_password_hash(user["password"], password):
+            session["username"] = user["username"]
+            session["code"] = user["code"]
+            session["email"] = user["email"]
+            session["pfp"] = user["pfp"]
+
             return redirect(url_for("home"))
+
         else:
             error = "Incorrect password."
 
@@ -253,15 +296,17 @@ def account():
         return redirect(request.url)
 
     filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    file.save(file_path)
 
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE users SET pfp = ? WHERE username = ?",
-        (filename, session["username"])
-    )
+    cursor.execute("""
+        UPDATE users 
+        SET pfp = ? 
+        WHERE username = ?
+    """, (filename, session["username"]))
 
     conn.commit()
     conn.close()
@@ -281,22 +326,37 @@ def load_attendance():
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT name, time FROM attendance")
-    rows = cursor.fetchall()
+    cursor.execute("""
+        SELECT name, time 
+        FROM attendance
+    """)
 
+    rows = cursor.fetchall()
     conn.close()
 
-    return {row[0]: row[1] for row in rows}
+    return {row["name"]: row["time"] for row in rows}
 
+@app.route("/reset-users")
+def reset_users():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM users")
+
+    conn.commit()
+    conn.close()
+
+    return "All users deleted. Remove this route after testing."
 
 def save_attendance(name, time):
     conn = get_db()
     cursor = conn.cursor()
 
-    cursor.execute(
-        "INSERT INTO attendance (name, time) VALUES (?, ?)",
-        (name, time)
-    )
+    cursor.execute("""
+        INSERT INTO attendance 
+        (name, time) 
+        VALUES (?, ?)
+    """, (name, time))
 
     conn.commit()
     conn.close()
@@ -329,6 +389,7 @@ def checkin():
 
     except sqlite3.IntegrityError:
         return jsonify({"message": "Already checked in."}), 400
+
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
