@@ -405,6 +405,66 @@ def attendance():
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
+@app.route("/admin-login", methods=["GET", "POST"])
+def admin_login():
+    error = None
+
+    if request.method == "POST":
+       username = request.form.get("username")
+       password = request.form.get("password")
+
+    if username == "admin" and password == "admin":
+            session["is_admin"] = True
+            return redirect(url_for("admin"))
+
+    else:
+            error = "Invalid admin credentials."
+
+    return render_template("admin_login.html", header="admin-login", error=error)
+
+@app.route("/admin/reset-attendance", methods=["POST"])
+@login_required
+def reset_attendance():
+    if session.get("username") != "admin":
+        return jsonify({"message": "Unauthorized"}), 403
+
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM attendance")
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({"message": "Attendance reset successfully."})
+
+    except Exception as e:
+        return jsonify({"message": f"Error: {str(e)}"}), 500
+
+@app.route("/admin")
+@login_required
+def admin():
+    if not session.get("is_admin"):
+        return redirect(url_for("admin_login"))
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT username, code, email, is_verified, pfp
+        FROM users
+    """)
+
+    users = cursor.fetchall()
+    conn.close()
+
+    return render_template("admin.html", header="admin", users=users)
+
+@app.route("/admin-logout")
+def admin_logout():
+    session.pop("is_admin", None)
+    return redirect(url_for("home"))
 
 @app.errorhandler(404)
 def page_not_found(e):
