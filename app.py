@@ -34,8 +34,8 @@ app.config.update(
     MAIL_USE_TLS=True,
     MAIL_USE_SSL=False,
 )
-print("EMAIL:", os.getenv("USERNAME"))
-print("PASSWORD:", os.getenv("PASSWORD"))
+print("MAIL USER:", os.getenv("USERNAME"))
+print("PASSWORD LENGTH:", len(os.getenv("PASSWORD", "")))
 mail = Mail(app)
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
