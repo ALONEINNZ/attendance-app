@@ -35,6 +35,7 @@ app.config.update(
     MAIL_USE_SSL=False,
 )
 print("MAIL USER:", os.getenv("USERNAME"))
+print("MAIL USER:", os.getenv("USERNAME"))
 print("PASSWORD LENGTH:", len(os.getenv("PASSWORD", "")))
 mail = Mail(app)
 
