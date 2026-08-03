@@ -293,28 +293,38 @@ def account():
     file = request.files["file"]
 
     if file.filename == "":
-        flash("No file selected.")
+        flash("No selected file.")
         return redirect(request.url)
 
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(file_path)
+    # Validate image files only
+    allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif'}
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    
+    if file and file_ext in allowed_extensions:
+        # Secure the filename using the student's unique code to prevent overwrites
+        filename = secure_filename(f"pfp_{session['code']}{file_ext}")
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(filepath)
 
-    conn = get_db()
-    cursor = conn.cursor()
+        # Update the profile picture path in the database
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE users 
+            SET pfp = ? 
+            WHERE username = ?
+        """, (filename, session["username"]))
+        conn.commit()
+        conn.close()
 
-    cursor.execute("""
-        UPDATE users 
-        SET pfp = ? 
-        WHERE username = ?
-    """, (filename, session["username"]))
+        # Sync the change to the active session
+        session["pfp"] = filename
+        flash("Profile picture updated successfully!")
+        return redirect(url_for("account"))
 
-    conn.commit()
-    conn.close()
+    flash("Invalid file type. Please upload an image.")
+    return redirect(request.url)
 
-    session["pfp"] = filename
-
-    return redirect(url_for("home"))
 
 
 @app.route("/teacher")
