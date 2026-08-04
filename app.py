@@ -141,11 +141,8 @@ def signup():
         elif not code.isdigit() or len(code) != 5:
             error = "Invalid student ID."
 
-        elif not email.endswith(SCHOOL_EMAIL_DOMAIN):
-            error = "Email must be a Burnside school email."
-
-        elif email.split("@")[0] != code:
-            error = "Email must match your student ID."
+        elif "@" not in email or "." not in email.split("@", 1)[1]:
+            error = "Please enter a valid email address."
 
         else:
             conn = get_db()
@@ -160,30 +157,18 @@ def signup():
             existing_user = cursor.fetchone()
 
             if existing_user:
-                if existing_user["is_verified"] == 0:
-                    error = "Account already exists but is not verified. Check your email."
-                else:
-                    error = "User already exists."
-
+                error = "User already exists."
                 conn.close()
                 return render_template("signup.html", header="signup", error=error)
 
             verify_key = secrets.token_urlsafe(32)
-
-            email_sent, email_error = send_email(email, verify_key)
-
-            if not email_sent:
-                conn.close()
-                error = f"Email failed: {email_error}"
-                return render_template("signup.html", header="signup", error=error)
-
             hashed_password = generate_password_hash(password)
 
             cursor.execute("""
                 INSERT INTO users 
                 (username, password, code, email, verify_key, is_verified)
                 VALUES (?, ?, ?, ?, ?, ?)
-            """, (username, hashed_password, code, email, verify_key, 0))
+            """, (username, hashed_password, code, email, verify_key, 1))
 
             conn.commit()
             conn.close()
@@ -191,7 +176,7 @@ def signup():
             return render_template(
                 "login.html",
                 header="login",
-                error="Account created. Check your email to verify."
+                error="Account created successfully. You can now log in."
             )
 
     return render_template("signup.html", header="signup", error=error)
@@ -256,9 +241,6 @@ def login():
 
         if user is None:
             error = "User not found."
-
-        elif user["is_verified"] == 0:
-            error = "Not verified. Check your email."
 
         elif check_password_hash(user["password"], password):
             session["username"] = user["username"]
@@ -349,6 +331,7 @@ def load_attendance():
 
 @app.route("/reset-users")
 def reset_users():
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -373,9 +356,10 @@ def save_attendance(name, time):
     conn.close()
 
 
-@app.route("/checkin", methods=["POST"])
-@login_required
+@app.route("/checkin", methods=["GET" "POST"])
 def checkin():
+    if request.method == "GET":
+        return render_template("checkin.html", header="checkin")
     try:
         data = request.get_json()
 
