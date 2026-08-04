@@ -42,6 +42,22 @@ mail = Mail(app)
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
 
+@app.before_request
+def enforce_signup_first():
+    if "username" in session or session.get("signup_complete"):
+        return None
+
+    allowed_paths = {"/signup", "/login", "/admin-login", "/verify"}
+
+    if request.path.startswith("/static/"):
+        return None
+
+    if request.path.startswith("/verify/") or request.path in allowed_paths:
+        return None
+
+    return redirect(url_for("signup"))
+
+
 def get_db():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
@@ -172,6 +188,7 @@ def signup():
 
             conn.commit()
             conn.close()
+            session["signup_complete"] = True
 
             return render_template(
                 "login.html",
@@ -247,6 +264,7 @@ def login():
             session["code"] = user["code"]
             session["email"] = user["email"]
             session["pfp"] = user["pfp"]
+            session["signup_complete"] = True
 
             return redirect(url_for("home"))
 
@@ -315,18 +333,24 @@ def teacher():
     return render_template("Teacher.html")
 
 
-def load_attendance():
+def load_attendance_rows():
     conn = get_db()
     cursor = conn.cursor()
 
     cursor.execute("""
         SELECT name, time 
         FROM attendance
+        ORDER BY time ASC, name ASC
     """)
 
     rows = cursor.fetchall()
     conn.close()
 
+    return [{"name": row["name"], "time": row["time"]} for row in rows]
+
+
+def load_attendance():
+    rows = load_attendance_rows()
     return {row["name"]: row["time"] for row in rows}
 
 @app.route("/reset-users")
@@ -356,10 +380,12 @@ def save_attendance(name, time):
     conn.close()
 
 
-@app.route("/checkin", methods=["GET" "POST"])
+@app.route("/checkin", methods=["GET", "POST"])
 def checkin():
     if request.method == "GET":
-        return render_template("checkin.html", header="checkin")
+        entries = load_attendance_rows()
+        return render_template("checkin.html", header="checkin", entries=entries)
+
     try:
         data = request.get_json()
 

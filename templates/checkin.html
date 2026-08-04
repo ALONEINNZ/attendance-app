@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance List</title>
+</head>
+<body>
+    <div class="container">
+        <a class="back-link" href="/">← Back home</a>
+        <h1>Checked-in Users</h1>
+
+        {% if entries %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                        <tr>
+                            <td>{{ entry.name }}</td>
+                            <td>{{ entry.time }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="empty">No one has checked in yet.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
