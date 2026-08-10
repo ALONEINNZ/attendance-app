@@ -9,6 +9,9 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from flask_mail import Mail, Message
 import secrets
+import sys
+import functools
+print = functools.partial(print, flush=True)
 
 app = Flask(__name__)
 
@@ -42,6 +45,15 @@ mail = Mail(app)
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
 
+@app.before_request
+def log_visitor_ip():
+    direct_ip = request.remote_addr
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    real_ip = forwarded.split(",")[0].strip() if forwarded else direct_ip
+
+    print(f"[IP LOG] path={request.path} remote_addr={direct_ip} "
+      f"x-forwarded-for={forwarded!r} resolved={real_ip}", flush=True)
+    
 @app.before_request
 def enforce_signup_first():
     if "username" in session or session.get("signup_complete"):
@@ -415,14 +427,6 @@ def checkin():
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
 
-@app.before_request
-def log_visitor_ip():
-    direct_ip = request.remote_addr
-    forwarded = request.headers.get("X-Forwarded-For", "")
-    real_ip = forwarded.split(",")[0].strip() if forwarded else direct_ip
-
-    print(f"[IP LOG] path={request.path} remote_addr={direct_ip} "
-          f"x-forwarded-for={forwarded!r} resolved={real_ip}")
 
 @app.route("/attendance")
 @login_required
