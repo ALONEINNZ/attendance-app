@@ -9,10 +9,6 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from flask_mail import Mail, Message
 import secrets
-import sys
-import functools
-print = functools.partial(print, flush=True)
-
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
