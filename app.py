@@ -45,14 +45,10 @@ mail = Mail(app)
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
 
-@app.before_request
-def log_visitor_ip():
-    direct_ip = request.remote_addr
-    forwarded = request.headers.get("X-Forwarded-For", "")
-    real_ip = forwarded.split(",")[0].strip() if forwarded else direct_ip
 
-    print(f"[IP LOG] path={request.path} remote_addr={direct_ip} "
-      f"x-forwarded-for={forwarded!r} resolved={real_ip}", flush=True)
+
+
+      #for future keep the current way to check the ip address, but we need to change the hosting so we can properly get the ip address of the user. The current way is not reliable because it can be easily spoofed by the user. We need to use a reverse proxy or a load balancer that will set the X-Forwarded-For header correctly. For now, we will just log the ip address and not use it for any security purposes.
     
 @app.before_request
 def enforce_signup_first():
