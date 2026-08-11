@@ -14,7 +14,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "main.db")
