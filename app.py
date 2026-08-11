@@ -9,6 +9,10 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from flask_mail import Mail, Message
 import secrets
+from werkzeug.middleware.proxy_fix import ProxyFix
+import app
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
