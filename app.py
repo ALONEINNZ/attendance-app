@@ -52,20 +52,15 @@ SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
       #for future keep the current way to check the ip address, but we need to change the hosting so we can properly get the ip address of the user. The current way is not reliable because it can be easily spoofed by the user. We need to use a reverse proxy or a load balancer that will set the X-Forwarded-For header correctly. For now, we will just log the ip address and not use it for any security purposes.
     
 @app.before_request
-def enforce_signup_first():
-    if "username" in session or session.get("signup_complete"):
-        return None
+def log_visitor_ip():
+    cf_ip = request.headers.get("CF-Connecting-IP")
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    direct_ip = request.remote_addr
 
-    allowed_paths = {"/signup", "/login", "/admin-login", "/verify"}
+    real_ip = cf_ip or (forwarded.split(",")[0].strip() if forwarded else direct_ip)
 
-    if request.path.startswith("/static/"):
-        return None
-
-    if request.path.startswith("/verify/") or request.path in allowed_paths:
-        return None
-
-    return redirect(url_for("signup"))
-
+    print(f"[IP LOG] path={request.path} cf_connecting_ip={cf_ip!r} "
+          f"remote_addr={direct_ip} x-forwarded-for={forwarded!r} resolved={real_ip}", flush=True)
 
 def get_db():
     conn = sqlite3.connect(DB_FILE)
