@@ -44,12 +44,6 @@ print("PASSWORD LENGTH:", len(os.getenv("PASSWORD", "")))
 mail = Mail(app)
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
-
-
-
-
-
-      #for future keep the current way to check the ip address, but we need to change the hosting so we can properly get the ip address of the user. The current way is not reliable because it can be easily spoofed by the user. We need to use a reverse proxy or a load balancer that will set the X-Forwarded-For header correctly. For now, we will just log the ip address and not use it for any security purposes.
     
 @app.before_request
 def log_visitor_ip():
