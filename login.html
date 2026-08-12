@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Burnside High School</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+
+<header class="site-header">
+    <a href="{{ url_for('home') }}" class="brand">
+        <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M24 2 L44 9 V22 C44 34 36 42 24 46 C12 42 4 34 4 22 V9 Z"
+                  fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-width="2"/>
+            <text x="24" y="29" text-anchor="middle" font-family="Georgia, serif"
+                  font-size="15" fill="#ffffff" font-weight="bold">BHS</text>
+        </svg>
+        <span class="brand-name">Burnside Attendance</span>
+    </a>
+</header>
+
+<main>
+    <div class="card" style="max-width:420px; margin:60px auto; text-align:center;">
+        <h1>Login</h1>
+
+        {% if error %}
+            {% if "verified" in error or "created" in error %}
+                <div class="flash">{{ error }}</div>
+            {% else %}
+                <div class="flash error">{{ error }}</div>
+            {% endif %}
+        {% endif %}
+
+        <p style="margin: 16px 0 24px;">Sign in with your Burnside school email.</p>
+
+        <a href="{{ url_for('login') }}" class="btn">Continue with Google</a>
+
+        <p style="margin-top:20px;">
+            Don't have an account?
+            <a href="{{ url_for('signup') }}">Sign Up</a>
+        </p>
+    </div>
+</main>
+
+</body>
+</html>

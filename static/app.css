@@ -163,3 +163,112 @@ footer {
 footer a {
     color: var(--burnside-white);
 }
+/* --- Header / brand --- */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--burnside-white);
+    text-decoration: none;
+}
+
+.brand .logo {
+    width: 36px;
+    height: 36px;
+}
+
+.brand-name {
+    font-weight: bold;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+}
+
+/* --- Hero section --- */
+.hero {
+    background:
+        linear-gradient(rgba(0, 40, 1, 0.72), rgba(0, 40, 1, 0.72)),
+        radial-gradient(circle at 30% 20%, #0a7a05, #003f01 70%);
+    color: var(--burnside-white);
+    padding: 70px 24px;
+    text-align: center;
+}
+
+.hero-overlay {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    color: var(--burnside-white);
+    font-size: 2.1rem;
+    margin: 0 0 12px 0;
+}
+
+.hero p {
+    margin: 0 0 24px 0;
+    font-size: 1.05rem;
+    opacity: 0.95;
+}
+
+.btn-hero {
+    display: inline-block;
+    text-decoration: none;
+    background-color: var(--burnside-white);
+    color: var(--burnside-green-dark);
+    font-weight: bold;
+    padding: 12px 28px;
+    border-radius: 4px;
+}
+
+.btn-hero:hover {
+    background-color: var(--burnside-green-light);
+}
+
+/* --- Discover cards --- */
+.discover h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.discover-card {
+    background-color: var(--burnside-white);
+    border: 1px solid var(--burnside-border);
+    border-radius: 6px;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--burnside-text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.discover-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.discover-card h3 {
+    color: var(--burnside-green);
+    margin: 0 0 8px 0;
+}
+
+.discover-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: #444;
+}
+
+.quick-checkin h2 {
+    margin-top: 0;
+}
+
+.quick-checkin #status {
+    font-weight: bold;
+    color: var(--burnside-green-dark);
+}

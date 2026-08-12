@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Check-in | Burnside High School</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+
+<header class="site-header">
+    <a href="{{ url_for('home') }}" class="brand">
+        <!--
+            PLACEHOLDER EMBLEM — swap for the real Burnside crest once you
+            have the official file (ask your teacher for the PNG/SVG).
+            This is an original shield graphic, not a copy of the school's.
+        -->
+        <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M24 2 L44 9 V22 C44 34 36 42 24 46 C12 42 4 34 4 22 V9 Z"
+                  fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-width="2"/>
+            <text x="24" y="29" text-anchor="middle" font-family="Georgia, serif"
+                  font-size="15" fill="#ffffff" font-weight="bold">BHS</text>
+        </svg>
+        <span class="brand-name">Burnside Attendance</span>
+    </a>
+
+    <nav>
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('checkin') }}">Check In</a>
+        {% if session.get('username') %}
+            <a href="{{ url_for('account') }}">My Account</a>
+            <a href="{{ url_for('logout') }}">Log Out</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-overlay">
+        <h1>Your school day starts here.</h1>
+        <p>Check in quickly and keep track of your attendance in one place.</p>
+        <a href="{{ url_for('checkin') }}" class="btn btn-hero">Check In Now</a>
+    </div>
+</section>
+
+<main>
+    <section class="quick-checkin card">
+        <h2>Quick Check-in</h2>
+        <p>Enter your name below to check in for Period 1.</p>
+        <input id="name" placeholder="Enter your name">
+        <button onclick="checkIn()">Check In</button>
+        <p id="status"></p>
+    </section>
+
+    <section class="discover">
+        <h2>Discover</h2>
+        <div class="card-grid">
+            <a class="discover-card" href="{{ url_for('checkin') }}">
+                <h3>Check In</h3>
+                <p>Mark yourself present for today.</p>
+            </a>
+            <a class="discover-card" href="{{ url_for('attendance') if session.get('username') else url_for('login') }}">
+                <h3>My Attendance</h3>
+                <p>View who's checked in today.</p>
+            </a>
+            <a class="discover-card" href="{{ url_for('account') if session.get('username') else url_for('login') }}">
+                <h3>Student Account</h3>
+                <p>Manage your profile and picture.</p>
+            </a>
+            <a class="discover-card" href="{{ url_for('login') }}">
+                <h3>Login</h3>
+                <p>Sign in with your school email.</p>
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>Burnside Attendance &middot; built by students, for students.</p>
+    <p><a href="https://www.burnside.school.nz/" target="_blank" rel="noopener">Burnside High School official site</a></p>
+</footer>
+
+</body>
+</html>

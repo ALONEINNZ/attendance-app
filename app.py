@@ -116,27 +116,27 @@ def login_required(f):
     return decorated
 
 
-def send_email(user_email, verify_key):
-    if not user_email.lower().endswith(SCHOOL_EMAIL_DOMAIN):
-        return False, "Please use your Burnside school email."
+# def send_email(user_email, verify_key):
+#     if not user_email.lower().endswith(SCHOOL_EMAIL_DOMAIN):
+#         return False, "Please use your Burnside school email."
 
-    try:
-        link = url_for("verify", verify_key=verify_key, _external=True)
+#     try:
+#         link = url_for("verify", verify_key=verify_key, _external=True)
 
-        msg = Message(
-            subject="Verify your email",
-            sender=app.config["MAIL_USERNAME"],
-            recipients=[user_email],
-            body=f"Click this link to verify your account:\n\n{link}",
-        )
+#         msg = Message(
+#             subject="Verify your email",
+#             sender=app.config["MAIL_USERNAME"],
+#             recipients=[user_email],
+#             body=f"Click this link to verify your account:\n\n{link}",
+#         )
 
-        mail.send(msg)
-        print("EMAIL SENT TO:", user_email)
-        return True, None
+#         mail.send(msg)
+#         print("EMAIL SENT TO:", user_email)
+#         return True, None
 
-    except Exception as e:
-        print("EMAIL FAILED:", e)
-        return False, str(e)
+#     except Exception as e:
+#         print("EMAIL FAILED:", e)
+        # return False, str(e)
 
 
 @app.route("/")
@@ -180,109 +180,109 @@ def google_callback():
 
     return redirect(url_for("home"))
 
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    error = None
+# @app.route("/signup", methods=["GET", "POST"])
+# def signup():
+#     error = None
 
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
-        confirm_password = request.form.get("confirm_password", "")
-        email = request.form.get("email", "").strip().lower()
-        code = request.form.get("code", "").strip()
+#     if request.method == "POST":
+#         username = request.form.get("username", "").strip()
+#         password = request.form.get("password", "")
+#         confirm_password = request.form.get("confirm_password", "")
+#         email = request.form.get("email", "").strip().lower()
+#         code = request.form.get("code", "").strip()
 
-        if not username or not password or not confirm_password or not email or not code:
-            error = "Please fill in all fields."
+#         if not username or not password or not confirm_password or not email or not code:
+#             error = "Please fill in all fields."
 
-        elif password != confirm_password:
-            error = "Passwords don't match."
+#         elif password != confirm_password:
+#             error = "Passwords don't match."
 
-        elif len(password) < 8:
-            error = "Password must be at least 8 characters."
+#         elif len(password) < 8:
+#             error = "Password must be at least 8 characters."
 
-        elif len(username) > 10:
-            error = "Username must be 10 characters or less."
+#         elif len(username) > 10:
+#             error = "Username must be 10 characters or less."
 
-        elif not code.isdigit() or len(code) != 5:
-            error = "Invalid student ID."
+#         elif not code.isdigit() or len(code) != 5:
+#             error = "Invalid student ID."
 
-        elif "@" not in email or "." not in email.split("@", 1)[1]:
-            error = "Please enter a valid email address."
+#         elif "@" not in email or "." not in email.split("@", 1)[1]:
+#             error = "Please enter a valid email address."
 
-        else:
-            conn = get_db()
-            cursor = conn.cursor()
+#         else:
+#             conn = get_db()
+#             cursor = conn.cursor()
 
-            cursor.execute("""
-                SELECT username, code, email, is_verified 
-                FROM users 
-                WHERE username = ? OR code = ? OR email = ?
-            """, (username, code, email))
+#             cursor.execute("""
+#                 SELECT username, code, email, is_verified 
+#                 FROM users 
+#                 WHERE username = ? OR code = ? OR email = ?
+#             """, (username, code, email))
 
-            existing_user = cursor.fetchone()
+#             existing_user = cursor.fetchone()
 
-            if existing_user:
-                error = "User already exists."
-                conn.close()
-                return render_template("signup.html", header="signup", error=error)
+#             if existing_user:
+#                 error = "User already exists."
+#                 conn.close()
+#                 return render_template("signup.html", header="signup", error=error)
 
-            verify_key = secrets.token_urlsafe(32)
-            hashed_password = generate_password_hash(password)
+#             verify_key = secrets.token_urlsafe(32)
+#             hashed_password = generate_password_hash(password)
 
-            cursor.execute("""
-                INSERT INTO users 
-                (username, password, code, email, verify_key, is_verified)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (username, hashed_password, code, email, verify_key, 1))
+#             cursor.execute("""
+#                 INSERT INTO users 
+#                 (username, password, code, email, verify_key, is_verified)
+#                 VALUES (?, ?, ?, ?, ?, ?)
+#             """, (username, hashed_password, code, email, verify_key, 1))
 
-            conn.commit()
-            conn.close()
-            session["signup_complete"] = True
+#             conn.commit()
+#             conn.close()
+#             session["signup_complete"] = True
 
-            return render_template(
-                "login.html",
-                header="login",
-                error="Account created successfully. You can now log in."
-            )
+#             return render_template(
+#                 "login.html",
+#                 header="login",
+#                 error="Account created successfully. You can now log in."
+#             )
 
-    return render_template("signup.html", header="signup", error=error)
+#     return render_template("signup.html", header="signup", error=error)
 
 
-@app.route("/verify/<verify_key>")
-def verify(verify_key):
-    conn = get_db()
-    cursor = conn.cursor()
+# @app.route("/verify/<verify_key>")
+# def verify(verify_key):
+#     conn = get_db()
+#     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT id 
-        FROM users 
-        WHERE verify_key = ?
-    """, (verify_key,))
+#     cursor.execute("""
+#         SELECT id 
+#         FROM users 
+#         WHERE verify_key = ?
+#     """, (verify_key,))
 
-    user = cursor.fetchone()
+#     user = cursor.fetchone()
 
-    if not user:
-        conn.close()
-        return render_template(
-            "login.html",
-            header="login",
-            error="Invalid verification link."
-        )
+#     if not user:
+#         conn.close()
+#         return render_template(
+#             "login.html",
+#             header="login",
+#             error="Invalid verification link."
+#         )
 
-    cursor.execute("""
-        UPDATE users 
-        SET is_verified = 1 
-        WHERE verify_key = ?
-    """, (verify_key,))
+#     cursor.execute("""
+#         UPDATE users 
+#         SET is_verified = 1 
+#         WHERE verify_key = ?
+#     """, (verify_key,))
 
-    conn.commit()
-    conn.close()
+#     conn.commit()
+#     conn.close()
 
-    return render_template(
-        "login.html",
-        header="login",
-        error="Email verified. You can now log in."
-    )
+#     return render_template(
+#         "login.html",
+#         header="login",
+#         error="Email verified. You can now log in."
+#     )
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -312,18 +312,15 @@ def account():
     if file.filename == "":
         flash("No selected file.")
         return redirect(request.url)
-
-    # Validate image files only
+    
     allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif'}
     file_ext = os.path.splitext(file.filename)[1].lower()
     
     if file and file_ext in allowed_extensions:
-        # Secure the filename using the student's unique code to prevent overwrites
         filename = secure_filename(f"pfp_{session['code']}{file_ext}")
         filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(filepath)
 
-        # Update the profile picture path in the database
         conn = get_db()
         cursor = conn.cursor()
         cursor.execute("""
@@ -334,7 +331,6 @@ def account():
         conn.commit()
         conn.close()
 
-        # Sync the change to the active session
         session["pfp"] = filename
         flash("Profile picture updated successfully!")
         return redirect(url_for("account"))

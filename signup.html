@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | Burnside High School</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+
+<header class="site-header">
+    <a href="{{ url_for('home') }}" class="brand">
+        <svg class="logo" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M24 2 L44 9 V22 C44 34 36 42 24 46 C12 42 4 34 4 22 V9 Z"
+                  fill="#ffffff" fill-opacity="0.12" stroke="#ffffff" stroke-width="2"/>
+            <text x="24" y="29" text-anchor="middle" font-family="Georgia, serif"
+                  font-size="15" fill="#ffffff" font-weight="bold">BHS</text>
+        </svg>
+        <span class="brand-name">Burnside Attendance</span>
+    </a>
+</header>
+
+<main>
+    <div class="card" style="max-width:420px; margin:40px auto;">
+        <h1>Create Account</h1>
+
+        {% if error %}
+            <div class="flash error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="text" name="code" placeholder="Student ID" maxlength="5" required>
+            <input type="email" name="email" placeholder="Burnside school email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+            <button type="submit">Create Account</button>
+        </form>
+
+        <p style="text-align:center; margin-top:16px;">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Login here</a>
+        </p>
+    </div>
+</main>
+
+</body>
+</html>
