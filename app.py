@@ -287,44 +287,9 @@ def verify(verify_key):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # error = None
-
-    # if request.method == "POST":
-    #     username = request.form.get("username", "").strip()
-    #     password = request.form.get("password", "")
-
-    #     conn = get_db()
-    #     cursor = conn.cursor()
-
-    #     cursor.execute("""
-    #         SELECT * 
-    #         FROM users 
-    #         WHERE username = ?
-    #     """, (username,))
-
-    #     user = cursor.fetchone()
-    #     conn.close()
-
-    #     if user is None:
-    #         error = "User not found."
-
-    #     elif check_password_hash(user["password"], password):
-    #         session["username"] = user["username"]
-    #         session["code"] = user["code"]
-    #         session["email"] = user["email"]
-    #         session["pfp"] = user["pfp"]
-    #         session["signup_complete"] = True
-
-    #         return redirect(url_for("home"))
-
-    #     else:
-    #         error = "Incorrect password."
-
-    # return render_template("login.html", header="login", error=error)
     redirect_uri = url_for("google_callback", _external=True)
+    print("GOOGLE REDIRECT URI:", redirect_uri)
     return google.authorize_redirect(redirect_uri)
-print("GOOGLE CLIENT ID LOADED:", bool(os.getenv("GOOGLE_CLIENT_ID")))
-print("GOOGLE CLIENT SECRET LOADED:", bool(os.getenv("GOOGLE_CLIENT_SECRET")))
 
 @app.route("/logout")
 def logout():
