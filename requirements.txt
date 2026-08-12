@@ -4,3 +4,4 @@ python-dotenv==1.1.1
 Flask-Mail==0.10.0
 gunicorn
 authlib
+requests
