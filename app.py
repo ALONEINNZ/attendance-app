@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from flask_mail import Mail, Message
 import secrets
 from werkzeug.middleware.proxy_fix import ProxyFix
+from authlib.integrations.flask_client import OAuth
 
 
 
@@ -18,7 +19,7 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "main.db")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_FILE = os.path.join(BASE_DIR, "main.db")
 
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
@@ -42,6 +43,20 @@ print("MAIL USER:", os.getenv("USERNAME"))
 print("MAIL USER:", os.getenv("USERNAME"))
 print("PASSWORD LENGTH:", len(os.getenv("PASSWORD", "")))
 mail = Mail(app)
+
+app.config["GOOGLE_CLIENT_ID"] = os.getenv("GOOGLE_CLIENT_ID")
+app.config["GOOGLE_CLIENT_SECRET"] = os.getenv("GOOGLE_CLIENT_SECRET")
+
+oauth = OAuth(app)
+
+google = oauth.register(
+    name="google",
+    client_id=app.config["GOOGLE_CLIENT_ID"],
+    client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"},
+)
+
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
     
@@ -128,6 +143,42 @@ def send_email(user_email, verify_key):
 def home():
     return render_template("Home.html")
 
+
+@app.route("/auth/google/callback")
+def google_callback():
+    token = google.authorize_access_token()
+    user = token.get("userinfo")
+
+    email = user["email"]
+
+    if not email.lower().endswith("@burnside.school.nz"):
+        return render_template(
+            "login.html",
+            header="login",
+            error="Please use your Burnside school email."
+        )
+
+    conn = get_db()
+    cur = conn.cursor()
+    student = cur.execute('''SELECT username, code, pfp
+                        FROM users
+                        WHERE email = ?''', (email,)).fetchone()
+    conn.close()
+
+    if student is None:
+        return render_template(
+            "login.html",
+            header="login",
+            error="No account found for this email. Please sign up first."
+        )
+
+    session["username"] = student["username"]
+    session["code"] = student["code"]
+    session["email"] = email
+    session["pfp"] = student["pfp"]
+    session["signup_complete"] = True
+
+    return redirect(url_for("home"))
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -236,40 +287,42 @@ def verify(verify_key):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
+    # error = None
 
-    if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
+    # if request.method == "POST":
+    #     username = request.form.get("username", "").strip()
+    #     password = request.form.get("password", "")
 
-        conn = get_db()
-        cursor = conn.cursor()
+    #     conn = get_db()
+    #     cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT * 
-            FROM users 
-            WHERE username = ?
-        """, (username,))
+    #     cursor.execute("""
+    #         SELECT * 
+    #         FROM users 
+    #         WHERE username = ?
+    #     """, (username,))
 
-        user = cursor.fetchone()
-        conn.close()
+    #     user = cursor.fetchone()
+    #     conn.close()
 
-        if user is None:
-            error = "User not found."
+    #     if user is None:
+    #         error = "User not found."
 
-        elif check_password_hash(user["password"], password):
-            session["username"] = user["username"]
-            session["code"] = user["code"]
-            session["email"] = user["email"]
-            session["pfp"] = user["pfp"]
-            session["signup_complete"] = True
+    #     elif check_password_hash(user["password"], password):
+    #         session["username"] = user["username"]
+    #         session["code"] = user["code"]
+    #         session["email"] = user["email"]
+    #         session["pfp"] = user["pfp"]
+    #         session["signup_complete"] = True
 
-            return redirect(url_for("home"))
+    #         return redirect(url_for("home"))
 
-        else:
-            error = "Incorrect password."
+    #     else:
+    #         error = "Incorrect password."
 
-    return render_template("login.html", header="login", error=error)
+    # return render_template("login.html", header="login", error=error)
+    redirect_uri = url_for("google_callback", _external=True)
+    return google.authorize_redirect(redirect_uri)
 
 
 @app.route("/logout")

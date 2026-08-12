@@ -1,23 +1,165 @@
-body{
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    margin: 0;
-    padding: 20px;
+:root {
+    --burnside-green: #005F02;
+    --burnside-green-dark: #003f01;
+    --burnside-green-light: #e8f3e6;
+    --burnside-white: #ffffff;
+    --burnside-grey: #f0f0f0;
+    --burnside-text: #222222;
+    --burnside-border: #cddccb;
 }
 
-textarea {
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--burnside-grey);
+    color: var(--burnside-text);
+    margin: 0;
+    padding: 0;
+}
+
+/* Simple top bar, similar feel to the school site's header strip */
+.site-header {
+    background-color: var(--burnside-green);
+    color: var(--burnside-white);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.site-header img.logo {
+    height: 40px;
+}
+
+.site-header nav a {
+    color: var(--burnside-white);
+    text-decoration: none;
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.site-header nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    color: var(--burnside-green);
+    margin: 20px 0;
+    text-align: center;
+}
+
+h2, h3 {
+    color: var(--burnside-green-dark);
+}
+
+/* Cards / panels */
+.card {
+    background-color: var(--burnside-white);
+    border: 1px solid var(--burnside-border);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+textarea, input[type="text"], input[type="email"], input[type="password"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--burnside-border);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--burnside-green);
+    box-shadow: 0 0 0 2px rgba(0, 95, 2, 0.15);
+}
+
+button, .btn {
+    background-color: var(--burnside-green);
+    color: var(--burnside-white);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--burnside-green-dark);
+}
+
+.btn-secondary {
+    background-color: var(--burnside-white);
+    color: var(--burnside-green);
+    border: 1px solid var(--burnside-green);
+}
+
+.btn-secondary:hover {
+    background-color: var(--burnside-green-light);
+}
+
+/* Table styling, useful for attendance / admin pages */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--burnside-white);
+}
+
+th {
+    background-color: var(--burnside-green);
+    color: var(--burnside-white);
+    text-align: left;
+    padding: 10px;
+}
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid var(--burnside-border);
+}
+
+tr:nth-child(even) {
+    background-color: var(--burnside-green-light);
+}
+
+/* Flash messages */
+.flash {
+    background-color: var(--burnside-green-light);
+    border-left: 4px solid var(--burnside-green);
+    padding: 10px 14px;
+    margin-bottom: 16px;
     border-radius: 4px;
 }
 
-text{
-    
+.flash.error {
+    background-color: #fdecea;
+    border-left-color: #c0392b;
+    color: #c0392b;
 }
-h1{
-    color: #005F02;
-    margin: 20px;
+
+footer {
+    background-color: var(--burnside-green-dark);
+    color: var(--burnside-white);
     text-align: center;
+    padding: 16px;
+    margin-top: 40px;
+    font-size: 0.85rem;
+}
+
+footer a {
+    color: var(--burnside-white);
 }
