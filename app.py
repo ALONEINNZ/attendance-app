@@ -323,7 +323,8 @@ def login():
     # return render_template("login.html", header="login", error=error)
     redirect_uri = url_for("google_callback", _external=True)
     return google.authorize_redirect(redirect_uri)
-
+print("GOOGLE CLIENT ID LOADED:", bool(os.getenv("GOOGLE_CLIENT_ID")))
+print("GOOGLE CLIENT SECRET LOADED:", bool(os.getenv("GOOGLE_CLIENT_SECRET")))
 
 @app.route("/logout")
 def logout():
