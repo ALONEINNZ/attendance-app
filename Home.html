@@ -47,12 +47,18 @@
 
 <main>
     <section class="quick-checkin card">
-        <h2>Quick Check-in</h2>
-        <p>Enter your name below to check in for Period 1.</p>
-        <input id="name" placeholder="Enter your name">
+    <h2>Quick Check-in</h2>
+
+    {% if session.get('username') %}
+        <p>You're signed in as <strong>{{ session.get('username') }}</strong>.</p>
         <button onclick="checkIn()">Check In</button>
-        <p id="status"></p>
-    </section>
+    {% else %}
+        <p>Please log in with your Burnside school Google account first.</p>
+        <a href="{{ url_for('login') }}" class="btn">Login with Google</a>
+    {% endif %}
+
+    <p id="status"></p>
+</section>
 
     <section class="discover">
         <h2>Discover</h2>
