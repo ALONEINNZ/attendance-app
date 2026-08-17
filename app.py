@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 import sqlite3
 import os
+import ipaddress
 from datetime import datetime
 from pathlib import Path
 from functools import wraps
@@ -12,8 +13,52 @@ import secrets
 from werkzeug.middleware.proxy_fix import ProxyFix
 from authlib.integrations.flask_client import OAuth
 
+SCHOOL_NETWORKS = {
+    "Burnside WiFi": [
+        "202.150.123.193/32",
+    ],
+}
+def is_school_ip(ip):
+    try:
+        client_ip = ipaddress.ip_address(ip)
 
 
+        for network_name, networks in SCHOOL_NETWORKS.items():
+            for network in networks:
+                if client_ip in ipaddress.ip_network(network):
+                    return True, network_name
+
+
+    except ValueError:
+        pass
+
+
+    return False, None
+def get_real_ip():
+    cf_ip = request.headers.get("CF-Connecting-IP")
+    forwarded = request.headers.get("X-Forwarded-For", "")
+    direct_ip = request.remote_addr
+
+    return cf_ip or (
+        forwarded.split(",")[0].strip()
+        if forwarded
+        else direct_ip
+    )
+
+
+def is_school_ip(ip):
+    try:
+        client_ip = ipaddress.ip_address(ip)
+
+        for network_name, networks in SCHOOL_NETWORKS.items():
+            for network in networks:
+                if client_ip in ipaddress.ip_network(network):
+                    return True, network_name
+
+    except ValueError:
+        pass
+
+    return False, None
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2)
 
@@ -59,7 +104,8 @@ google = oauth.register(
 
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
-    
+
+
 @app.before_request
 def log_visitor_ip():
     cf_ip = request.headers.get("CF-Connecting-IP")
@@ -366,18 +412,18 @@ def load_attendance():
     rows = load_attendance_rows()
     return {row["name"]: row["time"] for row in rows}
 
-@app.route("/reset-users")
-def reset_users():
+# @app.route("/reset-users")
+# def reset_users():
 
-    conn = get_db()
-    cursor = conn.cursor()
+#     conn = get_db()
+#     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM users")
+#     cursor.execute("DELETE FROM users")
 
-    conn.commit()
-    conn.close()
+#     conn.commit()
+#     conn.close()
 
-    return "All users deleted. Remove this route after testing."
+#     return "All users deleted. Remove this route after testing."
 
 def save_attendance(name, time):
     conn = get_db()
@@ -394,21 +440,43 @@ def save_attendance(name, time):
 
 
 @app.route("/checkin", methods=["GET", "POST"])
+@login_required
 def checkin():
+    client_ip = get_real_ip()
+    allowed, network_name = is_school_ip(client_ip)
+
+    if not allowed:
+        return jsonify({"message": "Check-in is only allowed from school networks."}), 403
+
     if request.method == "GET":
         entries = load_attendance_rows()
         return render_template("checkin.html", header="checkin", entries=entries)
 
     try:
-        data = request.get_json()
+        # Get the email from the Google account that is logged in
+        email = session.get("email")
 
-        if not data:
-            return jsonify({"message": "No data sent."}), 400
+        if not email:
+            return jsonify({"message": "You must be logged in."}), 401
 
-        name = data.get("name", "").strip()
+        # Find the user's account using their Google email
+        conn = get_db()
+        cursor = conn.cursor()
 
-        if not name:
-            return jsonify({"message": "Name is required."}), 400
+        cursor.execute("""
+            SELECT username, code, email
+            FROM users
+            WHERE email = ?
+        """, (email,))
+
+        user = cursor.fetchone()
+        conn.close()
+
+        if not user:
+            return jsonify({"message": "User account not found."}), 404
+
+        # Automatically get their username
+        name = user["username"]
 
         attendance = load_attendance()
 
@@ -427,8 +495,6 @@ def checkin():
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
-
-
 @app.route("/attendance")
 @login_required
 def attendance():
@@ -445,18 +511,16 @@ def admin_login():
     error = None
 
     if request.method == "POST":
-       username = request.form.get("username")
-       password = request.form.get("password")
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-    if username == "admin" and password == "admin":
+        if username == "admin" and password == "admin":
             session["is_admin"] = True
             return redirect(url_for("admin"))
 
-    else:
-            error = "Invalid admin credentials."
+        error = "Invalid admin credentials."
 
     return render_template("admin_login.html", header="admin-login", error=error)
-
 @app.route("/admin/reset-attendance", methods=["POST"])
 @login_required
 def reset_attendance():
