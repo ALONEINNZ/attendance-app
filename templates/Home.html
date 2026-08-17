@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Check-in</title>
-    <link rel="stylesheet" href="/static/app.css">
-    <script src="/static/script.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 <body>
 
 <h1>Period 1 Check-in</h1>
 
-<input id="name" placeholder="Enter your name">
-<button onclick="checkIn()">Check In</button>
+{% if session.get('username') %}
+    <p>You're signed in as <strong>{{ session.get('username') }}</strong>.</p>
+
+    <button onclick="checkIn()">Check In</button>
+
+{% else %}
+    <p>Please log in with your Burnside school Google account first.</p>
+
+    <a href="{{ url_for('login') }}" class="btn">
+        Login with Google
+    </a>
+{% endif %}
 
 <p id="status"></p>
-
-<hr>
-
-<a href="{{ url_for('login') }}">
-    <button>Login</button>
-</a>
-
-<a href="{{ url_for('signup') }}">
-    <button>Sign Up</button>
-</a>
 
 </body>
 </html>
