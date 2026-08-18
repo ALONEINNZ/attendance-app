@@ -412,18 +412,18 @@ def load_attendance():
     rows = load_attendance_rows()
     return {row["name"]: row["time"] for row in rows}
 
-# @app.route("/reset-users")
-# def reset_users():
+@app.route("/reset-users")
+def reset_users():
 
-#     conn = get_db()
-#     cursor = conn.cursor()
+    conn = get_db()
+    cursor = conn.cursor()
 
-#     cursor.execute("DELETE FROM users")
+    cursor.execute("DELETE FROM users")
 
-#     conn.commit()
-#     conn.close()
+    conn.commit()
+    conn.close()
 
-#     return "All users deleted. Remove this route after testing."
+    return "All users deleted. Remove this route after testing."
 
 def save_attendance(name, time):
     conn = get_db()
