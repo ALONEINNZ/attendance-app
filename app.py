@@ -514,7 +514,7 @@ def my_attendance():
     conn.close()
 
     return render_template(
-        "my_attendance.html",
+        "attendace.html",
         header="My Attendance",
         attendance=attendance
     )
