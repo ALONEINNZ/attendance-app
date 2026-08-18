@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Account | Burnside Attendance</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='app.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="{{ url_for('home') }}" class="brand">
+        <div class="brand-mark">B</div>
+
+        <div class="brand-text">
+            <span>Burnside</span>
+            <small>Attendance</small>
+        </div>
+    </a>
+
+    <nav class="nav-links">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('checkin') }}">Check In</a>
+
+        {% if session.get('username') %}
+            <a href="{{ url_for('my_attendance') }}">My Attendance</a>
+        {% endif %}
+    </nav>
+
+    <div class="nav-account">
+
+        {% if session.get('username') %}
+
+            <a href="{{ url_for('account') }}" class="account-pill active">
+
+                {% if session.get('pfp') %}
+                    <img
+                        src="{{ url_for('static', filename='uploads/' + session.get('pfp')) }}"
+                        alt="Profile"
+                        class="account-pfp">
+                {% else %}
+                    <div class="account-pfp fallback-pfp">
+                        {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
+                    </div>
+                {% endif %}
+
+                <div class="account-details">
+                    <strong>
+                        {{ session.get('name') or session.get('username') }}
+                    </strong>
+
+                    <span>
+                        {{ session.get('email') or session.get('username') }}
+                    </span>
+                </div>
+
+                <span class="account-chevron">⌄</span>
+
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="logout">
+                Log out
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <section class="section account-page">
+
+        <div class="section-heading">
+            <div>
+                <span class="section-label">STUDENT ACCOUNT</span>
+
+                <h1>My Account</h1>
+
+                <p>
+                    View your student information and manage your profile.
+                </p>
+            </div>
+        </div>
+
+
+        <div class="account-layout">
+
+            <!-- PROFILE CARD -->
+
+            <div class="account-profile-card">
+
+                <div class="large-profile-picture">
+
+                    {% if session.get('pfp') %}
+
+                        <img
+                            src="{{ url_for('static', filename='uploads/' + session.get('pfp')) }}"
+                            alt="Profile picture">
+
+                    {% else %}
+
+                        <div class="large-profile-fallback">
+                            {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="account-profile-info">
+
+                    <span class="section-label">SIGNED IN</span>
+
+                    <h2>
+                        {{ session.get('name') or session.get('username') }}
+                    </h2>
+
+                    <p>
+                        {{ session.get('email') or session.get('username') }}
+                    </p>
+
+                </div>
+
+
+                <!-- PROFILE PICTURE UPLOAD -->
+
+                <form method="POST"
+                      enctype="multipart/form-data"
+                      class="profile-upload-form">
+
+                    <label for="profile-picture" class="upload-button">
+                        Choose profile picture
+                    </label>
+
+                    <input
+                        type="file"
+                        id="profile-picture"
+                        name="file"
+                        accept=".png,.jpg,.jpeg,.gif"
+                        hidden>
+
+                    <button type="submit" class="primary-button">
+                        <span>Update picture</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- ACCOUNT DETAILS -->
+
+            <div class="account-details-card">
+
+                <div class="account-card-header">
+                    <div>
+                        <span class="section-label">ACCOUNT INFORMATION</span>
+                        <h2>Your details</h2>
+                    </div>
+                </div>
+
+
+                <div class="account-info-list">
+
+                    <div class="account-info-row">
+
+                        <div class="account-info-icon">
+                            @
+                        </div>
+
+                        <div>
+                            <span>Email address</span>
+
+                            <strong>
+                                {{ session.get('email') or 'Not available' }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-info-row">
+
+                        <div class="account-info-icon">
+                            ID
+                        </div>
+
+                        <div>
+                            <span>Student username</span>
+
+                            <strong>
+                                {{ session.get('username') or 'Not available' }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-info-row">
+
+                        <div class="account-info-icon">
+                            #
+                        </div>
+
+                        <div>
+                            <span>Student code</span>
+
+                            <strong>
+                                {{ session.get('code') or 'Not available' }}
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="account-info-row">
+
+                        <div class="account-info-icon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <span>Account status</span>
+
+                            <strong class="account-status">
+                                Verified
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <div class="account-actions">
+
+            <a href="{{ url_for('my_attendance') }}"
+               class="feature-card">
+
+                <div class="feature-icon secondary-icon">
+                    ◷
+                </div>
+
+                <div class="feature-content">
+
+                    <span class="feature-tag">
+                        HISTORY
+                    </span>
+
+                    <h3>
+                        My attendance
+                    </h3>
+
+                    <p>
+                        View your previous school check-ins.
+                    </p>
+
+                </div>
+
+                <span class="feature-arrow">
+                    ↗
+                </span>
+
+            </a>
+
+
+            <a href="{{ url_for('checkin') }}"
+               class="feature-card feature-primary">
+
+                <div class="feature-icon">
+                    ✓
+                </div>
+
+                <div class="feature-content">
+
+                    <span class="feature-tag">
+                        TODAY
+                    </span>
+
+                    <h3>
+                        Check in
+                    </h3>
+
+                    <p>
+                        Mark yourself present for the current school period.
+                    </p>
+
+                </div>
+
+                <span class="feature-arrow">
+                    ↗
+                </span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="footer-brand">
+
+        <div class="brand-mark small-mark">
+            B
+        </div>
+
+        <div>
+            <strong>
+                Burnside Attendance
+            </strong>
+
+            <span>
+                Student check-in portal
+            </span>
+        </div>
+
+    </div>
+
+
+    <div class="footer-right">
+
+        <span>
+            Built for Burnside High School
+        </span>
+
+        <a href="https://www.burnside.school.nz/"
+           target="_blank"
+           rel="noopener">
+            School website →
+        </a>
+
+    </div>
+
+</footer>
+
+</body>
+</html>

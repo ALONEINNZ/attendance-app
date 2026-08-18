@@ -342,47 +342,29 @@ def logout():
     session.clear()
     return redirect(url_for("home"))
 
-
-@app.route("/account", methods=["GET", "POST"])
+@app.route("/my-attendance")
 @login_required
-def account():
-    if request.method == "GET":
-        return render_template("account.html", header="account")
+def my_attendance():
+    username = session.get("username")
 
-    if "file" not in request.files:
-        flash("No file uploaded.")
-        return redirect(request.url)
+    conn = get_db()
+    cursor = conn.cursor()
 
-    file = request.files["file"]
+    cursor.execute("""
+        SELECT name, time
+        FROM attendance
+        WHERE name = ?
+        ORDER BY time DESC
+    """, (username,))
 
-    if file.filename == "":
-        flash("No selected file.")
-        return redirect(request.url)
-    
-    allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif'}
-    file_ext = os.path.splitext(file.filename)[1].lower()
-    
-    if file and file_ext in allowed_extensions:
-        filename = secure_filename(f"pfp_{session['code']}{file_ext}")
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(filepath)
+    attendance = cursor.fetchall()
+    conn.close()
 
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE users 
-            SET pfp = ? 
-            WHERE username = ?
-        """, (filename, session["username"]))
-        conn.commit()
-        conn.close()
-
-        session["pfp"] = filename
-        flash("Profile picture updated successfully!")
-        return redirect(url_for("account"))
-
-    flash("Invalid file type. Please upload an image.")
-    return redirect(request.url)
+    return render_template(
+        "my_attendance.html",
+        header="My Attendance",
+        attendance=attendance
+    )
 
 
 
