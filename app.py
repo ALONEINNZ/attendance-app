@@ -495,16 +495,29 @@ def checkin():
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
-@app.route("/attendance")
+@app.route("/my-attendance")
 @login_required
-def attendance():
-    try:
-        data = load_attendance()
-        result = [{"name": name, "time": time} for name, time in data.items()]
-        return jsonify(result)
+def my_attendance():
+    username = session.get("username")
 
-    except Exception as e:
-        return jsonify({"message": f"Error: {str(e)}"}), 500
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT name, time
+        FROM attendance
+        WHERE name = ?
+        ORDER BY time DESC
+    """, (username,))
+
+    attendance = cursor.fetchall()
+    conn.close()
+
+    return render_template(
+        "my_attendance.html",
+        header="My Attendance",
+        attendance=attendance
+    )
 
 @app.route("/admin-login", methods=["GET", "POST"])
 def admin_login():

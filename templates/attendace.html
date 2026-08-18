@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Attendance</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='app.css') }}">
+</head>
+
+<body>
+
+    <div class="attendance-container">
+
+        <h1>My Attendance</h1>
+
+        {% if attendance %}
+
+            {% for entry in attendance %}
+
+                <div class="attendance-entry">
+                    <div>
+                        <strong>{{ entry["name"] }}</strong>
+                    </div>
+
+                    <div>
+                        {{ entry["time"] }}
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>You haven't checked in yet.</p>
+
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
