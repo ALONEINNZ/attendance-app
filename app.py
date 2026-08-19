@@ -197,8 +197,11 @@ def home():
     return render_template("Home.html")
 
 
+```python
 @app.route("/auth/google/callback")
 def google_callback():
+
+    # Get Google account information
     token = google.authorize_access_token()
     user = token.get("userinfo")
 
@@ -210,19 +213,30 @@ def google_callback():
         )
 
     email = user.get("email", "").lower().strip()
-    name = user.get("name", "")
+    name = user.get("name", "").strip()
     picture = user.get("picture")
 
-    # Only allow Burnside accounts
+
+    # -----------------------------------------
+    # ONLY ALLOW BURNSIDE EMAILS
+    # -----------------------------------------
+
     if not email.endswith("@burnside.school.nz"):
+
         return render_template(
             "login.html",
             header="login",
             error="Please use your Burnside school Google account."
         )
 
+
     conn = get_db()
     cursor = conn.cursor()
+
+
+    # -----------------------------------------
+    # CHECK IF USER ALREADY EXISTS
+    # -----------------------------------------
 
     student = cursor.execute("""
         SELECT username, code, email, pfp
@@ -230,10 +244,13 @@ def google_callback():
         WHERE email = ?
     """, (email,)).fetchone()
 
-    conn.close()
 
-    # Existing account
+    # -----------------------------------------
+    # EXISTING USER
+    # -----------------------------------------
+
     if student:
+
         session["username"] = student["username"]
         session["code"] = student["code"]
         session["email"] = student["email"]
@@ -242,14 +259,102 @@ def google_callback():
         session["pfp"] = student["pfp"]
         session["signup_complete"] = True
 
+        conn.close()
+
         return redirect(url_for("home"))
 
-    # New account
-    session["google_email"] = email
-    session["google_name"] = name
-    session["google_picture"] = picture
 
-    return redirect(url_for("complete_account"))
+    # -----------------------------------------
+    # NEW USER
+    # -----------------------------------------
+
+    # Create a username from their Google name
+    username = name.strip()
+
+    if not username:
+        username = email.split("@")[0]
+
+
+    # Make username safe for your database
+    username = username.replace(" ", "_")
+
+
+    # Student code is not supplied by Google.
+    # Generate a unique placeholder for now.
+    code = secrets.token_hex(3)
+
+
+    # Generate a random password because
+    # Google authentication is now used instead.
+    password = generate_password_hash(
+        secrets.token_urlsafe(32)
+    )
+
+
+    # Unique verification key
+    verify_key = secrets.token_urlsafe(32)
+
+
+    # Make sure username isn't already taken
+    original_username = username
+    counter = 1
+
+    while cursor.execute(
+        "SELECT id FROM users WHERE username = ?",
+        (username,)
+    ).fetchone():
+
+        username = f"{original_username}_{counter}"
+        counter += 1
+
+
+    # -----------------------------------------
+    # CREATE USER
+    # -----------------------------------------
+
+    cursor.execute("""
+        INSERT INTO users
+        (
+            username,
+            password,
+            code,
+            email,
+            verify_key,
+            is_verified,
+            pfp
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        username,
+        password,
+        code,
+        email,
+        verify_key,
+        1,
+        picture
+    ))
+
+
+    conn.commit()
+    conn.close()
+
+
+    # -----------------------------------------
+    # CREATE SESSION
+    # -----------------------------------------
+
+    session["username"] = username
+    session["code"] = code
+    session["email"] = email
+    session["name"] = name
+    session["picture"] = picture
+    session["pfp"] = picture
+    session["signup_complete"] = True
+
+
+    return redirect(url_for("home"))
+    
+
 
 # @app.route("/signup", methods=["GET", "POST"])
 # def signup():
