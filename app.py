@@ -767,58 +767,84 @@ def reset_attendance():
 @login_required
 def admin():
 
-    # Get the Google account email from the session
-    email = session.get("email", "").lower().strip()
+    try:
+        # -------------------------
+        # CHECK GOOGLE EMAIL
+        # -------------------------
 
-    print("ADMIN CHECK EMAIL:", repr(email), flush=True)
+        email = session.get("email", "").lower().strip()
 
-    # Only allow approved Google accounts
-    if email not in ADMIN_EMAILS:
-        print("ADMIN ACCESS DENIED:", repr(email), flush=True)
-        return redirect(url_for("home"))
+        print("=================================", flush=True)
+        print("ADMIN PAGE REQUEST", flush=True)
+        print("SESSION:", dict(session), flush=True)
+        print("ADMIN EMAIL:", repr(email), flush=True)
+        print("=================================", flush=True)
 
-    print("ADMIN ACCESS GRANTED:", repr(email), flush=True)
+        # Only allow your Google account
+        if email not in ADMIN_EMAILS:
+            print("ADMIN ACCESS DENIED", flush=True)
+            return redirect(url_for("home"))
 
-    # -------------------------
-    # USERS
-    # -------------------------
+        print("ADMIN ACCESS GRANTED", flush=True)
 
-    conn = get_db()
-    cursor = conn.cursor()
+        # -------------------------
+        # GET USERS
+        # -------------------------
 
-    cursor.execute("""
-        SELECT username, code, email, is_verified, pfp
-        FROM users
-        ORDER BY username ASC
-    """)
+        conn = get_db()
+        cursor = conn.cursor()
 
-    users = cursor.fetchall()
-    conn.close()
+        cursor.execute("""
+            SELECT username, code, email, is_verified, pfp
+            FROM users
+            ORDER BY username ASC
+        """)
 
-    # -------------------------
-    # ATTENDANCE
-    # -------------------------
+        users = cursor.fetchall()
+        conn.close()
 
-    attendance_conn = get_attendance_db()
-    attendance_cursor = attendance_conn.cursor()
+        print("USERS LOADED:", len(users), flush=True)
 
-    attendance_cursor.execute("""
-        SELECT name, time
-        FROM attendance
-        ORDER BY time DESC
-    """)
+        # -------------------------
+        # GET ATTENDANCE
+        # -------------------------
 
-    attendance = attendance_cursor.fetchall()
-    attendance_conn.close()
+        attendance_conn = get_attendance_db()
+        attendance_cursor = attendance_conn.cursor()
 
-    return render_template(
-        "admin.html",
-        header="admin",
-        users=users,
-        attendance=attendance,
-        admin_name=email
-    )
+        attendance_cursor.execute("""
+            SELECT name, time
+            FROM attendance
+            ORDER BY time DESC
+        """)
 
+        attendance = attendance_cursor.fetchall()
+        attendance_conn.close()
+
+        print("ATTENDANCE LOADED:", len(attendance), flush=True)
+
+        # -------------------------
+        # LOAD PAGE
+        # -------------------------
+
+        return render_template(
+            "admin.html",
+            header="admin",
+            users=users,
+            attendance=attendance,
+            admin_name=email
+        )
+
+    except Exception as e:
+
+        print("=================================", flush=True)
+        print("ADMIN PAGE ERROR:", repr(e), flush=True)
+        print("=================================", flush=True)
+
+        return f"""
+        <h1>Admin Error</h1>
+        <pre>{str(e)}</pre>
+        """, 500
 # Initialise database when Flask/Gunicorn starts
 init_db()
 
