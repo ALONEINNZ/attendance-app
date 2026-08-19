@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Complete Account | Burnside Attendance</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='app.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="{{ url_for('home') }}" class="brand">
+        <div class="brand-mark">B</div>
+
+        <div class="brand-text">
+            <span>Burnside</span>
+            <small>Attendance</small>
+        </div>
+    </a>
+
+</header>
+
+
+<main>
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="eyebrow">
+                <span class="status-dot"></span>
+                Burnside High School
+            </div>
+
+            <h1>
+                Finish setting up<br>
+                <span>your account.</span>
+            </h1>
+
+            <p>
+                Your Burnside Google account has been verified.
+                Enter your 5-digit student ID to finish setting up your attendance account.
+            </p>
+
+            {% if error %}
+                <p class="checkin-status">
+                    {{ error }}
+                </p>
+            {% endif %}
+
+            <form method="POST" class="account-form">
+
+                <label for="code">Student ID</label>
+
+                <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    maxlength="5"
+                    minlength="5"
+                    inputmode="numeric"
+                    pattern="[0-9]{5}"
+                    placeholder="12345"
+                    required
+                >
+
+                <button type="submit" class="primary-button">
+                    <span>Create account</span>
+                    <span class="button-arrow">→</span>
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>

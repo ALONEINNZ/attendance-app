@@ -195,36 +195,54 @@ def google_callback():
     token = google.authorize_access_token()
     user = token.get("userinfo")
 
-    email = user["email"]
-
-    if not email.lower().endswith("@burnside.school.nz"):
+    if not user:
         return render_template(
             "login.html",
             header="login",
-            error="Please use your Burnside school email."
+            error="Could not get your Google account information."
+        )
+
+    email = user.get("email", "").lower().strip()
+    name = user.get("name", "")
+    picture = user.get("picture")
+
+    # Only allow Burnside accounts
+    if not email.endswith("@burnside.school.nz"):
+        return render_template(
+            "login.html",
+            header="login",
+            error="Please use your Burnside school Google account."
         )
 
     conn = get_db()
-    cur = conn.cursor()
-    student = cur.execute('''SELECT username, code, pfp
-                        FROM users
-                        WHERE email = ?''', (email,)).fetchone()
+    cursor = conn.cursor()
+
+    student = cursor.execute("""
+        SELECT username, code, email, pfp
+        FROM users
+        WHERE email = ?
+    """, (email,)).fetchone()
+
     conn.close()
 
-    if student is None:
-        return render_template(
-            "login.html",
-            header="login",
-            error="No account found for this email. Please sign up first."
-        )
+    # Existing account
+    if student:
+        session["username"] = student["username"]
+        session["code"] = student["code"]
+        session["email"] = student["email"]
+        session["name"] = name
+        session["picture"] = picture
+        session["pfp"] = student["pfp"]
+        session["signup_complete"] = True
 
-    session["username"] = student["username"]
-    session["code"] = student["code"]
-    session["email"] = email
-    session["pfp"] = student["pfp"]
-    session["signup_complete"] = True
+        return redirect(url_for("home"))
 
-    return redirect(url_for("home"))
+    # New account
+    session["google_email"] = email
+    session["google_name"] = name
+    session["google_picture"] = picture
+
+    return redirect(url_for("complete_account"))
 
 # @app.route("/signup", methods=["GET", "POST"])
 # def signup():
