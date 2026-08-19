@@ -767,11 +767,17 @@ def reset_attendance():
 @login_required
 def admin():
 
+    # Get the Google account email from the session
     email = session.get("email", "").lower().strip()
 
-    # Only approved admin emails can access the dashboard
+    print("ADMIN CHECK EMAIL:", repr(email), flush=True)
+
+    # Only allow approved Google accounts
     if email not in ADMIN_EMAILS:
+        print("ADMIN ACCESS DENIED:", repr(email), flush=True)
         return redirect(url_for("home"))
+
+    print("ADMIN ACCESS GRANTED:", repr(email), flush=True)
 
     # -------------------------
     # USERS
@@ -795,6 +801,7 @@ def admin():
 
     attendance_conn = get_attendance_db()
     attendance_cursor = attendance_conn.cursor()
+
     attendance_cursor.execute("""
         SELECT name, time
         FROM attendance
@@ -811,7 +818,6 @@ def admin():
         attendance=attendance,
         admin_name=email
     )
-
 
 # Initialise database when Flask/Gunicorn starts
 init_db()
