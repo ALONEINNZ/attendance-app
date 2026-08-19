@@ -118,6 +118,12 @@ google = oauth.register(
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
+SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
+
+# Emails allowed to access the admin dashboard
+ADMIN_EMAILS = {
+    "22298@burnside.school.nz"
+}
 
 @app.before_request
 def log_visitor_ip():
@@ -142,7 +148,7 @@ def init_db():
     # MAIN DATABASE
     # =========================
 
-    conn = get_db()
+    conn = get_attendance_db()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -625,7 +631,7 @@ def checkin():
 
     if not allowed:
         return jsonify({
-            "message": "Check-in is only allowed from school networks."
+            "message": "Check-in is only allowed from school networks or other verified networks"
         }), 403
 
     # -----------------------------------------
@@ -736,29 +742,18 @@ def checkin():
             "message": f"Error: {str(e)}"
         }), 500
 
-@app.route("/admin-login", methods=["GET", "POST"])
-def admin_login():
-    error = None
 
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        if username == "admin" and password == "admin":
-            session["is_admin"] = True
-            return redirect(url_for("admin"))
-
-        error = "Invalid admin credentials."
-
-    return render_template("admin_login.html", header="admin-login", error=error)
 @app.route("/admin/reset-attendance", methods=["POST"])
 @login_required
 def reset_attendance():
-    if session.get("username") != "admin":
+
+    email = session.get("email", "").lower().strip()
+
+    if email not in ADMIN_EMAILS:
         return jsonify({"message": "Unauthorized"}), 403
 
     try:
-        conn = get_db()
+        conn = get_attendance_db()
         cursor = conn.cursor()
 
         cursor.execute("DELETE FROM attendance")
@@ -766,16 +761,31 @@ def reset_attendance():
         conn.commit()
         conn.close()
 
-        return jsonify({"message": "Attendance reset successfully."})
+        return jsonify({
+            "message": "Attendance reset successfully."
+        })
 
+    except Exception as e:
+        return jsonify({
+            "message": f"Error: {str(e)}"
+        }), 500
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
+    
 @app.route("/admin")
 @login_required
 def admin():
-    if not session.get("is_admin"):
-        return redirect(url_for("admin_login"))
+
+    email = session.get("email", "").lower().strip()
+
+    # Only approved admin emails can access the dashboard
+    if email not in ADMIN_EMAILS:
+        return redirect(url_for("home"))
+
+    # -------------------------
+    # USERS
+    # -------------------------
 
     conn = get_db()
     cursor = conn.cursor()
@@ -783,25 +793,35 @@ def admin():
     cursor.execute("""
         SELECT username, code, email, is_verified, pfp
         FROM users
+        ORDER BY username ASC
     """)
 
     users = cursor.fetchall()
     conn.close()
 
-    return render_template("admin.html", header="admin", users=users)
+    # -------------------------
+    # ATTENDANCE
+    # -------------------------
 
-@app.route("/admin-logout")
-def admin_logout():
-    session.pop("is_admin", None)
-    return redirect(url_for("home"))
+    attendance_conn = get_attendance_db()
+    attendance_cursor = attendance_conn.cursor()
+    attendance_cursor.execute("""
+        SELECT name, time
+        FROM attendance
+        ORDER BY time DESC
+    """)
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template("404.html"), 404
+    attendance = attendance_cursor.fetchall()
+    attendance_conn.close()
 
-@app.errorhandler(500)
-def server_error(e):
-    return render_template("500.html"), 500
+    return render_template(
+        "admin.html",
+        header="admin",
+        users=users,
+        attendance=attendance,
+        admin_name=ADMIN_EMAILS[email]
+    )
+
 
 # Initialise database when Flask/Gunicorn starts
 init_db()

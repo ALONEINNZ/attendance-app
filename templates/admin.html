@@ -1,192 +1,620 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #333;
-        }
-        header {
-            background: #2f4f7f;
-            color: #fff;
-            padding: 24px 32px;
-        }
-        header h1 {
-            margin: 0 0 8px;
-            font-size: 28px;
-        }
-        header p {
-            margin: 0;
-            opacity: 0.85;
-        }
-        main {
-            max-width: 1100px;
-            margin: 24px auto;
-            padding: 0 24px 40px;
-        }
-        .summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-        }
-        .card h2 {
-            margin: 0 0 12px;
-            font-size: 18px;
-            color: #555;
-        }
-        .card p {
-            font-size: 32px;
-            margin: 0;
-            color: #2f4f7f;
-        }
-        .panel {
-            background: #fff;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-            margin-bottom: 24px;
-        }
-        .panel h2 {
-            margin-top: 0;
-            font-size: 22px;
-            color: #2f4f7f;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-        th, td {
-            text-align: left;
-            padding: 14px 12px;
-            border-bottom: 1px solid #e3e8f0;
-        }
-        th {
-            color: #6b7280;
-            font-weight: 600;
-        }
-        tbody tr:hover {
-            background: #f8fbff;
-        }
-        .present {
-            color: #127a3a;
-            font-weight: 600;
-        }
-        .absent {
-            color: #c0392b;
-            font-weight: 600;
-        }
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 16px;
-        }
-        .actions button,
-        button {
-            border: none;
-            border-radius: 8px;
-            padding: 10px 18px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s ease;
-        }
-        button {
-            background: #2f4f7f;
-            color: #fff;
-        }
-        button:hover {
-            background: #253f63;
-        }
-        footer {
-            text-align: center;
-            padding: 16px 0;
-            color: #718096;
-        }
-    </style>
+
+    <title>Admin Dashboard | Burnside Attendance</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='app.css') }}">
+
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+
 </head>
+
+
 <body>
-    <header>
-        <h1>Attendance Admin</h1>
-        <p>Review attendance, manage users, and keep your team on track.</p>
-    </header>
-    <main>
-        <section class="summary">
-            <div class="card">
-                <h2>Total Users</h2>
-                <p>42</p>
+
+
+<header class="navbar">
+
+    <a href="{{ url_for('home') }}" class="brand">
+
+        <div class="brand-mark">
+            B
+        </div>
+
+        <div class="brand-text">
+
+            <span>Burnside</span>
+
+            <small>Attendance</small>
+
+        </div>
+
+    </a>
+
+
+    <nav class="nav-links">
+
+        <a href="{{ url_for('home') }}">
+            Home
+        </a>
+
+        <a href="{{ url_for('checkin') }}">
+            Check In
+        </a>
+
+        {% if session.get('username') %}
+        <a href="{{ url_for('my_attendance') }}">
+            My Attendance
+        </a>
+        {% endif %}
+
+        <a href="{{ url_for('admin') }}" class="active">
+            Admin
+        </a>
+
+    </nav>
+
+
+    <div class="nav-account">
+
+        {% if session.get('username') %}
+
+            <a href="{{ url_for('account') }}" class="account-pill">
+
+                {% if session.get('picture') %}
+
+                    <img
+                        src="{{ session.get('picture') }}"
+                        alt="Profile"
+                        class="account-pfp">
+
+                {% else %}
+
+                    <div class="account-pfp fallback-pfp">
+                        {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="account-details">
+
+                    <strong>
+                        {{ session.get('name') or session.get('username') }}
+                    </strong>
+
+                    <span>
+                        {{ session.get('email') or session.get('username') }}
+                    </span>
+
+                </div>
+
+
+                <span class="account-chevron">
+                    ⌄
+                </span>
+
+            </a>
+
+
+            <a href="{{ url_for('admin_logout') }}" class="logout">
+                Admin logout
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</header>
+
+
+
+<main class="admin-page">
+
+
+    <!-- ADMIN HERO -->
+
+    <section class="admin-hero">
+
+        <div>
+
+            <div class="eyebrow admin-eyebrow">
+
+                <span class="status-dot"></span>
+
+                ADMINISTRATION
+
             </div>
-            <div class="card">
-                <h2>Present Today</h2>
-                <p>34</p>
+
+
+            <h1>
+                Attendance<br>
+                <span>dashboard.</span>
+            </h1>
+
+
+            <p>
+                Welcome, {{ admin_name }}.
+                View student check-ins and manage attendance from one place.
+            </p>
+
+        </div>
+
+
+        <div class="admin-hero-badge">
+
+            <span class="admin-badge-icon">
+                ✓
+            </span>
+
+            <div>
+
+                <strong>
+                    Admin access
+                </strong>
+
+                <small>
+                    {{ session.get('email') }}
+                </small>
+
             </div>
-            <div class="card">
-                <h2>Absent Today</h2>
-                <p>8</p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- SUMMARY -->
+
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    OVERVIEW
+                </span>
+
+                <h2>
+                    Today's attendance.
+                </h2>
+
             </div>
-        </section>
-        <section class="panel">
-            <h2>Recent Attendance</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Alice Johnson</td>
-                        <td>2026-06-25</td>
-                        <td class="present">Present</td>
-                        <td><button>Edit</button></td>
-                    </tr>
-                    <tr>
-                        <td>Michael Lee</td>
-                        <td>2026-06-25</td>
-                        <td class="present">Present</td>
-                        <td><button>Edit</button></td>
-                    </tr>
-                    <tr>
-                        <td>Rita Patel</td>
-                        <td>2026-06-25</td>
-                        <td class="absent">Absent</td>
-                        <td><button>Edit</button></td>
-                    </tr>
-                    <tr>
-                        <td>Samuel Kim</td>
-                        <td>2026-06-25</td>
-                        <td class="present">Present</td>
-                        <td><button>Edit</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-        <section class="panel">
-            <h2>Quick Actions</h2>
-            <div class="actions">
-                <button>Add User</button>
-                <button>Export Report</button>
-                <button>Manage Settings</button>
+
+        </div>
+
+
+        <div class="admin-stats">
+
+
+            <div class="admin-stat-card">
+
+                <div class="admin-stat-icon">
+                    #
+                </div>
+
+                <div>
+
+                    <span>
+                        REGISTERED USERS
+                    </span>
+
+                    <strong>
+                        {{ total_users }}
+                    </strong>
+
+                </div>
+
             </div>
-        </section>
-    </main>
-    <footer>
-        Attendance App Admin Panel
-    </footer>
+
+
+
+            <div class="admin-stat-card admin-stat-green">
+
+                <div class="admin-stat-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <span>
+                        CHECKED IN
+                    </span>
+
+                    <strong>
+                        {{ attendance|length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="admin-stat-card">
+
+                <div class="admin-stat-icon">
+                    ◷
+                </div>
+
+                <div>
+
+                    <span>
+                        LATEST CHECK-IN
+                    </span>
+
+                    <strong>
+
+                        {% if attendance %}
+
+                            {{ attendance[0]["time"] }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ATTENDANCE -->
+
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    CHECK-INS
+                </span>
+
+                <h2>
+                    Student attendance.
+                </h2>
+
+            </div>
+
+
+            <span class="admin-count">
+
+                {{ attendance|length }}
+                check-ins
+
+            </span>
+
+        </div>
+
+
+
+        <div class="admin-table-card">
+
+            {% if attendance %}
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Check-in time
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for row in attendance %}
+
+                            <tr>
+
+                                <td>
+
+                                    <div class="admin-student">
+
+                                        <div class="admin-student-avatar">
+
+                                            {{ row["name"][0] | upper }}
+
+                                        </div>
+
+                                        <strong>
+                                            {{ row["name"] }}
+                                        </strong>
+
+                                    </div>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="admin-time">
+                                        {{ row["time"] }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <span class="admin-status">
+                                        <span></span>
+                                        Present
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="admin-empty">
+
+                    <div class="admin-empty-icon">
+                        ◷
+                    </div>
+
+                    <h3>
+                        No check-ins yet
+                    </h3>
+
+                    <p>
+                        Student attendance will appear here once someone checks in.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ADMIN ACTIONS -->
+
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    ADMIN TOOLS
+                </span>
+
+                <h2>
+                    Quick actions.
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="admin-actions">
+
+
+            <button
+                class="admin-action-card"
+                onclick="resetAttendance()">
+
+                <div class="admin-action-icon">
+                    ↻
+                </div>
+
+                <div>
+
+                    <strong>
+                        Reset attendance
+                    </strong>
+
+                    <span>
+                        Clear today's check-in records.
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </button>
+
+
+            <a
+                href="{{ url_for('home') }}"
+                class="admin-action-card">
+
+                <div class="admin-action-icon">
+                    ←
+                </div>
+
+                <div>
+
+                    <strong>
+                        Return home
+                    </strong>
+
+                    <span>
+                        Go back to the student portal.
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('admin_logout') }}"
+                class="admin-action-card admin-danger">
+
+                <div class="admin-action-icon">
+                    ×
+                </div>
+
+                <div>
+
+                    <strong>
+                        Admin logout
+                    </strong>
+
+                    <span>
+                        End your administrator session.
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<footer class="footer">
+
+    <div class="footer-brand">
+
+        <div class="brand-mark small-mark">
+            B
+        </div>
+
+        <div>
+
+            <strong>
+                Burnside Attendance
+            </strong>
+
+            <span>
+                Student check-in portal
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-right">
+
+        <span>
+            Administrator dashboard
+        </span>
+
+        <a
+            href="https://www.burnside.school.nz/"
+            target="_blank"
+            rel="noopener">
+
+            School website →
+
+        </a>
+
+    </div>
+
+</footer>
+
+
+
+<script>
+
+async function resetAttendance() {
+
+    const confirmed = confirm(
+        "Are you sure you want to reset all attendance records?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "{{ url_for('reset_attendance') }}",
+            {
+                method: "POST"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        alert(data.message);
+
+
+        if (response.ok) {
+            location.reload();
+        }
+
+    } catch (error) {
+
+        alert(
+            "Something went wrong while resetting attendance."
+        );
+
+    }
+
+}
+
+</script>
+
+
 </body>
 </html>
