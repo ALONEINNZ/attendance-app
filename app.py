@@ -65,9 +65,14 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 DB_FILE = os.path.join(BASE_DIR, "main.db")
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "main.db")
+ATTENDANCE_DB_FILE = os.path.join(BASE_DIR, "attendance.db")
+
+def get_attendance_db():
+    conn = sqlite3.connect(ATTENDANCE_DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 print("MAIL USER:", os.getenv("USERNAME"))
@@ -147,6 +152,15 @@ def init_db():
             pfp TEXT DEFAULT NULL
         )
     """)
+
+
+    conn.commit()
+    conn.close()
+
+        # Attendance database
+    conn = get_attendance_db()
+    cursor = conn.cursor()
+
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS attendance (
@@ -488,7 +502,7 @@ def logout():
 def my_attendance():
     username = session.get("username")
 
-    conn = get_db()
+    conn = get_attendance_db()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -537,11 +551,11 @@ def teacher():
 
 
 def load_attendance_rows():
-    conn = get_db()
+    conn = get_attendance_db()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT name, time 
+        SELECT name, time
         FROM attendance
         ORDER BY time ASC, name ASC
     """)
@@ -570,12 +584,11 @@ def reset_users():
     return "All users deleted. Remove this route after testing."
 
 def save_attendance(name, time):
-    conn = get_db()
+    conn = get_attendance_db()
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO attendance 
-        (name, time) 
+        INSERT INTO attendance (name, time)
         VALUES (?, ?)
     """, (name, time))
 
