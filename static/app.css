@@ -1186,3 +1186,111 @@ body {
     }
 
 }
+/* =========================================
+   MOBILE ACCOUNT ACTIONS
+   ========================================= */
+
+.mobile-account-actions {
+    display: none;
+}
+
+
+@media (max-width: 700px) {
+
+    .mobile-account-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 0 20px 40px;
+    }
+
+
+    .mobile-account-button,
+    .mobile-logout-button {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 16px 18px;
+        border-radius: 18px;
+        text-decoration: none;
+        transition: transform 0.15s ease;
+    }
+
+
+    .mobile-account-button {
+        background: #f5f5f5;
+        color: #111;
+    }
+
+
+    .mobile-logout-button {
+        background: #fff1f1;
+        color: #c62828;
+        border: 1px solid #ffd6d6;
+    }
+
+
+    .mobile-action-icon {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 13px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+
+    .mobile-account-button .mobile-action-icon {
+        background: #e7e7e7;
+    }
+
+
+    .mobile-logout-button .mobile-action-icon {
+        background: #ffe0e0;
+    }
+
+
+    .mobile-account-button div,
+    .mobile-logout-button div {
+        flex: 1;
+        min-width: 0;
+
+        display: flex;
+        flex-direction: column;
+    }
+
+
+    .mobile-account-button strong,
+    .mobile-logout-button strong {
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+
+    .mobile-account-button small,
+    .mobile-logout-button small {
+        margin-top: 3px;
+        font-size: 12px;
+        opacity: 0.6;
+    }
+
+
+    .mobile-action-arrow {
+        font-size: 20px;
+        opacity: 0.45;
+    }
+
+
+    .mobile-account-button:active,
+    .mobile-logout-button:active {
+        transform: scale(0.98);
+    }
+
+}
