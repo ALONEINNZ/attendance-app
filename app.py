@@ -251,6 +251,8 @@ def google_callback():
 
     if student:
 
+        session.clear()
+
         session["username"] = student["username"]
         session["code"] = student["code"]
         session["email"] = student["email"]
@@ -260,6 +262,15 @@ def google_callback():
         session["signup_complete"] = True
 
         conn.close()
+
+        print(
+            "GOOGLE LOGIN SUCCESS:",
+            {
+                "username": student["username"],
+                "email": student["email"]
+            },
+            flush=True
+        )
 
         return redirect(url_for("home"))
 
@@ -575,64 +586,122 @@ def save_attendance(name, time):
 @app.route("/checkin", methods=["GET", "POST"])
 @login_required
 def checkin():
+
     client_ip = get_real_ip()
     allowed, network_name = is_school_ip(client_ip)
 
     if not allowed:
-        return jsonify({"message": "Check-in is only allowed from school networks."}), 403
+        return jsonify({
+            "message": "Check-in is only allowed from school networks."
+        }), 403
+
+    # -----------------------------------------
+    # GET - SHOW CHECK-IN PAGE
+    # -----------------------------------------
 
     if request.method == "GET":
         entries = load_attendance_rows()
-        return render_template("checkin.html", header="checkin", entries=entries)
+
+        return render_template(
+            "checkin.html",
+            header="checkin",
+            entries=entries
+        )
+
+    # -----------------------------------------
+    # POST - CHECK STUDENT IN
+    # -----------------------------------------
 
     try:
-        # Get the email from the Google account that is logged in
-        email = session.get("email")
 
-        print("CHECKIN EMAIL FROM SESSION:", repr(email), flush=True)
+        # We already know who is logged in.
+        # Google login stored their username in the session.
+        username = session.get("username")
 
-        if not email:
-            return jsonify({"message": "You must be logged in."}), 401
+        print(
+            "CHECKIN USERNAME FROM SESSION:",
+            repr(username),
+            flush=True
+        )
 
-        # Find the user's account using their Google email
+        if not username:
+            return jsonify({
+                "message": "You must be logged in."
+            }), 401
+
+        # -----------------------------------------
+        # FIND USER BY USERNAME
+        # -----------------------------------------
+
         conn = get_db()
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT username, code, email
+            SELECT username, code, email, pfp
             FROM users
-            WHERE email = ?
-        """, (email,))
+            WHERE username = ?
+        """, (username,))
 
         user = cursor.fetchone()
 
-        print("CHECKIN USER FROM DATABASE:", dict(user) if user else None, flush=True)
+        print(
+            "CHECKIN USER FROM DATABASE:",
+            dict(user) if user else None,
+            flush=True
+        )
 
         conn.close()
 
         if not user:
-            return jsonify({"message": "User account not found."}), 404
+            return jsonify({
+                "message": "User account not found."
+            }), 404
 
-        # Automatically get their username
+        # -----------------------------------------
+        # CHECK IF ALREADY CHECKED IN
+        # -----------------------------------------
+
         name = user["username"]
 
         attendance = load_attendance()
 
         if name in attendance:
-            return jsonify({"message": "Already checked in."})
+            return jsonify({
+                "message": "Already checked in."
+            })
+
+        # -----------------------------------------
+        # SAVE CHECK-IN
+        # -----------------------------------------
 
         current_time = datetime.now().strftime("%H:%M")
 
-        save_attendance(name, current_time)
+        save_attendance(
+            name,
+            current_time
+        )
 
-        return jsonify({"message": "Checked in successfully."})
+        return jsonify({
+            "message": "Checked in successfully."
+        })
 
     except sqlite3.IntegrityError:
-        return jsonify({"message": "Already checked in."}), 400
+
+        return jsonify({
+            "message": "Already checked in."
+        }), 400
 
     except Exception as e:
-        return jsonify({"message": f"Error: {str(e)}"}), 500
 
+        print(
+            "CHECKIN ERROR:",
+            str(e),
+            flush=True
+        )
+
+        return jsonify({
+            "message": f"Error: {str(e)}"
+        }), 500
 
 @app.route("/admin-login", methods=["GET", "POST"])
 def admin_login():
@@ -701,6 +770,13 @@ def page_not_found(e):
 def server_error(e):
     return render_template("500.html"), 500
 
+# Initialise database when Flask/Gunicorn starts
+init_db()
+
+
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(
+        debug=True,
+        host="0.0.0.0",
+        port=5000
+    )
