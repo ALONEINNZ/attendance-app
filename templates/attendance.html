@@ -300,7 +300,7 @@
                             <tr>
 
                                 <th>
-                                    Date
+                                    Student
                                 </th>
 
                                 <th>
@@ -324,25 +324,14 @@
 
 
                                 <td>
-
                                     <strong>
-
-                                        {{ record.date
-                                           or record.get('date', '—') }}
-
+                                        {{ record["name"] }}
                                     </strong>
-
                                 </td>
-
 
                                 <td>
-
-                                    {{ record.time
-                                       or record.get('time', '—') }}
-
+                                    {{ record["time"] }}
                                 </td>
-
-
                                 <td>
 
                                     <span class="attendance-status present">
