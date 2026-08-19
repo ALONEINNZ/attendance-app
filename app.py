@@ -487,7 +487,7 @@ def checkin():
         print("CHECKIN EMAIL FROM SESSION:", repr(email), flush=True)
 
         if not email:
-            return jsonify({"message": "You must be logged in."}), 401e
+            return jsonify({"message": "You must be logged in."}), 401
 
         # Find the user's account using their Google email
         conn = get_db()
