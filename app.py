@@ -16,6 +16,7 @@ from authlib.integrations.flask_client import OAuth
 SCHOOL_NETWORKS = {
     "Burnside WiFi": [
         "202.150.123.193/32",
+        "122.63.129.201/32",
     ],
 }
 def is_school_ip(ip):
@@ -72,6 +73,12 @@ print("MAIL USER:", os.getenv("USERNAME"))
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 
 app.config["SECRET_KEY"] = os.getenv("KEY", "dev-secret-key")
+
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
