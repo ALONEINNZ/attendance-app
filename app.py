@@ -197,7 +197,6 @@ def home():
     return render_template("Home.html")
 
 
-```python
 @app.route("/auth/google/callback")
 def google_callback():
 
