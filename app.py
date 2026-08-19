@@ -601,7 +601,7 @@ def reset_users():
     conn.commit()
     conn.close()
 
-    return "All users deleted. Remove this route after testing."
+    return "All users deleted. Remove this route after testing isaac do NOT foget!."
 
 def save_attendance(name, time):
     conn = get_attendance_db()
