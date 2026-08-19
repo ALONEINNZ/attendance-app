@@ -361,7 +361,7 @@ def my_attendance():
     conn.close()
 
     return render_template(
-        "my_attendance.html",
+        "attendance.html",
         header="My Attendance",
         attendance=attendance
     )
@@ -477,29 +477,6 @@ def checkin():
     except Exception as e:
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
-@app.route("/my-attendance")
-@login_required
-def my_attendance():
-    username = session.get("username")
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT name, time
-        FROM attendance
-        WHERE name = ?
-        ORDER BY time DESC
-    """, (username,))
-
-    attendance = cursor.fetchall()
-    conn.close()
-
-    return render_template(
-        "attendace.html",
-        header="My Attendance",
-        attendance=attendance
-    )
 
 @app.route("/admin-login", methods=["GET", "POST"])
 def admin_login():
