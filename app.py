@@ -48,19 +48,6 @@ def get_real_ip():
     )
 
 
-def is_school_ip(ip):
-    try:
-        client_ip = ipaddress.ip_address(ip)
-
-        for network_name, networks in SCHOOL_NETWORKS.items():
-            for network in networks:
-                if client_ip in ipaddress.ip_network(network):
-                    return True, network_name
-
-    except ValueError:
-        pass
-
-    return False, None
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2)
 
@@ -76,7 +63,6 @@ def get_attendance_db():
 
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 print("MAIL USER:", os.getenv("USERNAME"))
-load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 
 app.config["SECRET_KEY"] = os.getenv("KEY", "dev-secret-key")
 
@@ -118,7 +104,6 @@ google = oauth.register(
 
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
-SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
 # Emails allowed to access the admin dashboard
 ADMIN_EMAILS = {
@@ -148,7 +133,7 @@ def init_db():
     # MAIN DATABASE
     # =========================
 
-    conn = get_attendance_db()
+    conn = get_db()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -596,8 +581,15 @@ def load_attendance():
     rows = load_attendance_rows()
     return {row["name"]: row["time"] for row in rows}
 
+
 @app.route("/reset-users")
+@login_required
 def reset_users():
+
+    email = session.get("email", "").lower().strip()
+
+    if email not in ADMIN_EMAILS:
+        return "Unauthorized", 403
 
     conn = get_db()
     cursor = conn.cursor()
@@ -607,7 +599,7 @@ def reset_users():
     conn.commit()
     conn.close()
 
-    return "All users deleted. Remove this route after testing isaac do NOT foget!."
+    return "All users deleted."
 
 def save_attendance(name, time):
     conn = get_attendance_db()
@@ -769,8 +761,6 @@ def reset_attendance():
         return jsonify({
             "message": f"Error: {str(e)}"
         }), 500
-    except Exception as e:
-        return jsonify({"message": f"Error: {str(e)}"}), 500
 
     
 @app.route("/admin")
@@ -819,7 +809,7 @@ def admin():
         header="admin",
         users=users,
         attendance=attendance,
-        admin_name=ADMIN_EMAILS[email]
+        admin_name=email
     )
 
 
