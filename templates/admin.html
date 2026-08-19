@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,15 +11,13 @@
           href="{{ url_for('static', filename='app.css') }}">
 
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-
 </head>
-
 
 <body>
 
-
 <header class="navbar">
 
+    <!-- BRAND -->
     <a href="{{ url_for('home') }}" class="brand">
 
         <div class="brand-mark">
@@ -28,16 +25,14 @@
         </div>
 
         <div class="brand-text">
-
             <span>Burnside</span>
-
             <small>Attendance</small>
-
         </div>
 
     </a>
 
 
+    <!-- NAVIGATION -->
     <nav class="nav-links">
 
         <a href="{{ url_for('home') }}">
@@ -48,11 +43,9 @@
             Check In
         </a>
 
-        {% if session.get('username') %}
         <a href="{{ url_for('my_attendance') }}">
             My Attendance
         </a>
-        {% endif %}
 
         <a href="{{ url_for('admin') }}" class="active">
             Admin
@@ -61,6 +54,7 @@
     </nav>
 
 
+    <!-- ACCOUNT -->
     <div class="nav-account">
 
         {% if session.get('username') %}
@@ -82,7 +76,6 @@
 
                 {% endif %}
 
-
                 <div class="account-details">
 
                     <strong>
@@ -95,16 +88,14 @@
 
                 </div>
 
-
                 <span class="account-chevron">
                     ⌄
                 </span>
 
             </a>
 
-
-            <a href="{{ url_for('admin_logout') }}" class="logout">
-                Admin logout
+            <a href="{{ url_for('logout') }}" class="logout">
+                Logout
             </a>
 
         {% endif %}
@@ -114,11 +105,10 @@
 </header>
 
 
-
 <main class="admin-page">
 
 
-    <!-- ADMIN HERO -->
+    <!-- HERO -->
 
     <section class="admin-hero">
 
@@ -132,12 +122,10 @@
 
             </div>
 
-
             <h1>
                 Attendance<br>
                 <span>dashboard.</span>
             </h1>
-
 
             <p>
                 Welcome, {{ admin_name }}.
@@ -171,7 +159,7 @@
 
 
 
-    <!-- SUMMARY -->
+    <!-- OVERVIEW -->
 
     <section class="admin-section">
 
@@ -195,6 +183,8 @@
         <div class="admin-stats">
 
 
+            <!-- REGISTERED USERS -->
+
             <div class="admin-stat-card">
 
                 <div class="admin-stat-icon">
@@ -208,7 +198,7 @@
                     </span>
 
                     <strong>
-                        {{ total_users }}
+                        {{ users|length }}
                     </strong>
 
                 </div>
@@ -216,6 +206,7 @@
             </div>
 
 
+            <!-- CHECKED IN -->
 
             <div class="admin-stat-card admin-stat-green">
 
@@ -238,6 +229,7 @@
             </div>
 
 
+            <!-- LATEST CHECK-IN -->
 
             <div class="admin-stat-card">
 
@@ -254,13 +246,9 @@
                     <strong>
 
                         {% if attendance %}
-
                             {{ attendance[0]["time"] }}
-
                         {% else %}
-
                             —
-
                         {% endif %}
 
                     </strong>
@@ -304,7 +292,6 @@
         </div>
 
 
-
         <div class="admin-table-card">
 
             {% if attendance %}
@@ -338,46 +325,49 @@
 
                             {% for row in attendance %}
 
-                            <tr>
+                                <tr>
 
-                                <td>
+                                    <td>
 
-                                    <div class="admin-student">
+                                        <div class="admin-student">
 
-                                        <div class="admin-student-avatar">
+                                            <div class="admin-student-avatar">
 
-                                            {{ row["name"][0] | upper }}
+                                                {{ (row["name"] or "S")[0] | upper }}
+
+                                            </div>
+
+                                            <strong>
+                                                {{ row["name"] }}
+                                            </strong>
 
                                         </div>
 
-                                        <strong>
-                                            {{ row["name"] }}
-                                        </strong>
-
-                                    </div>
-
-                                </td>
+                                    </td>
 
 
-                                <td>
+                                    <td>
 
-                                    <span class="admin-time">
-                                        {{ row["time"] }}
-                                    </span>
+                                        <span class="admin-time">
+                                            {{ row["time"] }}
+                                        </span>
 
-                                </td>
+                                    </td>
 
 
-                                <td>
+                                    <td>
 
-                                    <span class="admin-status">
-                                        <span></span>
-                                        Present
-                                    </span>
+                                        <span class="admin-status">
 
-                                </td>
+                                            <span></span>
 
-                            </tr>
+                                            Present
+
+                                        </span>
+
+                                    </td>
+
+                                </tr>
 
                             {% endfor %}
 
@@ -413,7 +403,183 @@
 
 
 
-    <!-- ADMIN ACTIONS -->
+    <!-- REGISTERED USERS -->
+
+    <section class="admin-section">
+
+        <div class="admin-section-heading">
+
+            <div>
+
+                <span class="section-label">
+                    ACCOUNTS
+                </span>
+
+                <h2>
+                    Registered students.
+                </h2>
+
+            </div>
+
+
+            <span class="admin-count">
+
+                {{ users|length }}
+                users
+
+            </span>
+
+        </div>
+
+
+        <div class="admin-table-card">
+
+            {% if users %}
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Student
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Student ID
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for user in users %}
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="admin-student">
+
+                                            {% if user["pfp"] %}
+
+                                                <img
+                                                    src="{{ user['pfp'] }}"
+                                                    alt="Profile"
+                                                    class="admin-student-avatar"
+                                                    style="object-fit: cover;">
+
+                                            {% else %}
+
+                                                <div class="admin-student-avatar">
+
+                                                    {{ (user["username"] or "S")[0] | upper }}
+
+                                                </div>
+
+                                            {% endif %}
+
+
+                                            <strong>
+                                                {{ user["username"] }}
+                                            </strong>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ user["email"] }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ user["code"] }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {% if user["is_verified"] %}
+
+                                            <span class="admin-status">
+
+                                                <span></span>
+
+                                                Verified
+
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="admin-status">
+
+                                                <span></span>
+
+                                                Unverified
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="admin-empty">
+
+                    <div class="admin-empty-icon">
+                        #
+                    </div>
+
+                    <h3>
+                        No registered users
+                    </h3>
+
+                    <p>
+                        Google accounts will appear here after students sign in.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+
+    <!-- ADMIN TOOLS -->
 
     <section class="admin-section">
 
@@ -437,7 +603,10 @@
         <div class="admin-actions">
 
 
+            <!-- RESET ATTENDANCE -->
+
             <button
+                type="button"
                 class="admin-action-card"
                 onclick="resetAttendance()">
 
@@ -463,6 +632,8 @@
 
             </button>
 
+
+            <!-- HOME -->
 
             <a
                 href="{{ url_for('home') }}"
@@ -491,8 +662,10 @@
             </a>
 
 
+            <!-- LOGOUT -->
+
             <a
-                href="{{ url_for('admin_logout') }}"
+                href="{{ url_for('logout') }}"
                 class="admin-action-card admin-danger">
 
                 <div class="admin-action-icon">
@@ -502,11 +675,11 @@
                 <div>
 
                     <strong>
-                        Admin logout
+                        Logout
                     </strong>
 
                     <span>
-                        End your administrator session.
+                        Sign out of your Google account session.
                     </span>
 
                 </div>
@@ -525,6 +698,8 @@
 </main>
 
 
+
+<!-- FOOTER -->
 
 <footer class="footer">
 
@@ -582,7 +757,6 @@ async function resetAttendance() {
         return;
     }
 
-
     try {
 
         const response = await fetch(
@@ -592,18 +766,17 @@ async function resetAttendance() {
             }
         );
 
-
         const data = await response.json();
 
-
         alert(data.message);
-
 
         if (response.ok) {
             location.reload();
         }
 
     } catch (error) {
+
+        console.error(error);
 
         alert(
             "Something went wrong while resetting attendance."
