@@ -17,6 +17,7 @@ SCHOOL_NETWORKS = {
     "Burnside WiFi": [
         "202.150.123.193/32",
         "122.63.129.201/32",
+        "202.36.179.108/32",
     ],
 }
 def is_school_ip(ip):
