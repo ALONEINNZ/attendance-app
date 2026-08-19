@@ -137,6 +137,11 @@ def get_db():
 
 
 def init_db():
+
+    # =========================
+    # MAIN DATABASE
+    # =========================
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -153,14 +158,16 @@ def init_db():
         )
     """)
 
-
     conn.commit()
     conn.close()
 
-        # Attendance database
+
+    # =========================
+    # ATTENDANCE DATABASE
+    # =========================
+
     conn = get_attendance_db()
     cursor = conn.cursor()
-
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS attendance (
@@ -172,7 +179,6 @@ def init_db():
 
     conn.commit()
     conn.close()
-
 
 def login_required(f):
     @wraps(f)
@@ -496,31 +502,45 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("home"))
-
 @app.route("/my-attendance")
 @login_required
 def my_attendance():
-    username = session.get("username")
+    try:
+        username = session.get("username")
 
-    conn = get_attendance_db()
-    cursor = conn.cursor()
+        print("MY ATTENDANCE USER:", repr(username), flush=True)
+        print("ATTENDANCE DB:", ATTENDANCE_DB_FILE, flush=True)
 
-    cursor.execute("""
-        SELECT name, time
-        FROM attendance
-        WHERE name = ?
-        ORDER BY time DESC
-    """, (username,))
+        conn = get_attendance_db()
+        cursor = conn.cursor()
 
-    attendance = cursor.fetchall()
-    conn.close()
+        cursor.execute("""
+            SELECT name, time
+            FROM attendance
+            WHERE name = ?
+            ORDER BY time DESC
+        """, (username,))
 
-    return render_template(
-        "attendance.html",
-        header="My Attendance",
-        attendance=attendance
-    )
+        attendance = cursor.fetchall()
 
+        print(
+            "ATTENDANCE FOUND:",
+            [dict(row) for row in attendance],
+            flush=True
+        )
+
+        conn.close()
+
+        return render_template(
+            "attendance.html",
+            header="My Attendance",
+            attendance=attendance
+        )
+
+    except Exception as e:
+        print("MY ATTENDANCE ERROR:", str(e), flush=True)
+
+        return f"My attendance error: {str(e)}", 500
 @app.route("/account")
 @login_required
 def account():
