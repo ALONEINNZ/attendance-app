@@ -366,7 +366,28 @@ def my_attendance():
         attendance=attendance
     )
 
+@app.route("/account")
+@login_required
+def account():
+    username = session.get("username")
 
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT username, code, email, pfp
+        FROM users
+        WHERE username = ?
+    """, (username,))
+
+    user = cursor.fetchone()
+    conn.close()
+
+    return render_template(
+        "account.html",
+        header="Account",
+        user=user
+    )
 
 @app.route("/teacher")
 @login_required
@@ -541,11 +562,9 @@ def admin_logout():
 def page_not_found(e):
     return render_template("404.html"), 404
 
-
 @app.errorhandler(500)
 def server_error(e):
     return render_template("500.html"), 500
-
 
 if __name__ == "__main__":
     init_db()
