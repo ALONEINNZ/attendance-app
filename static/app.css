@@ -854,3 +854,231 @@ a:focus-visible {
     outline: 3px solid #75bd70;
     outline-offset: 3px;
 }
+<!-- My Attendance page styling -->
+<style>
+/* =========================================================
+   MY ATTENDANCE
+========================================================= */
+
+.attendance-page {
+    min-height: 100vh;
+    background: var(--cream);
+    padding: 120px 25px 80px;
+}
+
+.attendance-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Page heading */
+
+.attendance-header {
+    margin-bottom: 30px;
+}
+
+.attendance-header h1 {
+    margin: 0;
+    color: var(--green-dark);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.05em;
+}
+
+.attendance-header p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+/* Summary cards */
+
+.attendance-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.attendance-card {
+    padding: 24px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 40, 0, 0.05);
+}
+
+.attendance-card-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.attendance-card strong {
+    color: var(--green-dark);
+    font-size: 2.2rem;
+}
+
+/* Main attendance panel */
+
+.attendance-panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 40, 0, 0.06);
+    overflow: hidden;
+}
+
+.attendance-panel-header {
+    padding: 25px 28px;
+    border-bottom: 1px solid var(--border);
+}
+
+.attendance-panel-header h2 {
+    margin: 0;
+    color: var(--green-dark);
+    font-size: 1.3rem;
+}
+
+.attendance-panel-header p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: .82rem;
+}
+
+/* Table */
+
+.attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.attendance-table th {
+    padding: 14px 20px;
+    background: var(--green);
+    color: white;
+    text-align: left;
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.attendance-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: .85rem;
+}
+
+.attendance-table tbody tr:nth-child(even) {
+    background: #f7f9f6;
+}
+
+.attendance-table tbody tr:hover {
+    background: var(--green-soft);
+}
+
+/* Present status */
+
+.attendance-present {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #e4f3e1;
+    color: var(--green);
+    font-size: .7rem;
+    font-weight: 800;
+}
+
+.attendance-present::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+}
+
+/* Empty attendance */
+
+.attendance-empty {
+    padding: 60px 25px;
+    text-align: center;
+}
+
+.attendance-empty h2 {
+    margin: 0 0 8px;
+    color: var(--green-dark);
+    font-size: 1.4rem;
+}
+
+.attendance-empty p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+/* Back button */
+
+.attendance-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 22px;
+    padding: 12px 18px;
+    border-radius: 5px;
+    background: var(--green);
+    color: white;
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 700;
+    transition: background .2s ease, transform .2s ease;
+}
+
+.attendance-back:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+   MY ATTENDANCE MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .attendance-page {
+        padding: 100px 15px 60px;
+    }
+
+    .attendance-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .attendance-card {
+        padding: 20px;
+    }
+
+    .attendance-header h1 {
+        font-size: 2.8rem;
+    }
+
+    .attendance-panel-header {
+        padding: 20px;
+    }
+
+    .attendance-table {
+        min-width: 600px;
+    }
+}
+</style>
