@@ -1,25 +1,31 @@
+/* =========================================================
+   BURNSIDE ATTENDANCE
+   Premium Burnside-inspired school portal
+========================================================= */
+
 :root {
-    --burnside-green: #005f02;
-    --burnside-green-dark: #003f01;
-    --burnside-green-deep: #002801;
-    --burnside-green-light: #edf5eb;
+    --green: #005f02;
+    --green-dark: #003d01;
+    --green-deep: #001d00;
+    --green-bright: #16851b;
 
+    --green-soft: #eaf4e8;
+    --cream: #f4f6f1;
     --white: #ffffff;
-    --off-white: #f6f6f4;
-    --grey: #eeeeec;
 
-    --text: #242424;
-    --muted: #686868;
+    --text: #172017;
+    --muted: #687268;
 
-    --border: #ddddda;
+    --border: rgba(0, 60, 0, 0.12);
 
-    --max-width: 1280px;
+    --shadow:
+        0 30px 80px rgba(0, 30, 0, 0.17);
 }
 
 
 /* =========================================================
    RESET
-   ========================================================= */
+========================================================= */
 
 * {
     box-sizing: border-box;
@@ -31,50 +37,59 @@ html {
 
 body {
     margin: 0;
-    padding: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-    background: var(--off-white);
     color: var(--text);
 
-    line-height: 1.5;
-}
+    background: var(--cream);
 
-img {
-    max-width: 100%;
+    overflow-x: hidden;
 }
 
 a {
     color: inherit;
 }
 
+button,
+input {
+    font-family: inherit;
+}
+
 
 /* =========================================================
    HEADER
-   ========================================================= */
+========================================================= */
 
 .site-header {
-    width: 100%;
+    position: absolute;
 
-    background: var(--burnside-green);
+    top: 0;
+    left: 0;
+    right: 0;
 
-    color: var(--white);
+    z-index: 100;
 
-    border-bottom: 4px solid var(--burnside-green-dark);
+    color: white;
 
-    position: relative;
-    z-index: 20;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0, 20, 0, 0.78),
+            rgba(0, 20, 0, 0.42),
+            transparent
+        );
 }
 
 .header-inner {
-    max-width: var(--max-width);
+    max-width: 1400px;
 
-    min-height: 78px;
+    margin: auto;
 
-    margin: 0 auto;
-
-    padding: 0 28px;
+    padding: 24px 42px;
 
     display: flex;
     align-items: center;
@@ -82,7 +97,7 @@ a {
 }
 
 
-/* Brand */
+/* BRAND */
 
 .brand {
     display: flex;
@@ -90,16 +105,21 @@ a {
 
     gap: 13px;
 
-    color: var(--white);
+    color: white;
 
     text-decoration: none;
 }
 
 .brand .logo {
-    width: 46px;
-    height: 46px;
+    width: 52px;
+    height: 52px;
 
     object-fit: contain;
+
+    filter:
+        drop-shadow(
+            0 5px 15px rgba(0, 0, 0, .3)
+        );
 }
 
 .brand-text {
@@ -108,978 +128,861 @@ a {
 }
 
 .brand-name {
-    font-size: 1.05rem;
-    font-weight: bold;
+    font-size: 1.08rem;
 
-    letter-spacing: 0.02em;
+    font-weight: 800;
+
+    letter-spacing: -.025em;
 }
 
 .brand-subtitle {
-    margin-top: 1px;
+    margin-top: 3px;
 
-    font-size: 0.68rem;
+    font-size: .65rem;
 
-    letter-spacing: 0.12em;
+    letter-spacing: .16em;
+
     text-transform: uppercase;
 
-    opacity: 0.8;
+    opacity: .72;
 }
 
 
-/* Navigation */
+/* NAV */
 
 .site-header nav {
     display: flex;
     align-items: center;
 
-    gap: 28px;
+    gap: 6px;
 }
 
 .site-header nav a {
     position: relative;
 
-    color: var(--white);
+    padding: 10px 17px;
+
+    color: white;
 
     text-decoration: none;
 
-    font-size: 0.88rem;
-    font-weight: bold;
+    border-radius: 4px;
+
+    font-size: .82rem;
+
+    font-weight: 700;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
 }
 
-.site-header nav a::after {
-    content: "";
+.site-header nav a:hover {
+    background: rgba(255, 255, 255, .12);
 
-    position: absolute;
-
-    left: 0;
-    right: 0;
-    bottom: -7px;
-
-    height: 2px;
-
-    background: var(--white);
-
-    transform: scaleX(0);
-    transform-origin: center;
-
-    transition: transform 0.2s ease;
-}
-
-.site-header nav a:hover::after {
-    transform: scaleX(1);
-}
-
-
-/* =========================================================
-   GENERAL
-   ========================================================= */
-
-.section-label {
-    margin: 0 0 8px;
-
-    color: var(--burnside-green);
-
-    font-size: 0.72rem;
-    font-weight: bold;
-
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-}
-
-.section-title {
-    margin: 0 0 15px;
-
-    color: var(--burnside-green-dark);
-
-    font-size: 2rem;
-    line-height: 1.15;
-}
-
-.section-text {
-    max-width: 700px;
-
-    margin: 0;
-
-    color: var(--muted);
-
-    font-size: 0.98rem;
+    transform: translateY(-1px);
 }
 
 
 /* =========================================================
    HERO
-   ========================================================= */
+========================================================= */
 
-.hero {
+.home-hero {
     position: relative;
 
-    color: var(--white);
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(0, 40, 1, 0.92) 0%,
-            rgba(0, 40, 1, 0.78) 35%,
-            rgba(0, 40, 1, 0.38) 68%,
-            rgba(0, 40, 1, 0.12) 100%
-        ),
-        url("/static/images/burnside-campus.jpg")
-        center center / cover no-repeat;
-}
-
-.hero-inner {
-    width: 100%;
-
-    max-width: var(--max-width);
-
-    margin: 0 auto;
-
-    padding: 80px 28px;
+    min-height: 850px;
 
     display: flex;
     align-items: center;
+
+    overflow: hidden;
+
+    color: white;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(0, 22, 0, .90) 0%,
+            rgba(0, 55, 0, .64) 38%,
+            rgba(0, 30, 0, .20) 78%
+        ),
+        url("/static/images/burnside-campus.jpg");
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-attachment: fixed;
+}
+
+
+/* Animated image layer */
+
+.home-hero::before {
+    content: "";
+
+    position: absolute;
+
+    inset: -5%;
+
+    background:
+        url("/static/images/burnside-campus.jpg")
+        center / cover no-repeat;
+
+    opacity: .34;
+
+    animation:
+        slowCampusZoom 18s
+        ease-in-out
+        infinite alternate;
+
+    z-index: 0;
+
+    pointer-events: none;
+}
+
+@keyframes slowCampusZoom {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.075);
+    }
+}
+
+
+/* Green atmospheric glow */
+
+.home-hero::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 80% 35%,
+            rgba(91, 177, 82, .20),
+            transparent 35%
+        ),
+        linear-gradient(
+            to bottom,
+            transparent 65%,
+            var(--cream) 100%
+        );
+
+    z-index: 1;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.hero-inner {
+    position: relative;
+
+    z-index: 5;
+
+    width: 100%;
+
+    max-width: 1400px;
+
+    margin: auto;
+
+    padding: 175px 42px 210px;
 }
 
 .hero-content {
-    max-width: 680px;
+    max-width: 760px;
 }
 
-.hero .section-label {
-    color: var(--white);
 
-    opacity: 0.85;
+/* LABEL */
+
+.section-label {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 0 0 22px;
+
+    color: #bde2ba;
+
+    font-size: .7rem;
+
+    font-weight: 900;
+
+    letter-spacing: .22em;
+
+    text-transform: uppercase;
 }
+
+.section-label::before {
+    content: "";
+
+    width: 30px;
+    height: 2px;
+
+    background: #81ca7c;
+}
+
+
+/* HERO TITLE */
 
 .hero h1 {
-    margin: 0 0 20px;
+    margin: 0;
 
-    color: var(--white);
+    color: white;
 
-    font-size: clamp(3rem, 6vw, 5rem);
+    font-size:
+        clamp(
+            4.2rem,
+            8vw,
+            8rem
+        );
 
-    line-height: 1.02;
+    line-height: .86;
 
-    letter-spacing: -0.035em;
+    letter-spacing: -.078em;
+
+    font-weight: 800;
+
+    text-wrap: balance;
 }
+
+.hero h1 span {
+    color: #a9dba5;
+}
+
+
+/* DESCRIPTION */
 
 .hero p:not(.section-label) {
-    max-width: 560px;
+    max-width: 570px;
 
-    margin: 0 0 28px;
+    margin: 34px 0;
 
-    color: rgba(255, 255, 255, 0.92);
+    color: rgba(255, 255, 255, .84);
 
-    font-size: 1.1rem;
+    font-size: 1.08rem;
 
-    line-height: 1.65;
-}
-
-
-/* Home hero */
-
-.home-hero {
-    min-height: 570px;
-}
-
-.home-hero .hero-inner {
-    min-height: 570px;
+    line-height: 1.75;
 }
 
 
 /* =========================================================
    BUTTONS
-   ========================================================= */
+========================================================= */
 
 .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    padding: 12px 23px;
+    padding: 15px 24px;
 
-    background: var(--burnside-green);
-
-    color: var(--white);
-
-    border: 2px solid var(--burnside-green);
+    border-radius: 4px;
 
     text-decoration: none;
 
-    font-family: inherit;
+    font-size: .86rem;
 
-    font-size: 0.9rem;
-    font-weight: bold;
-
-    cursor: pointer;
+    font-weight: 800;
 
     transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
+        transform .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
 }
 
 .btn:hover {
-    background: var(--burnside-green-dark);
-
-    border-color: var(--burnside-green-dark);
+    transform: translateY(-3px);
 }
 
 .btn-light {
-    background: var(--white);
+    background: white;
 
-    color: var(--burnside-green-dark);
+    color: var(--green-dark);
 
-    border-color: var(--white);
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, .22);
 }
 
 .btn-light:hover {
-    background: transparent;
-
-    color: var(--white);
-
-    border-color: var(--white);
-}
-
-.btn-outline {
-    background: transparent;
-
-    color: var(--burnside-green);
-
-    border-color: var(--burnside-green);
-}
-
-.btn-outline:hover {
-    background: var(--burnside-green);
-
-    color: var(--white);
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, .3);
 }
 
 
 /* =========================================================
-   HOME PAGE
-   ========================================================= */
-
-.home-page {
-    background: var(--off-white);
-}
-
-
-/* Check-in content */
+   CHECK-IN AREA
+========================================================= */
 
 .home-content {
-    max-width: var(--max-width);
+    position: relative;
 
-    margin: 0 auto;
+    z-index: 20;
 
-    padding: 0 28px 80px;
-}
+    max-width: 1250px;
 
-.home-content::before {
-    content: "";
+    margin: -75px auto 0;
 
-    display: block;
-
-    width: 100%;
-
-    height: 7px;
-
-    background: var(--burnside-green);
+    padding: 0 30px 125px;
 }
 
 
-/* Check-in panel */
+/* =========================================================
+   CHECK-IN PANEL
+========================================================= */
 
 .checkin-panel {
-    background: var(--white);
+    position: relative;
 
-    border: none;
+    overflow: hidden;
 
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    min-height: 390px;
+
+    padding: 58px 62px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            125deg,
+            rgba(255, 255, 255, .985),
+            rgba(247, 250, 245, .94)
+        );
+
+    border-radius: 7px;
+
+    border-left:
+        8px solid var(--green);
+
+    box-shadow:
+        0 30px 80px rgba(0, 30, 0, .18);
+
+    isolation: isolate;
 }
 
-.home-content .checkin-panel {
+
+/* Large green glow */
+
+.checkin-panel::before {
+    content: "";
+
+    position: absolute;
+
+    width: 520px;
+    height: 520px;
+
+    right: -190px;
+    top: -210px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 95, 2, .16),
+            rgba(0, 95, 2, .045) 48%,
+            transparent 70%
+        );
+
+    z-index: -1;
+
+    pointer-events: none;
+}
+
+
+/* Decorative rings */
+
+.checkin-panel::after {
+    content: "";
+
+    position: absolute;
+
+    width: 420px;
+    height: 420px;
+
+    right: -215px;
+    bottom: -270px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(0, 95, 2, .12);
+
+    box-shadow:
+        0 0 0 35px rgba(0, 95, 2, .025),
+        0 0 0 70px rgba(0, 95, 2, .018);
+
+    z-index: -1;
+
+    pointer-events: none;
+}
+
+
+/* LABEL */
+
+.checkin-panel .section-label {
+    margin-bottom: 18px;
+
+    color: var(--green);
+
+    font-size: .72rem;
+
+    letter-spacing: .25em;
+}
+
+.checkin-panel .section-label::before {
+    background: var(--green-bright);
+}
+
+
+/* PERIOD NUMBER */
+
+.checkin-panel .section-label::after {
+    content: "01";
+
+    margin-left: 14px;
+
+    padding-left: 14px;
+
+    border-left:
+        1px solid rgba(0, 95, 2, .25);
+
+    color: #8b978a;
+
+    font-size: .62rem;
+
+    letter-spacing: .12em;
+}
+
+
+/* TITLE */
+
+.checkin-panel h2 {
     margin: 0;
 
-    padding: 40px 45px;
+    max-width: 700px;
 
-    display: grid;
+    color: var(--green-dark);
 
-    grid-template-columns: 1fr 1fr;
+    font-size:
+        clamp(
+            2.7rem,
+            5vw,
+            4.5rem
+        );
 
-    column-gap: 70px;
+    line-height: .94;
 
-    align-items: center;
+    letter-spacing: -.065em;
+
+    font-weight: 800;
 }
 
 
-/* Heading */
+/* DESCRIPTION */
 
-.home-content .checkin-panel > .section-label {
-    grid-column: 1;
-}
+.checkin-panel > p {
+    max-width: 600px;
 
-.home-content .checkin-panel h2 {
-    grid-column: 1;
+    margin: 20px 0 25px;
 
-    margin: 0 0 8px;
+    color: #667166;
 
-    color: var(--burnside-green-dark);
+    font-size: 1rem;
 
-    font-size: 2rem;
-}
-
-.home-content .checkin-panel > p:not(.section-label):not(.checkin-status) {
-    grid-column: 1;
-
-    margin: 0 0 20px;
-
-    color: var(--muted);
+    line-height: 1.7;
 }
 
 
-/* Signed in */
+/* =========================================================
+   SIGNED IN
+========================================================= */
 
 .signed-in {
-    padding: 20px;
+    position: relative;
 
-    background: var(--burnside-green-light);
+    z-index: 2;
 
-    border-left: 5px solid var(--burnside-green);
-}
+    display: inline-flex;
+    align-items: center;
 
-.home-content .signed-in {
-    grid-column: 2;
+    gap: 10px;
 
-    grid-row: 1 / span 4;
+    width: fit-content;
 
-    margin: 0;
+    margin: 5px 0 20px;
+
+    padding: 10px 15px;
+
+    border-radius: 4px;
+
+    background: #edf6eb;
+
+    border:
+        1px solid #d7e9d4;
 }
 
 .signed-in-label {
-    display: block;
+    color: #6c786b;
 
-    margin-bottom: 4px;
-
-    color: var(--muted);
-
-    font-size: 0.72rem;
-
-    letter-spacing: 0.08em;
-
-    text-transform: uppercase;
+    font-size: .78rem;
 }
 
 .signed-in strong {
-    color: var(--burnside-green-dark);
+    color: var(--green-dark);
 
-    font-size: 1rem;
-}
-
-
-/* Check-in button */
-
-.checkin-button {
-    width: 100%;
-
-    padding: 16px 25px;
-
-    background: var(--burnside-green);
-
-    color: var(--white);
-
-    border: none;
-
-    font-family: inherit;
-
-    font-size: 1rem;
-    font-weight: bold;
-
-    cursor: pointer;
-
-    transition: background-color 0.2s ease;
-}
-
-.checkin-button:hover {
-    background: var(--burnside-green-dark);
-}
-
-.checkin-button:disabled {
-    background: #777;
-
-    cursor: not-allowed;
-}
-
-.home-content .checkin-button {
-    grid-column: 2;
-
-    grid-row: 4;
-
-    margin-top: 15px;
-}
-
-.home-content .checkin-button::after {
-    content: "  →";
-
-    font-size: 1.1rem;
-}
-
-
-/* Status */
-
-.checkin-status {
-    min-height: 24px;
-
-    margin: 15px 0 0;
-
-    color: var(--burnside-green-dark);
-
-    text-align: center;
-
-    font-size: 0.9rem;
-    font-weight: bold;
-}
-
-.home-content .checkin-status {
-    grid-column: 2;
-
-    grid-row: 5;
-}
-
-
-/* Login */
-
-.login-required {
-    padding: 18px;
-
-    margin-bottom: 20px;
-
-    background: #f5f5f3;
-
-    border-left: 4px solid var(--burnside-green);
-}
-
-.login-required strong {
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: var(--burnside-green-dark);
-}
-
-.login-required p {
-    margin: 0;
-
-    color: var(--muted);
-
-    font-size: 0.88rem;
-}
-
-.checkin-login {
-    width: 100%;
-
-    text-align: center;
-}
-
-.home-content .checkin-login {
-    grid-column: 2;
-
-    grid-row: 4;
+    font-size: .82rem;
 }
 
 
 /* =========================================================
-   HOME INFORMATION
-   ========================================================= */
+   CHECK-IN BUTTON
+========================================================= */
+
+.checkin-button {
+    position: relative;
+
+    z-index: 2;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: fit-content;
+
+    min-width: 190px;
+
+    padding: 17px 20px 17px 25px;
+
+    border: none;
+
+    border-radius: 3px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green-bright),
+            var(--green-dark)
+        );
+
+    color: white;
+
+    font-size: .9rem;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 12px 30px rgba(0, 95, 2, .24);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+}
+
+.checkin-button::after {
+    content: "→";
+
+    margin-left: 28px;
+
+    font-size: 1.15rem;
+
+    transition:
+        transform .2s ease;
+}
+
+.checkin-button:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #1b951f,
+            var(--green)
+        );
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 18px 40px rgba(0, 95, 2, .32);
+}
+
+.checkin-button:hover::after {
+    transform: translateX(5px);
+}
+
+
+/* STATUS */
+
+.checkin-status {
+    position: relative;
+
+    z-index: 2;
+
+    margin: 16px 0 0;
+
+    color: var(--green);
+
+    font-weight: 700;
+}
+
+
+/* LOGIN */
+
+.checkin-login {
+    width: fit-content;
+
+    margin-top: 8px;
+
+    padding: 16px 25px;
+
+    border-radius: 3px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green-bright),
+            var(--green-dark)
+        );
+
+    color: white;
+
+    box-shadow:
+        0 12px 30px rgba(0, 95, 2, .2);
+}
+
+.checkin-login:hover {
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1b951f,
+            var(--green)
+        );
+}
+
+
+/* =========================================================
+   INFORMATION / PHOTO SECTION
+========================================================= */
 
 .home-information {
     position: relative;
 
-    background: var(--white);
+    min-height: 680px;
 
-    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0, 30, 0, .91),
+            rgba(0, 50, 0, .65),
+            rgba(0, 30, 0, .28)
+        ),
+        url("/static/images/burnside-campus.jpg");
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-attachment: fixed;
 }
+
+
+/* Animated image */
 
 .home-information::before {
     content: "";
 
-    display: block;
+    position: absolute;
+
+    inset: -4%;
+
+    background:
+        url("/static/images/burnside-campus.jpg")
+        center / cover no-repeat;
+
+    opacity: .25;
+
+    animation:
+        informationZoom 20s
+        ease-in-out
+        infinite alternate;
+
+    pointer-events: none;
+}
+
+@keyframes informationZoom {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.055);
+    }
+}
+
+
+/* Atmospheric lighting */
+
+.home-information::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(94, 190, 85, .25),
+            transparent 38%
+        );
+
+    pointer-events: none;
+}
+
+
+.home-information-inner {
+    position: relative;
+
+    z-index: 2;
 
     width: 100%;
 
-    height: 4px;
+    max-width: 1400px;
 
-    background: var(--burnside-green-dark);
-}
+    margin: auto;
 
-.home-information-inner {
-    max-width: var(--max-width);
-
-    margin: 0 auto;
-
-    padding: 85px 28px;
+    padding: 125px 42px;
 
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:
+        1fr 1fr;
 
-    gap: 100px;
+    gap: 120px;
 }
+
+
+/* LABEL */
+
+.home-information .section-label {
+    color: #a8d6a4;
+}
+
+
+/* TITLE */
 
 .home-information h2 {
-    max-width: 520px;
-
     margin: 0;
 
-    color: var(--burnside-green-dark);
+    max-width: 560px;
 
-    font-size: clamp(2rem, 4vw, 3.2rem);
+    color: white;
 
-    line-height: 1.05;
+    font-size:
+        clamp(
+            3rem,
+            5vw,
+            5.3rem
+        );
 
-    letter-spacing: -0.025em;
+    line-height: .93;
+
+    letter-spacing: -.065em;
 }
 
-.home-information p {
-    max-width: 600px;
 
-    margin: 0 0 20px;
+/* TEXT */
 
-    color: #555;
+.home-information p:not(.section-label) {
+    max-width: 540px;
+
+    color: rgba(255, 255, 255, .82);
 
     font-size: 1rem;
 
-    line-height: 1.8;
-}
-
-.home-information-inner::after {
-    content: "BURNSIDE HIGH SCHOOL";
-
-    grid-column: 1 / -1;
-
-    padding-top: 25px;
-
-    margin-top: 20px;
-
-    border-top: 1px solid var(--border);
-
-    color: var(--burnside-green);
-
-    font-size: 0.7rem;
-
-    font-weight: bold;
-
-    letter-spacing: 0.15em;
-}
-
-
-/* =========================================================
-   ADMIN PAGE
-   ========================================================= */
-
-.admin-page {
-    background: var(--off-white);
-}
-
-.admin-hero {
-    min-height: 430px;
-}
-
-.admin-hero .hero-inner {
-    min-height: 430px;
-}
-
-.admin-content {
-    max-width: var(--max-width);
-
-    margin: 0 auto;
-
-    padding: 0 28px 70px;
-}
-
-.admin-content::before {
-    content: "";
-
-    display: block;
-
-    height: 7px;
-
-    background: var(--burnside-green);
-}
-
-
-/* Admin introduction */
-
-.admin-intro {
-    padding: 30px 35px;
-
-    background: var(--white);
-
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-}
-
-.admin-intro h2 {
-    margin: 0 0 5px;
-
-    color: var(--burnside-green-dark);
-
-    font-size: 1.7rem;
-}
-
-.admin-intro p {
-    margin: 0;
-
-    color: var(--muted);
-}
-
-
-/* Statistics */
-
-.admin-statistics {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    background: var(--white);
-
-    border: 1px solid var(--border);
-}
-
-.admin-stat {
-    padding: 25px;
-
-    border-right: 1px solid var(--border);
-}
-
-.admin-stat:last-child {
-    border-right: none;
-}
-
-.admin-stat-label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: var(--muted);
-
-    font-size: 0.75rem;
-    font-weight: bold;
-
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.admin-stat strong {
-    color: var(--burnside-green-dark);
-
-    font-size: 2.3rem;
-    line-height: 1;
-}
-
-
-/* Admin sections */
-
-.admin-section {
-    margin-top: 22px;
-
-    background: var(--white);
-
-    border: 1px solid var(--border);
-}
-
-.admin-section-heading {
-    padding: 22px 24px;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.admin-section-heading h2 {
-    margin: 0 0 4px;
-
-    color: var(--burnside-green-dark);
-
-    font-size: 1.25rem;
-}
-
-.admin-section-heading p {
-    margin: 0;
-
-    color: var(--muted);
-
-    font-size: 0.84rem;
-}
-
-
-/* Admin table */
-
-.admin-table-wrap {
-    overflow-x: auto;
-}
-
-.admin-table {
-    width: 100%;
-
-    border-collapse: collapse;
-}
-
-.admin-table th {
-    padding: 12px 16px;
-
-    background: var(--burnside-green);
-
-    color: var(--white);
-
-    text-align: left;
-
-    font-size: 0.78rem;
-}
-
-.admin-table td {
-    padding: 13px 16px;
-
-    border-bottom: 1px solid var(--border);
-
-    font-size: 0.87rem;
-}
-
-.admin-table tbody tr:nth-child(even) {
-    background: #fafbf9;
-}
-
-.admin-table tbody tr:hover {
-    background: var(--burnside-green-light);
-}
-
-.admin-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-
-/* Status */
-
-.status-present,
-.status-absent {
-    display: inline-block;
-
-    padding: 4px 8px;
-
-    font-size: 0.73rem;
-    font-weight: bold;
-}
-
-.status-present {
-    background: var(--burnside-green-light);
-
-    color: var(--burnside-green-dark);
-
-    border-left: 3px solid var(--burnside-green);
-}
-
-.status-absent {
-    background: #f8e9e8;
-
-    color: #a52620;
-
-    border-left: 3px solid #a52620;
-}
-
-
-/* Admin links */
-
-.admin-links {
-    display: grid;
-
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.admin-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    min-height: 100px;
-
-    padding: 22px;
-
-    text-decoration: none;
-
-    border-right: 1px solid var(--border);
-}
-
-.admin-link:last-child {
-    border-right: none;
-}
-
-.admin-link:hover {
-    background: var(--burnside-green-light);
-}
-
-.admin-link strong {
-    display: block;
-
-    margin-bottom: 5px;
-
-    color: var(--burnside-green-dark);
-
-    font-size: 0.95rem;
-}
-
-.admin-link span {
-    color: var(--muted);
-
-    font-size: 0.82rem;
-}
-
-.admin-arrow {
-    color: var(--burnside-green);
-
-    font-size: 1.35rem;
-    font-weight: bold;
-}
-
-
-/* System */
-
-.admin-system {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.admin-system-item {
-    padding: 20px;
-
-    border-right: 1px solid var(--border);
-}
-
-.admin-system-item:last-child {
-    border-right: none;
-}
-
-.admin-system-item span {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color: var(--muted);
-
-    font-size: 0.75rem;
-}
-
-.admin-system-item strong {
-    color: var(--burnside-green-dark);
-
-    font-size: 0.88rem;
-}
-
-
-/* =========================================================
-   INPUTS / FORMS
-   ========================================================= */
-
-input,
-textarea,
-select {
-    width: 100%;
-
-    padding: 11px 12px;
-
-    background: var(--white);
-
-    border: 1px solid #c8cec7;
-
-    border-radius: 0;
-
-    color: var(--text);
-
-    font-family: inherit;
-
-    font-size: 0.95rem;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-    outline: none;
-
-    border-color: var(--burnside-green);
-
-    box-shadow: 0 0 0 2px rgba(0, 95, 2, 0.12);
-}
-
-
-/* =========================================================
-   FLASH MESSAGES
-   ========================================================= */
-
-.flash {
-    max-width: 900px;
-
-    margin: 20px auto;
-
-    padding: 12px 15px;
-
-    background: var(--burnside-green-light);
-
-    border-left: 4px solid var(--burnside-green);
-
-    color: var(--burnside-green-dark);
-}
-
-.flash.error {
-    background: #f9e9e8;
-
-    border-left-color: #b3261e;
-
-    color: #9d211b;
+    line-height: 1.9;
 }
 
 
 /* =========================================================
    FOOTER
-   ========================================================= */
+========================================================= */
 
 footer {
-    background: var(--burnside-green-dark);
+    position: relative;
 
-    color: var(--white);
+    background:
+        linear-gradient(
+            135deg,
+            #002500,
+            #001500
+        );
+
+    color: white;
 }
 
 .footer-inner {
-    max-width: var(--max-width);
+    max-width: 1400px;
 
-    margin: 0 auto;
+    margin: auto;
 
-    padding: 45px 28px;
+    padding: 70px 42px;
 
     display: grid;
 
-    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-columns:
+        2fr 1fr 1fr;
 
-    gap: 50px;
+    gap: 80px;
 }
 
 .footer-brand {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
 
-    font-weight: bold;
-}
-
-.footer-heading {
-    margin: 0 0 10px;
-
-    color: var(--white);
-
-    font-size: 0.78rem;
-
-    letter-spacing: 0.08em;
-
-    text-transform: uppercase;
+    font-weight: 800;
 }
 
 .footer-text {
-    margin: 7px 0;
+    color: rgba(255, 255, 255, .48);
 
-    color: rgba(255, 255, 255, 0.75);
+    font-size: .8rem;
 
-    font-size: 0.82rem;
+    line-height: 1.65;
+}
+
+.footer-heading {
+    color: #91c58c;
+
+    font-size: .68rem;
+
+    font-weight: 900;
+
+    letter-spacing: .18em;
+
+    text-transform: uppercase;
 }
 
 .footer-links {
@@ -1087,183 +990,629 @@ footer {
 
     flex-direction: column;
 
-    gap: 7px;
+    gap: 11px;
 }
 
 .footer-links a {
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, .7);
+
+    font-size: .84rem;
 
     text-decoration: none;
 
-    font-size: 0.82rem;
+    transition:
+        color .2s ease,
+        transform .2s ease;
 }
 
 .footer-links a:hover {
-    color: var(--white);
+    color: white;
 
-    text-decoration: underline;
+    transform: translateX(3px);
 }
 
 .footer-bottom {
-    padding: 14px 28px;
+    padding: 19px;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top:
+        1px solid rgba(255, 255, 255, .08);
+
+    color: rgba(255, 255, 255, .38);
+
+    font-size: .68rem;
 
     text-align: center;
+}
 
-    color: rgba(255, 255, 255, 0.6);
 
-    font-size: 0.72rem;
+/* =========================================================
+   ADMIN
+========================================================= */
+
+.admin-layout {
+    display: grid;
+
+    grid-template-columns:
+        240px 1fr;
+
+    min-height:
+        calc(100vh - 80px);
+
+    max-width: 1400px;
+
+    margin: auto;
+}
+
+.admin-sidebar {
+    padding: 35px 18px;
+
+    background: white;
+
+    border-right:
+        1px solid var(--border);
+}
+
+.admin-sidebar-title {
+    padding: 0 14px 16px;
+
+    color: #788078;
+
+    font-size: .68rem;
+
+    font-weight: 900;
+
+    letter-spacing: .16em;
+
+    text-transform: uppercase;
+}
+
+.admin-nav {
+    display: block;
+
+    padding: 13px 14px;
+
+    margin-bottom: 5px;
+
+    border-radius: 5px;
+
+    color: #4f594f;
+
+    font-size: .85rem;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+        background .2s ease,
+        color .2s ease,
+        transform .2s ease;
+}
+
+.admin-nav:hover {
+    color: var(--green);
+
+    background: var(--green-soft);
+
+    transform: translateX(2px);
+}
+
+.admin-nav.active {
+    background:
+        linear-gradient(
+            135deg,
+            var(--green-bright),
+            var(--green-dark)
+        );
+
+    color: white;
+
+    box-shadow:
+        0 8px 22px rgba(0, 95, 2, .2);
+}
+
+.admin-main {
+    padding: 55px;
+}
+
+.admin-heading {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    margin-bottom: 35px;
+}
+
+.admin-heading h1 {
+    margin: 0;
+
+    color: var(--green-dark);
+
+    font-size: 2.5rem;
+
+    letter-spacing: -.04em;
+}
+
+.admin-heading p {
+    margin-top: 8px;
+
+    color: var(--muted);
+}
+
+.admin-date {
+    padding: 10px 15px;
+
+    border-radius: 4px;
+
+    background: #e9f3e7;
+
+    color: var(--green);
+
+    font-size: .75rem;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   ADMIN STATS
+========================================================= */
+
+.admin-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+}
+
+.admin-stat {
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 28px;
+
+    background: white;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 40, 0, .06);
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+}
+
+.admin-stat:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 15px 40px rgba(0, 40, 0, .1);
+}
+
+.admin-stat::after {
+    content: "";
+
+    position: absolute;
+
+    width: 120px;
+    height: 120px;
+
+    right: -45px;
+    bottom: -45px;
+
+    border-radius: 50%;
+
+    background: #eaf4e8;
+}
+
+.admin-stat-label {
+    position: relative;
+
+    z-index: 2;
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    color: var(--muted);
+
+    font-size: .72rem;
+
+    font-weight: 900;
+
+    text-transform: uppercase;
+
+    letter-spacing: .08em;
+}
+
+.admin-stat strong {
+    position: relative;
+
+    z-index: 2;
+
+    color: var(--green-dark);
+
+    font-size: 2.6rem;
+}
+
+
+/* =========================================================
+   ADMIN SECTIONS
+========================================================= */
+
+.admin-section {
+    margin-bottom: 24px;
+
+    padding: 30px;
+
+    background: white;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 8px 30px rgba(0, 40, 0, .05);
+}
+
+.admin-section-header h2 {
+    margin: 0;
+
+    color: var(--green-dark);
+
+    font-size: 1.4rem;
+}
+
+.admin-section-header p {
+    color: var(--muted);
+
+    font-size: .83rem;
+}
+
+
+/* =========================================================
+   ADMIN TABLE
+========================================================= */
+
+.admin-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top: 20px;
+}
+
+.admin-table th {
+    padding: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--green-bright),
+            var(--green)
+        );
+
+    color: white;
+
+    text-align: left;
+
+    font-size: .75rem;
+
+    letter-spacing: .04em;
+}
+
+.admin-table td {
+    padding: 14px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    font-size: .85rem;
+}
+
+.admin-table tbody tr:nth-child(even) {
+    background: #f2f7f0;
+}
+
+.admin-table tbody tr:hover {
+    background: #e4f0e2;
+}
+
+.status-present {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 100px;
+
+    background: #e4f3e1;
+
+    color: var(--green);
+
+    font-size: .72rem;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   ADMIN LINKS
+========================================================= */
+
+.admin-link {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 17px 4px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    text-decoration: none;
+
+    transition:
+        padding .2s ease;
+}
+
+.admin-link:hover {
+    padding-left: 8px;
+}
+
+.admin-link strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--green-dark);
+}
+
+.admin-link span {
+    color: var(--muted);
+
+    font-size: .8rem;
+}
+
+.admin-arrow {
+    color: var(--green);
+
+    font-size: 1.3rem;
 }
 
 
 /* =========================================================
    MOBILE
-   ========================================================= */
+========================================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
 
     .header-inner {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding: 18px 22px;
     }
 
-    .home-hero,
-    .home-hero .hero-inner {
-        min-height: 500px;
+    .home-hero {
+        min-height: 720px;
+
+        background-attachment: scroll;
+    }
+
+    .home-hero::before {
+        animation: none;
+    }
+
+    .hero-inner {
+        padding:
+            145px 25px 165px;
     }
 
     .home-content {
-        padding-left: 18px;
-        padding-right: 18px;
+        margin-top: -65px;
+
+        padding:
+            0 20px 90px;
     }
 
-    .home-content .checkin-panel {
-        display: block;
-
-        padding: 30px 25px;
+    .checkin-panel {
+        padding: 45px 40px;
     }
 
-    .home-content .signed-in {
-        margin: 20px 0;
+    .home-information {
+        background-attachment: scroll;
     }
 
-    .home-content .checkin-button,
-    .home-content .checkin-login {
-        display: block;
-
-        margin-top: 15px;
+    .home-information::before {
+        animation: none;
     }
 
     .home-information-inner {
         grid-template-columns: 1fr;
 
-        gap: 30px;
+        gap: 35px;
 
-        padding: 60px 20px;
+        padding:
+            90px 25px;
     }
 
-    .home-information-inner::after {
-        grid-column: 1;
-    }
-
-    .admin-statistics {
+    .admin-layout {
         grid-template-columns: 1fr;
     }
 
-    .admin-stat {
+    .admin-sidebar {
+        min-height: auto;
+
+        display: flex;
+
+        overflow-x: auto;
+
+        padding: 10px;
+
         border-right: none;
 
-        border-bottom: 1px solid var(--border);
+        border-bottom:
+            1px solid var(--border);
     }
 
-    .admin-stat:last-child {
-        border-bottom: none;
+    .admin-sidebar-title {
+        display: none;
     }
 
-    .admin-links {
-        grid-template-columns: 1fr;
+    .admin-nav {
+        white-space: nowrap;
     }
 
-    .admin-link {
-        border-right: none;
-
-        border-bottom: 1px solid var(--border);
-    }
-
-    .admin-link:last-child {
-        border-bottom: none;
-    }
-
-    .admin-system {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-system-item {
-        border-right: none;
-
-        border-bottom: 1px solid var(--border);
-    }
-
-    .admin-system-item:last-child {
-        border-bottom: none;
-    }
-
-    .footer-inner {
-        grid-template-columns: 1fr 1fr;
+    .admin-main {
+        padding:
+            35px 20px;
     }
 }
 
 
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
 @media (max-width: 600px) {
 
     .header-inner {
-        min-height: 70px;
+        padding:
+            15px 16px;
+    }
 
-        flex-direction: column;
+    .brand .logo {
+        width: 43px;
+        height: 43px;
+    }
 
-        align-items: flex-start;
+    .brand-name {
+        font-size: .95rem;
+    }
 
-        gap: 12px;
-
-        padding-top: 14px;
-        padding-bottom: 14px;
+    .brand-subtitle {
+        display: none;
     }
 
     .site-header nav {
-        width: 100%;
-
-        gap: 18px;
+        gap: 1px;
     }
 
     .site-header nav a {
-        font-size: 0.78rem;
+        padding:
+            8px 9px;
+
+        font-size: .7rem;
     }
 
-    .home-hero,
-    .home-hero .hero-inner {
-        min-height: 450px;
+    .hero h1 {
+        font-size: 3.7rem;
     }
 
-    .home-hero h1 {
-        font-size: 2.8rem;
+    .hero p:not(.section-label) {
+        font-size: .95rem;
     }
 
-    .hero-inner {
-        padding-left: 20px;
-        padding-right: 20px;
+    .home-content {
+        margin-top: -50px;
+
+        padding:
+            0 14px 75px;
+    }
+
+    .checkin-panel {
+        min-height: 360px;
+
+        padding:
+            38px 28px;
+
+        border-left-width: 6px;
+    }
+
+    .checkin-panel h2 {
+        font-size: 2.7rem;
+    }
+
+    .checkin-panel > p {
+        font-size: .9rem;
+    }
+
+    .checkin-button,
+    .checkin-login {
+        width: 100%;
+
+        justify-content: space-between;
+    }
+
+    .admin-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-heading {
+        display: block;
+    }
+
+    .admin-date {
+        display: inline-block;
+
+        margin-top: 15px;
+    }
+
+    .admin-table {
+        min-width: 600px;
+    }
+
+    .admin-table-wrapper {
+        overflow-x: auto;
     }
 
     .footer-inner {
         grid-template-columns: 1fr;
 
-        gap: 28px;
+        gap: 35px;
 
-        padding: 35px 20px;
+        padding:
+            50px 25px;
+    }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+button:focus-visible,
+a:focus-visible {
+    outline:
+        3px solid #75bd70;
+
+    outline-offset: 4px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
     }
 
-    .footer-bottom {
-        padding-left: 20px;
-        padding-right: 20px;
+    .home-hero::before,
+    .home-information::before {
+        animation: none;
     }
 }
