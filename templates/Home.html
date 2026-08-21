@@ -4,6 +4,7 @@
 <head>
 
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -344,6 +345,333 @@
 
 </footer>
 
+=======
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Burnside Attendance</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a href="{{ url_for('home') }}" class="brand">
+        <div class="brand-mark">B</div>
+
+        <div class="brand-text">
+            <span>Burnside</span>
+            <small>Attendance</small>
+        </div>
+    </a>
+    <nav class="nav-links">
+        <a href="{{ url_for('home') }}" class="active">Home</a>
+        <a href="{{ url_for('checkin') }}">Check In</a>
+
+        {% if session.get('username') %}
+        <a href="{{ url_for('my_attendance') }}">My Attendance</a>
+        {% endif %}
+    </nav>
+
+
+    <div class="nav-account">
+
+        {% if session.get('username') %}
+
+            <a href="{{ url_for('account') }}" class="account-pill">
+
+                {% if session.get('picture') %}
+                    <img
+                        src="{{ session.get('picture') }}"
+                        alt="Profile"
+                        class="account-pfp">
+                {% else %}
+                    <div class="account-pfp fallback-pfp">
+                        {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
+                    </div>
+                {% endif %}
+
+                <div class="account-details">
+                    <strong>
+                        {{ session.get('name') or session.get('username') }}
+                    </strong>
+
+                    <span>
+                        {{ session.get('email') or session.get('username') }}
+                    </span>
+                </div>
+
+                <span class="account-chevron">⌄</span>
+
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="logout">
+                Log out
+            </a>
+
+        {% else %}
+
+            <a href="{{ url_for('login') }}" class="login-button">
+                Sign in
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="eyebrow">
+                <span class="status-dot"></span>
+                Burnside High School
+            </div>
+
+            <h1>
+                Your school day,<br>
+                <span>checked in.</span>
+            </h1>
+
+            <p>
+                Quickly check in, view your attendance,
+                and manage your student account all in one place.
+            </p>
+
+
+            <div class="hero-actions">
+
+                {% if session.get('username') %}
+
+                    <button class="primary-button" onclick="checkIn()">
+                        <span>Check in now</span>
+                        <span class="button-arrow">→</span>
+                    </button>
+
+                    <a href="{{ url_for('my_attendance') }}" class="secondary-button">
+                    View my attendance
+                    </a>
+
+                {% else %}
+
+                    <a href="{{ url_for('login') }}" class="primary-button">
+                        <span>Sign in with Google</span>
+                        <span class="button-arrow">→</span>
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+
+            <p id="status" class="checkin-status"></p>
+
+        </div>
+
+
+        <div class="hero-decoration">
+
+            <div class="floating-card card-one">
+                <span class="mini-icon">✓</span>
+
+                <div>
+                    <strong>Attendance</strong>
+                    <small>Ready to check in</small>
+                </div>
+            </div>
+
+
+            <div class="hero-circle">
+                <div class="circle-inner">
+                    BHS
+                </div>
+            </div>
+
+
+            <div class="floating-card card-two">
+                <div class="mini-avatar">
+                    {% if session.get('picture') %}
+                        <img src="{{ session.get('picture') }}" alt="">
+                    {% else %}
+                        {{ (session.get('name') or 'S')[0] | upper }}
+                    {% endif %}
+                </div>
+
+                <div>
+                    <strong>
+                        {% if session.get('name') %}
+                            {{ session.get('name').split()[0] }}
+                        {% else %}
+                            Student
+                        {% endif %}
+                    </strong>
+
+                    <small>Student account</small>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- QUICK ACCESS -->
+
+    <section class="section">
+
+        <div class="section-heading">
+            <div>
+                <span class="section-label">QUICK ACCESS</span>
+                <h2>Everything you need.</h2>
+            </div>
+        </div>
+
+
+        <div class="feature-grid">
+
+            <a href="{{ url_for('checkin') }}" class="feature-card feature-primary">
+
+                <div class="feature-icon">✓</div>
+
+                <div class="feature-content">
+                    <span class="feature-tag">TODAY</span>
+
+                    <h3>Check in</h3>
+
+                    <p>
+                        Mark yourself present for the current school period.
+                    </p>
+                </div>
+
+                <span class="feature-arrow">↗</span>
+
+            </a>
+
+
+            <a href="{{ url_for('my_attendance') if session.get('username') else url_for('login') }}"
+               class="feature-card">
+
+                <div class="feature-icon secondary-icon">◷</div>
+
+                <div class="feature-content">
+
+                    <span class="feature-tag">HISTORY</span>
+
+                    <h3>My attendance</h3>
+
+                    <p>
+                        See your previous check-ins and attendance history.
+                    </p>
+
+                </div>
+
+                <span class="feature-arrow">↗</span>
+
+            </a>
+
+
+            <a href="{{ url_for('account') if session.get('username') else url_for('login') }}"
+               class="feature-card">
+
+                <div class="feature-icon secondary-icon">◉</div>
+
+                <div class="feature-content">
+
+                    <span class="feature-tag">PROFILE</span>
+
+                    <h3>Student account</h3>
+
+                    <p>
+                        View and manage your student profile.
+                    </p>
+
+                </div>
+
+                <span class="feature-arrow">↗</span>
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- ACCOUNT STATUS -->
+
+    {% if session.get('username') %}
+
+    <section class="welcome-card">
+
+        <div class="welcome-avatar">
+
+            {% if session.get('picture') %}
+                <img
+                    src="{{ session.get('picture') }}"
+                    alt="Profile picture">
+            {% else %}
+                {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
+            {% endif %}
+
+        </div>
+
+        <div class="welcome-text">
+
+            <span>YOU'RE SIGNED IN</span>
+
+            <h3>
+                Welcome back,
+                {{ session.get('name') or session.get('username') }}.
+            </h3>
+
+            <p>
+                Your Burnside account is connected and ready to use.
+            </p>
+
+        </div>
+
+        <a href="{{ url_for('account') }}" class="welcome-link">
+            Account →
+        </a>
+
+    </section>
+
+    {% endif %}
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="footer-brand">
+        <div class="brand-mark small-mark">B</div>
+
+        <div>
+            <strong>Burnside Attendance</strong>
+            <span>Student check-in portal</span>
+        </div>
+    </div>
+
+    <div class="footer-right">
+        <span>Built for Burnside High School</span>
+
+        <a href="https://www.burnside.school.nz/"
+           target="_blank"
+           rel="noopener">
+            School website →
+        </a>
+    </div>
+
+</footer>
+>>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
 
 </body>
 </html>

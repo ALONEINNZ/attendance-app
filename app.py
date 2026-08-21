@@ -16,6 +16,8 @@ from authlib.integrations.flask_client import OAuth
 SCHOOL_NETWORKS = {
     "Burnside WiFi": [
         "202.150.123.193/32",
+        "122.63.129.201/32",
+        "202.36.179.108/32",
     ],
 }
 def is_school_ip(ip):
@@ -46,32 +48,29 @@ def get_real_ip():
     )
 
 
-def is_school_ip(ip):
-    try:
-        client_ip = ipaddress.ip_address(ip)
-
-        for network_name, networks in SCHOOL_NETWORKS.items():
-            for network in networks:
-                if client_ip in ipaddress.ip_network(network):
-                    return True, network_name
-
-    except ValueError:
-        pass
-
-    return False, None
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=2)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 DB_FILE = os.path.join(BASE_DIR, "main.db")
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "main.db")
+ATTENDANCE_DB_FILE = os.path.join(BASE_DIR, "attendance.db")
+
+def get_attendance_db():
+    conn = sqlite3.connect(ATTENDANCE_DB_FILE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 print("MAIL USER:", os.getenv("USERNAME"))
-load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)
 
 app.config["SECRET_KEY"] = os.getenv("KEY", "dev-secret-key")
+
+app.config.update(
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "uploads")
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -106,6 +105,11 @@ google = oauth.register(
 SCHOOL_EMAIL_DOMAIN = "@burnside.school.nz"
 
 
+# Emails allowed to access the admin dashboard
+ADMIN_EMAILS = {
+    "22298@burnside.school.nz"
+}
+
 @app.before_request
 def log_visitor_ip():
     cf_ip = request.headers.get("CF-Connecting-IP")
@@ -124,6 +128,11 @@ def get_db():
 
 
 def init_db():
+
+    # =========================
+    # MAIN DATABASE
+    # =========================
+
     conn = get_db()
     cursor = conn.cursor()
 
@@ -140,6 +149,17 @@ def init_db():
         )
     """)
 
+    conn.commit()
+    conn.close()
+
+
+    # =========================
+    # ATTENDANCE DATABASE
+    # =========================
+
+    conn = get_attendance_db()
+    cursor = conn.cursor()
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS attendance (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -150,7 +170,6 @@ def init_db():
 
     conn.commit()
     conn.close()
-
 
 def login_required(f):
     @wraps(f)
@@ -192,39 +211,172 @@ def home():
 
 @app.route("/auth/google/callback")
 def google_callback():
+
+    # Get Google account information
     token = google.authorize_access_token()
     user = token.get("userinfo")
 
-    email = user["email"]
-
-    if not email.lower().endswith("@burnside.school.nz"):
+    if not user:
         return render_template(
             "login.html",
             header="login",
-            error="Please use your Burnside school email."
+            error="Could not get your Google account information."
         )
+
+    email = user.get("email", "").lower().strip()
+    name = user.get("name", "").strip()
+    picture = user.get("picture")
+
+
+    # -----------------------------------------
+    # ONLY ALLOW BURNSIDE EMAILS
+    # -----------------------------------------
+
+    if not email.endswith("@burnside.school.nz"):
+
+        return render_template(
+            "login.html",
+            header="login",
+            error="Please use your Burnside school Google account."
+        )
+
 
     conn = get_db()
-    cur = conn.cursor()
-    student = cur.execute('''SELECT username, code, pfp
-                        FROM users
-                        WHERE email = ?''', (email,)).fetchone()
-    conn.close()
+    cursor = conn.cursor()
 
-    if student is None:
-        return render_template(
-            "login.html",
-            header="login",
-            error="No account found for this email. Please sign up first."
+
+    # -----------------------------------------
+    # CHECK IF USER ALREADY EXISTS
+    # -----------------------------------------
+
+    student = cursor.execute("""
+        SELECT username, code, email, pfp
+        FROM users
+        WHERE email = ?
+    """, (email,)).fetchone()
+
+
+    # -----------------------------------------
+    # EXISTING USER
+    # -----------------------------------------
+
+    if student:
+
+        session.clear()
+
+        session["username"] = student["username"]
+        session["code"] = student["code"]
+        session["email"] = student["email"]
+        session["name"] = name
+        session["picture"] = picture
+        session["pfp"] = student["pfp"]
+        session["signup_complete"] = True
+
+        conn.close()
+
+        print(
+            "GOOGLE LOGIN SUCCESS:",
+            {
+                "username": student["username"],
+                "email": student["email"]
+            },
+            flush=True
         )
 
-    session["username"] = student["username"]
-    session["code"] = student["code"]
+        return redirect(url_for("home"))
+
+
+    # -----------------------------------------
+    # NEW USER
+    # -----------------------------------------
+
+    # Create a username from their Google name
+    username = name.strip()
+
+    if not username:
+        username = email.split("@")[0]
+
+
+    # Make username safe for your database
+    username = username.replace(" ", "_")
+
+
+    # Student code is not supplied by Google.
+    # Generate a unique placeholder for now.
+    code = secrets.token_hex(3)
+
+
+    # Generate a random password because
+    # Google authentication is now used instead.
+    password = generate_password_hash(
+        secrets.token_urlsafe(32)
+    )
+
+
+    # Unique verification key
+    verify_key = secrets.token_urlsafe(32)
+
+
+    # Make sure username isn't already taken
+    original_username = username
+    counter = 1
+
+    while cursor.execute(
+        "SELECT id FROM users WHERE username = ?",
+        (username,)
+    ).fetchone():
+
+        username = f"{original_username}_{counter}"
+        counter += 1
+
+
+    # -----------------------------------------
+    # CREATE USER
+    # -----------------------------------------
+
+    cursor.execute("""
+        INSERT INTO users
+        (
+            username,
+            password,
+            code,
+            email,
+            verify_key,
+            is_verified,
+            pfp
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (
+        username,
+        password,
+        code,
+        email,
+        verify_key,
+        1,
+        picture
+    ))
+
+
+    conn.commit()
+    conn.close()
+
+
+    # -----------------------------------------
+    # CREATE SESSION
+    # -----------------------------------------
+
+    session["username"] = username
+    session["code"] = code
     session["email"] = email
-    session["pfp"] = student["pfp"]
+    session["name"] = name
+    session["picture"] = picture
+    session["pfp"] = picture
     session["signup_complete"] = True
 
+
     return redirect(url_for("home"))
+    
+
 
 # @app.route("/signup", methods=["GET", "POST"])
 # def signup():
@@ -341,50 +493,67 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for("home"))
-
-
-@app.route("/account", methods=["GET", "POST"])
+@app.route("/my-attendance")
 @login_required
-def account():
-    if request.method == "GET":
-        return render_template("account.html", header="account")
+def my_attendance():
+    try:
+        username = session.get("username")
 
-    if "file" not in request.files:
-        flash("No file uploaded.")
-        return redirect(request.url)
+        print("MY ATTENDANCE USER:", repr(username), flush=True)
+        print("ATTENDANCE DB:", ATTENDANCE_DB_FILE, flush=True)
 
-    file = request.files["file"]
-
-    if file.filename == "":
-        flash("No selected file.")
-        return redirect(request.url)
-    
-    allowed_extensions = {'.png', '.jpg', '.jpeg', '.gif'}
-    file_ext = os.path.splitext(file.filename)[1].lower()
-    
-    if file and file_ext in allowed_extensions:
-        filename = secure_filename(f"pfp_{session['code']}{file_ext}")
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-        file.save(filepath)
-
-        conn = get_db()
+        conn = get_attendance_db()
         cursor = conn.cursor()
+
         cursor.execute("""
-            UPDATE users 
-            SET pfp = ? 
-            WHERE username = ?
-        """, (filename, session["username"]))
-        conn.commit()
+            SELECT name, time
+            FROM attendance
+            WHERE name = ?
+            ORDER BY time DESC
+        """, (username,))
+
+        attendance = cursor.fetchall()
+
+        print(
+            "ATTENDANCE FOUND:",
+            [dict(row) for row in attendance],
+            flush=True
+        )
+
         conn.close()
 
-        session["pfp"] = filename
-        flash("Profile picture updated successfully!")
-        return redirect(url_for("account"))
+        return render_template(
+            "attendance.html",
+            header="My Attendance",
+            attendance=attendance
+        )
 
-    flash("Invalid file type. Please upload an image.")
-    return redirect(request.url)
+    except Exception as e:
+        print("MY ATTENDANCE ERROR:", str(e), flush=True)
 
+        return f"My attendance error: {str(e)}", 500
+@app.route("/account")
+@login_required
+def account():
+    username = session.get("username")
 
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT username, code, email, pfp
+        FROM users
+        WHERE username = ?
+    """, (username,))
+
+    user = cursor.fetchone()
+    conn.close()
+
+    return render_template(
+        "account.html",
+        header="Account",
+        user=user
+    )
 
 @app.route("/teacher")
 @login_required
@@ -393,11 +562,11 @@ def teacher():
 
 
 def load_attendance_rows():
-    conn = get_db()
+    conn = get_attendance_db()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT name, time 
+        SELECT name, time
         FROM attendance
         ORDER BY time ASC, name ASC
     """)
@@ -412,26 +581,32 @@ def load_attendance():
     rows = load_attendance_rows()
     return {row["name"]: row["time"] for row in rows}
 
-# @app.route("/reset-users")
-# def reset_users():
 
-#     conn = get_db()
-#     cursor = conn.cursor()
+@app.route("/reset-users")
+@login_required
+def reset_users():
 
-#     cursor.execute("DELETE FROM users")
+    email = session.get("email", "").lower().strip()
 
-#     conn.commit()
-#     conn.close()
+    if email not in ADMIN_EMAILS:
+        return "Unauthorized", 403
 
-#     return "All users deleted. Remove this route after testing."
-
-def save_attendance(name, time):
     conn = get_db()
     cursor = conn.cursor()
 
+    cursor.execute("DELETE FROM users")
+
+    conn.commit()
+    conn.close()
+
+    return "All users deleted."
+
+def save_attendance(name, time):
+    conn = get_attendance_db()
+    cursor = conn.cursor()
+
     cursor.execute("""
-        INSERT INTO attendance 
-        (name, time) 
+        INSERT INTO attendance (name, time)
         VALUES (?, ?)
     """, (name, time))
 
@@ -442,93 +617,135 @@ def save_attendance(name, time):
 @app.route("/checkin", methods=["GET", "POST"])
 @login_required
 def checkin():
+
     client_ip = get_real_ip()
     allowed, network_name = is_school_ip(client_ip)
 
     if not allowed:
-        return jsonify({"message": "Check-in is only allowed from school networks."}), 403
+        return jsonify({
+            "message": "Check-in is only allowed from school networks or other verified networks"
+        }), 403
+
+    # -----------------------------------------
+    # GET - SHOW CHECK-IN PAGE
+    # -----------------------------------------
 
     if request.method == "GET":
         entries = load_attendance_rows()
-        return render_template("checkin.html", header="checkin", entries=entries)
+
+        return render_template(
+            "checkin.html",
+            header="checkin",
+            entries=entries
+        )
+
+    # -----------------------------------------
+    # POST - CHECK STUDENT IN
+    # -----------------------------------------
 
     try:
-        # Get the email from the Google account that is logged in
-        email = session.get("email")
 
-        if not email:
-            return jsonify({"message": "You must be logged in."}), 401
+        # We already know who is logged in.
+        # Google login stored their username in the session.
+        username = session.get("username")
 
-        # Find the user's account using their Google email
+        print(
+            "CHECKIN USERNAME FROM SESSION:",
+            repr(username),
+            flush=True
+        )
+
+        if not username:
+            return jsonify({
+                "message": "You must be logged in."
+            }), 401
+
+        # -----------------------------------------
+        # FIND USER BY USERNAME
+        # -----------------------------------------
+
         conn = get_db()
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT username, code, email
+            SELECT username, code, email, pfp
             FROM users
-            WHERE email = ?
-        """, (email,))
+            WHERE username = ?
+        """, (username,))
 
         user = cursor.fetchone()
+
+        print(
+            "CHECKIN USER FROM DATABASE:",
+            dict(user) if user else None,
+            flush=True
+        )
+
         conn.close()
 
         if not user:
-            return jsonify({"message": "User account not found."}), 404
+            return jsonify({
+                "message": "User account not found."
+            }), 404
 
-        # Automatically get their username
+        # -----------------------------------------
+        # CHECK IF ALREADY CHECKED IN
+        # -----------------------------------------
+
         name = user["username"]
 
         attendance = load_attendance()
 
         if name in attendance:
-            return jsonify({"message": "Already checked in."})
+            return jsonify({
+                "message": "Already checked in."
+            })
+
+        # -----------------------------------------
+        # SAVE CHECK-IN
+        # -----------------------------------------
 
         current_time = datetime.now().strftime("%H:%M")
 
-        save_attendance(name, current_time)
+        save_attendance(
+            name,
+            current_time
+        )
 
-        return jsonify({"message": "Checked in successfully."})
+        return jsonify({
+            "message": "Checked in successfully."
+        })
 
     except sqlite3.IntegrityError:
-        return jsonify({"message": "Already checked in."}), 400
+
+        return jsonify({
+            "message": "Already checked in."
+        }), 400
 
     except Exception as e:
-        return jsonify({"message": f"Error: {str(e)}"}), 500
 
-@app.route("/attendance")
-@login_required
-def attendance():
-    try:
-        data = load_attendance()
-        result = [{"name": name, "time": time} for name, time in data.items()]
-        return jsonify(result)
+        print(
+            "CHECKIN ERROR:",
+            str(e),
+            flush=True
+        )
 
-    except Exception as e:
-        return jsonify({"message": f"Error: {str(e)}"}), 500
+        return jsonify({
+            "message": f"Error: {str(e)}"
+        }), 500
 
-@app.route("/admin-login", methods=["GET", "POST"])
-def admin_login():
-    error = None
 
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        if username == "admin" and password == "admin":
-            session["is_admin"] = True
-            return redirect(url_for("admin"))
-
-        error = "Invalid admin credentials."
-
-    return render_template("admin_login.html", header="admin-login", error=error)
 @app.route("/admin/reset-attendance", methods=["POST"])
 @login_required
 def reset_attendance():
-    if session.get("username") != "admin":
+
+    email = session.get("email", "").lower().strip()
+
+    if email not in ADMIN_EMAILS:
         return jsonify({"message": "Unauthorized"}), 403
 
     try:
-        conn = get_db()
+        conn = get_attendance_db()
         cursor = conn.cursor()
 
         cursor.execute("DELETE FROM attendance")
@@ -536,45 +753,105 @@ def reset_attendance():
         conn.commit()
         conn.close()
 
-        return jsonify({"message": "Attendance reset successfully."})
+        return jsonify({
+            "message": "Attendance reset successfully."
+        })
 
     except Exception as e:
-        return jsonify({"message": f"Error: {str(e)}"}), 500
+        return jsonify({
+            "message": f"Error: {str(e)}"
+        }), 500
 
+    
 @app.route("/admin")
 @login_required
 def admin():
-    if not session.get("is_admin"):
-        return redirect(url_for("admin_login"))
 
-    conn = get_db()
-    cursor = conn.cursor()
+    try:
+        # -------------------------
+        # CHECK GOOGLE EMAIL
+        # -------------------------
 
-    cursor.execute("""
-        SELECT username, code, email, is_verified, pfp
-        FROM users
-    """)
+        email = session.get("email", "").lower().strip()
 
-    users = cursor.fetchall()
-    conn.close()
+        print("=================================", flush=True)
+        print("ADMIN PAGE REQUEST", flush=True)
+        print("SESSION:", dict(session), flush=True)
+        print("ADMIN EMAIL:", repr(email), flush=True)
+        print("=================================", flush=True)
 
-    return render_template("admin.html", header="admin", users=users)
+        # Only allow your Google account
+        if email not in ADMIN_EMAILS:
+            print("ADMIN ACCESS DENIED", flush=True)
+            return redirect(url_for("home"))
 
-@app.route("/admin-logout")
-def admin_logout():
-    session.pop("is_admin", None)
-    return redirect(url_for("home"))
+        print("ADMIN ACCESS GRANTED", flush=True)
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template("404.html"), 404
+        # -------------------------
+        # GET USERS
+        # -------------------------
 
+        conn = get_db()
+        cursor = conn.cursor()
 
-@app.errorhandler(500)
-def server_error(e):
-    return render_template("500.html"), 500
+        cursor.execute("""
+            SELECT username, code, email, is_verified, pfp
+            FROM users
+            ORDER BY username ASC
+        """)
+
+        users = cursor.fetchall()
+        conn.close()
+
+        print("USERS LOADED:", len(users), flush=True)
+
+        # -------------------------
+        # GET ATTENDANCE
+        # -------------------------
+
+        attendance_conn = get_attendance_db()
+        attendance_cursor = attendance_conn.cursor()
+
+        attendance_cursor.execute("""
+            SELECT name, time
+            FROM attendance
+            ORDER BY time DESC
+        """)
+
+        attendance = attendance_cursor.fetchall()
+        attendance_conn.close()
+
+        print("ATTENDANCE LOADED:", len(attendance), flush=True)
+
+        # -------------------------
+        # LOAD PAGE
+        # -------------------------
+
+        return render_template(
+            "admin.html",
+            header="admin",
+            users=users,
+            attendance=attendance,
+            admin_name=email
+        )
+
+    except Exception as e:
+
+        print("=================================", flush=True)
+        print("ADMIN PAGE ERROR:", repr(e), flush=True)
+        print("=================================", flush=True)
+
+        return f"""
+        <h1>Admin Error</h1>
+        <pre>{str(e)}</pre>
+        """, 500
+# Initialise database when Flask/Gunicorn starts
+init_db()
 
 
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(
+        debug=True,
+        host="0.0.0.0",
+        port=5000
+    )
