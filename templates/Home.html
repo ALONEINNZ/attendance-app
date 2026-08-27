@@ -44,28 +44,41 @@
 
     </a>
 
-    <nav class="hero-links">
+ <nav class="hero-links">
 
-        {% if session.get('username') %}
+    <a href="{{ url_for('home') }}" class="active">
+        Home
+    </a>
 
-            <a href="{{ url_for('my_attendance') }}">
-                My Attendance
+    <a href="{{ url_for('checkin') }}">
+        Check In
+    </a>
+
+    {% if session.get('username') %}
+
+        <a href="{{ url_for('my_attendance') }}">
+            My Attendance
+        </a>
+
+        {% if session.get('is_admin') %}
+            <a href="{{ url_for('admin') }}">
+                Admin
             </a>
-
-            <a href="{{ url_for('logout') }}">
-                Logout
-            </a>
-
-        {% else %}
-
-            <a href="{{ url_for('login') }}">
-                Login
-            </a>
-
         {% endif %}
 
-    </nav>
+        <a href="{{ url_for('logout') }}">
+            Logout
+        </a>
 
+    {% else %}
+
+        <a href="{{ url_for('login') }}">
+            Sign in
+        </a>
+
+    {% endif %}
+
+</nav>
 </div>
 
 
