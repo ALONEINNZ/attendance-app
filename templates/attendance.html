@@ -30,47 +30,25 @@
 
     <div class="nav-inner">
 
-        <!-- BRAND -->
-
-        <a
-            href="{{ url_for('home') }}"
-            class="brand"
-        >
+        <a href="{{ url_for('home') }}" class="brand">
 
             {% if logo_url %}
-
                 <img
                     src="{{ logo_url }}"
                     alt="Burnside High School"
                     class="logo"
                 >
-
             {% else %}
-
-                <div class="brand-mark">
-                    B
-                </div>
-
+                <div class="brand-mark">B</div>
             {% endif %}
 
-
             <div class="brand-text">
-
-                <span>
-                    Burnside
-                </span>
-
-                <small>
-                    Attendance
-                </small>
-
+                <span>Burnside</span>
+                <small>Attendance</small>
             </div>
 
         </a>
 
-
-
-        <!-- NAVIGATION LINKS -->
 
         <nav class="nav-links">
 
@@ -83,29 +61,22 @@
             </a>
 
             {% if session.get('username') %}
-
                 <a
                     href="{{ url_for('my_attendance') }}"
                     class="active"
                 >
                     My Attendance
                 </a>
-
             {% endif %}
 
             {% if session.get('is_admin') %}
-
                 <a href="{{ url_for('admin') }}">
                     Admin
                 </a>
-
             {% endif %}
 
         </nav>
 
-
-
-        <!-- ACCOUNT -->
 
         <div class="nav-account">
 
@@ -127,7 +98,6 @@
                     {% else %}
 
                         <div class="account-pfp fallback-pfp">
-
                             {{
                                 (
                                     session.get('name')
@@ -135,11 +105,9 @@
                                     or 'S'
                                 )[0] | upper
                             }}
-
                         </div>
 
                     {% endif %}
-
 
                     <div class="account-details">
 
@@ -159,13 +127,9 @@
 
                     </div>
 
-
-                    <span class="account-chevron">
-                        ⌄
-                    </span>
+                    <span class="account-chevron">⌄</span>
 
                 </a>
-
 
                 <a
                     href="{{ url_for('logout') }}"
@@ -190,7 +154,6 @@
     </div>
 
 </header>
-
 
 
 <!-- =========================================================
@@ -681,60 +644,76 @@
 
 <footer class="footer">
 
-    <div class="footer-brand">
+    <div class="footer-inner">
 
-        {% if logo_url %}
+        <div class="footer-brand-area">
 
-            <img
-                src="{{ logo_url }}"
-                alt="Burnside High School"
-                class="logo small-logo"
-            >
-
-        {% else %}
-
-            <div class="brand-mark small-mark">
-                B
+            <div class="footer-brand">
+                Burnside Attendance
             </div>
 
-        {% endif %}
+            <p class="footer-text">
+                Student check-in portal
+            </p>
+
+        </div>
 
 
         <div>
 
-            <strong>
-                Burnside Attendance
-            </strong>
+            <h4 class="footer-heading">
+                Quick links
+            </h4>
 
-            <span>
-                Student check-in portal
-            </span>
+            <div class="footer-links">
+
+                <a href="{{ url_for('home') }}">
+                    Home
+                </a>
+
+                <a href="{{ url_for('checkin') }}">
+                    Check In
+                </a>
+
+                <a href="{{ url_for('my_attendance') }}">
+                    My Attendance
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div>
+
+            <h4 class="footer-heading">
+                Burnside
+            </h4>
+
+            <div class="footer-links">
+
+                <a
+                    href="https://www.burnside.school.nz/"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    School website →
+                </a>
+
+            </div>
 
         </div>
 
     </div>
 
 
+    <div class="footer-bottom">
 
-    <div class="footer-right">
-
-        <span>
-            Built for Burnside High School
-        </span>
-
-
-        <a
-            href="https://www.burnside.school.nz/"
-            target="_blank"
-            rel="noopener"
-        >
-            School website →
-        </a>
+        Built for Burnside High School
 
     </div>
 
 </footer>
-
 
 </body>
 </html>

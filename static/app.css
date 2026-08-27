@@ -17,7 +17,6 @@
 
     --text: #172017;
     --muted: #687268;
-
     --border: #dfe7df;
 
     --shadow: 0 18px 45px rgba(0, 30, 0, 0.10);
@@ -50,12 +49,15 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
     font: inherit;
 }
 
 img {
     max-width: 100%;
+    display: block;
 }
 
 ::selection {
@@ -65,7 +67,9 @@ img {
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
     outline: 3px solid #75bd70;
     outline-offset: 3px;
 }
@@ -83,48 +87,43 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-
     margin: 0 0 18px;
-
     color: #bde2ba;
-
     font-size: 0.7rem;
     font-weight: 800;
-
     letter-spacing: 0.2em;
     text-transform: uppercase;
 }
 
 .section-label::before {
     content: "";
-
     width: 28px;
     height: 2px;
-
     background: #81ca7c;
 }
 
 
 /* =========================================================
-   HOME HEADER
+   HOMEPAGE NAVIGATION
+   The navigation is now OVER the hero image.
    ========================================================= */
 
 .site-header {
-    position: relative;
+    position: absolute;
     z-index: 100;
-
+    top: 0;
+    left: 0;
     width: 100%;
 
-    background: var(--green-deep);
+    background: transparent;
     color: white;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .header-inner {
     width: 100%;
     max-width: 1250px;
-
     min-height: 78px;
 
     margin: 0 auto;
@@ -140,7 +139,6 @@ main {
 .site-header .brand {
     display: flex;
     align-items: center;
-
     gap: 13px;
 
     color: white;
@@ -154,34 +152,29 @@ main {
     height: 43px;
 
     object-fit: contain;
-
     flex: 0 0 43px;
 }
 
 .site-header .brand-text {
     display: flex;
     flex-direction: column;
-
     min-width: 0;
 }
 
 .brand-name {
     color: white;
-
     font-size: 0.98rem;
     font-weight: 800;
-
     line-height: 1.1;
 }
 
 .brand-subtitle {
     margin-top: 4px;
 
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.55);
 
     font-size: 0.62rem;
     font-weight: 700;
-
     letter-spacing: 0.14em;
     text-transform: uppercase;
 }
@@ -189,7 +182,6 @@ main {
 .site-header nav {
     display: flex;
     align-items: center;
-
     gap: 4px;
 }
 
@@ -198,8 +190,7 @@ main {
 
     border-radius: 5px;
 
-    color: rgba(255, 255, 255, 0.76);
-
+    color: rgba(255, 255, 255, 0.82);
     text-decoration: none;
 
     font-size: 0.78rem;
@@ -207,17 +198,18 @@ main {
 
     transition:
         background 0.2s ease,
-        color 0.2s ease;
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .site-header nav a:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     color: white;
 }
 
 
 /* =========================================================
-   HOME HERO
+   HOMEPAGE HERO
    ========================================================= */
 
 .home-hero {
@@ -237,7 +229,7 @@ main {
             90deg,
             rgba(0, 25, 0, 0.88) 0%,
             rgba(0, 55, 0, 0.58) 45%,
-            rgba(0, 30, 0, 0.2) 100%
+            rgba(0, 30, 0, 0.20) 100%
         ),
         url("/static/images/burnside-campus.jpg");
 
@@ -255,7 +247,7 @@ main {
     background:
         linear-gradient(
             to bottom,
-            transparent 65%,
+            transparent 62%,
             var(--cream) 100%
         );
 
@@ -271,7 +263,7 @@ main {
 
     margin: 0 auto;
 
-    padding: 155px 30px 170px;
+    padding: 170px 30px 190px;
 }
 
 .hero-content {
@@ -287,7 +279,6 @@ main {
     line-height: 0.9;
 
     letter-spacing: -0.065em;
-
     font-weight: 800;
 }
 
@@ -300,7 +291,7 @@ main {
 
     margin: 28px 0;
 
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.86);
 
     font-size: 1rem;
     line-height: 1.7;
@@ -328,12 +319,12 @@ main {
         background 0.2s ease,
         border-color 0.2s ease,
         color 0.2s ease,
-        transform 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .btn {
     padding: 14px 22px;
-
     font-size: 0.85rem;
 }
 
@@ -358,7 +349,11 @@ main {
     background: var(--green);
     color: white;
 
+    border: 0;
+
     font-size: 0.82rem;
+
+    cursor: pointer;
 }
 
 .primary-button:hover {
@@ -377,6 +372,8 @@ main {
     font-size: 0.82rem;
 
     white-space: nowrap;
+
+    cursor: pointer;
 }
 
 .secondary-button:hover {
@@ -386,7 +383,7 @@ main {
 
 
 /* =========================================================
-   HOME CHECK-IN PANEL
+   HOMEPAGE CHECK-IN PANEL
    ========================================================= */
 
 .home-content {
@@ -417,7 +414,6 @@ main {
 
 .checkin-panel .section-label {
     margin-bottom: 14px;
-
     color: var(--green);
 }
 
@@ -458,7 +454,6 @@ main {
     width: fit-content;
 
     margin: 5px 0 18px;
-
     padding: 9px 13px;
 
     background: var(--green-soft);
@@ -515,9 +510,7 @@ main {
 
 .checkin-status {
     margin: 14px 0 0;
-
     color: var(--green);
-
     font-weight: 700;
 }
 
@@ -534,7 +527,7 @@ main {
 
 
 /* =========================================================
-   HOME INFORMATION
+   HOMEPAGE INFORMATION
    ========================================================= */
 
 .home-information {
@@ -552,7 +545,7 @@ main {
     background-image:
         linear-gradient(
             90deg,
-            rgba(0, 30, 0, 0.9),
+            rgba(0, 30, 0, 0.90),
             rgba(0, 50, 0, 0.62),
             rgba(0, 30, 0, 0.25)
         ),
@@ -571,10 +564,10 @@ main {
     max-width: 1250px;
 
     margin: 0 auto;
-
     padding: 90px 30px;
 
     display: grid;
+
     grid-template-columns: 1fr 1fr;
 
     gap: 80px;
@@ -592,6 +585,7 @@ main {
     color: white;
 
     font-size: clamp(3rem, 5vw, 5rem);
+
     line-height: 0.94;
 
     letter-spacing: -0.06em;
@@ -608,7 +602,7 @@ main {
 
 
 /* =========================================================
-   HOME FOOTER
+   HOMEPAGE FOOTER
    ========================================================= */
 
 body.home-page > footer {
@@ -625,6 +619,7 @@ body.home-page > footer {
     padding: 55px 30px;
 
     display: grid;
+
     grid-template-columns: 2fr 1fr 1fr;
 
     gap: 50px;
@@ -661,7 +656,6 @@ body.home-page > footer {
 .footer-links {
     display: flex;
     flex-direction: column;
-
     gap: 9px;
 }
 
@@ -695,8 +689,7 @@ body.home-page > footer {
 
 
 /* =========================================================
-   ATTENDANCE HEADER
-   Uses same visual language as home
+   ATTENDANCE NAVBAR
    ========================================================= */
 
 .navbar {
@@ -704,7 +697,6 @@ body.home-page > footer {
     z-index: 100;
 
     width: 100%;
-
     min-height: 78px;
 
     display: flex;
@@ -783,7 +775,6 @@ body.home-page > footer {
 .nav-links {
     display: flex;
     align-items: center;
-
     gap: 4px;
 }
 
@@ -822,7 +813,6 @@ body.home-page > footer {
 .nav-account {
     display: flex;
     align-items: center;
-
     gap: 10px;
 }
 
@@ -952,7 +942,7 @@ body.home-page > footer {
 
 
 /* =========================================================
-   ATTENDANCE HERO
+   ATTENDANCE PAGE HERO
    ========================================================= */
 
 .page-hero {
@@ -970,8 +960,8 @@ body.home-page > footer {
     background-image:
         linear-gradient(
             90deg,
-            rgba(0, 25, 0, 0.9) 0%,
-            rgba(0, 55, 0, 0.7) 50%,
+            rgba(0, 25, 0, 0.90) 0%,
+            rgba(0, 55, 0, 0.70) 50%,
             rgba(0, 30, 0, 0.35) 100%
         ),
         url("/static/images/burnside-campus.jpg");
@@ -1035,7 +1025,8 @@ body.home-page > footer {
 
     background: #8dd786;
 
-    box-shadow: 0 0 0 4px rgba(141, 215, 134, 0.12);
+    box-shadow:
+        0 0 0 4px rgba(141, 215, 134, 0.12);
 }
 
 .page-hero h1 {
@@ -1044,6 +1035,7 @@ body.home-page > footer {
     color: white;
 
     font-size: clamp(3.8rem, 7vw, 6.8rem);
+
     line-height: 0.9;
 
     letter-spacing: -0.065em;
@@ -1140,7 +1132,6 @@ body.home-page > footer {
 
 .attendance-heading .section-label {
     margin-bottom: 12px;
-
     color: var(--green);
 }
 
@@ -1154,6 +1145,7 @@ body.home-page > footer {
     color: var(--green-dark);
 
     font-size: clamp(2.2rem, 4vw, 3.5rem);
+
     line-height: 0.95;
 
     letter-spacing: -0.055em;
@@ -1161,11 +1153,12 @@ body.home-page > footer {
 
 
 /* =========================================================
-   SUMMARY
+   SUMMARY CARDS
    ========================================================= */
 
 .attendance-summary {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
 
     gap: 16px;
@@ -1235,6 +1228,7 @@ body.home-page > footer {
     color: var(--green-dark);
 
     font-size: 2.35rem;
+
     line-height: 1;
 
     letter-spacing: -0.04em;
@@ -1260,12 +1254,10 @@ body.home-page > footer {
 
 
 /* =========================================================
-   ATTENDANCE CARD
+   ATTENDANCE TABLE / LIST
    ========================================================= */
 
 .attendance-card {
-    overflow: hidden;
-
     background: white;
 
     border: 1px solid var(--border);
@@ -1273,67 +1265,8 @@ body.home-page > footer {
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
-}
 
-.attendance-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 20px;
-
-    padding: 26px 28px;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.attendance-card-header .section-label {
-    margin-bottom: 8px;
-
-    color: var(--green);
-}
-
-.attendance-card-header .section-label::before {
-    background: var(--green);
-}
-
-.attendance-card-header h3 {
-    margin: 0;
-
-    color: var(--green-dark);
-
-    font-size: 1.3rem;
-
-    letter-spacing: -0.025em;
-}
-
-.record-count {
-    display: inline-flex;
-    align-items: center;
-
-    padding: 7px 10px;
-
-    border-radius: 20px;
-
-    background: var(--green-soft);
-
-    color: var(--green);
-
-    font-size: 0.68rem;
-    font-weight: 800;
-
-    white-space: nowrap;
-}
-
-
-/* =========================================================
-   ATTENDANCE TABLE
-   ========================================================= */
-
-.attendance-table-wrapper {
-    width: 100%;
-
-    overflow-x: auto;
+    overflow: hidden;
 }
 
 .attendance-table {
@@ -1343,15 +1276,15 @@ body.home-page > footer {
 }
 
 .attendance-table th {
-    padding: 14px 22px;
+    padding: 15px 20px;
 
-    background: var(--green);
+    background: var(--green-deep);
 
     color: white;
 
     text-align: left;
 
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 800;
 
     letter-spacing: 0.08em;
@@ -1359,7 +1292,7 @@ body.home-page > footer {
 }
 
 .attendance-table td {
-    padding: 17px 22px;
+    padding: 17px 20px;
 
     border-bottom: 1px solid var(--border);
 
@@ -1368,12 +1301,8 @@ body.home-page > footer {
     font-size: 0.84rem;
 }
 
-.attendance-table tbody tr:last-child td {
+.attendance-table tr:last-child td {
     border-bottom: 0;
-}
-
-.attendance-table tbody tr:nth-child(even) {
-    background: #f8faf7;
 }
 
 .attendance-table tbody tr {
@@ -1381,120 +1310,195 @@ body.home-page > footer {
 }
 
 .attendance-table tbody tr:hover {
-    background: var(--green-soft);
-}
-
-.attendance-table td strong {
-    color: var(--green-dark);
-
-    font-size: 0.85rem;
+    background: var(--green-pale);
 }
 
 
 /* =========================================================
-   PRESENT STATUS
+   STATUS BADGES
    ========================================================= */
 
-.attendance-status {
+.status-badge {
     display: inline-flex;
     align-items: center;
-
-    gap: 7px;
+    justify-content: center;
 
     padding: 6px 10px;
 
-    border-radius: 20px;
-
-    background: #e4f3e1;
-
-    color: var(--green);
+    border-radius: 999px;
 
     font-size: 0.68rem;
     font-weight: 800;
 }
 
-.attendance-status .status-dot {
-    width: 6px;
-    height: 6px;
+.status-present {
+    background: #e5f3e2;
+    color: #176b18;
+}
 
-    flex-basis: 6px;
+.status-absent {
+    background: #f9e5e5;
+    color: #9b2424;
+}
 
-    background: var(--green);
+.status-late {
+    background: #fff2d8;
+    color: #8b5b00;
+}
 
-    box-shadow: none;
+.status-unknown {
+    background: #edf0ed;
+    color: #667066;
 }
 
 
 /* =========================================================
-   EMPTY STATE
+   GENERAL CARDS
    ========================================================= */
 
-.empty-attendance {
-    padding: 75px 25px;
+.card {
+    background: white;
 
-    text-align: center;
+    border: 1px solid var(--border);
+
+    border-radius: 8px;
+
+    box-shadow: var(--shadow-soft);
 }
 
-.empty-icon {
-    width: 58px;
-    height: 58px;
+.card-header {
+    padding: 22px 25px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    margin: 0 auto 18px;
-
-    border-radius: 50%;
-
-    background: var(--green-soft);
-
-    color: var(--green);
-
-    font-size: 1.5rem;
+    border-bottom: 1px solid var(--border);
 }
 
-.empty-attendance h3 {
-    margin: 0 0 9px;
+.card-header h2,
+.card-header h3 {
+    margin: 0;
 
     color: var(--green-dark);
 
-    font-size: 1.45rem;
-
-    letter-spacing: -0.025em;
+    font-size: 1.1rem;
 }
 
-.empty-attendance p {
-    max-width: 440px;
-
-    margin: 0 auto 22px;
-
-    color: var(--muted);
-
-    font-size: 0.86rem;
-    line-height: 1.7;
-}
-
-.button-arrow {
-    margin-left: 20px;
+.card-body {
+    padding: 25px;
 }
 
 
 /* =========================================================
-   ACCOUNT CARD
+   FORMS
    ========================================================= */
 
-.welcome-card {
-    max-width: 1190px;
+.form-group {
+    margin-bottom: 18px;
+}
 
-    margin: 0 auto 45px;
+.form-group label {
+    display: block;
 
-    padding: 24px 28px;
+    margin-bottom: 7px;
 
-    display: flex;
-    align-items: center;
+    color: var(--green-dark);
 
-    gap: 18px;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+
+    padding: 12px 13px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 5px;
+
+    color: var(--text);
+
+    font-size: 0.85rem;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #82b97e;
+
+    box-shadow: 0 0 0 3px rgba(22, 133, 27, 0.08);
+
+    outline: none;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+
+/* =========================================================
+   FLASH / ALERT MESSAGES
+   ========================================================= */
+
+.flash,
+.alert {
+    width: 100%;
+
+    padding: 13px 16px;
+
+    margin-bottom: 18px;
+
+    border-radius: 6px;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.flash-success,
+.alert-success {
+    background: #e7f4e4;
+    border: 1px solid #cce5c8;
+    color: #176b18;
+}
+
+.flash-error,
+.alert-error,
+.alert-danger {
+    background: #fae8e8;
+    border: 1px solid #edcccc;
+    color: #9b2424;
+}
+
+.flash-warning,
+.alert-warning {
+    background: #fff3db;
+    border: 1px solid #f0ddb0;
+    color: #8b5b00;
+}
+
+.flash-info,
+.alert-info {
+    background: #e8f0f8;
+    border: 1px solid #d0deeb;
+    color: #285a7a;
+}
+
+
+/* =========================================================
+   EMPTY STATES
+   ========================================================= */
+
+.empty-state {
+    padding: 55px 25px;
+
+    text-align: center;
 
     background: white;
 
@@ -1505,374 +1509,68 @@ body.home-page > footer {
     box-shadow: var(--shadow-soft);
 }
 
-.welcome-avatar {
-    width: 52px;
-    height: 52px;
-
-    flex: 0 0 52px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    overflow: hidden;
-
-    border-radius: 50%;
-
-    background: var(--green-soft);
-
-    color: var(--green);
-
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.welcome-avatar img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-}
-
-.welcome-text {
-    min-width: 0;
-    flex: 1;
-}
-
-.welcome-text > span {
-    display: block;
-
-    margin-bottom: 4px;
-
-    color: var(--muted);
-
-    font-size: 0.63rem;
-    font-weight: 800;
-
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.welcome-text h3 {
-    margin: 0;
+.empty-state h2,
+.empty-state h3 {
+    margin: 0 0 10px;
 
     color: var(--green-dark);
-
-    font-size: 1.05rem;
 }
 
-.welcome-text p {
-    margin: 4px 0 0;
+.empty-state p {
+    max-width: 500px;
+
+    margin: 0 auto;
 
     color: var(--muted);
 
-    font-size: 0.77rem;
-}
+    font-size: 0.85rem;
 
-.welcome-link {
-    padding: 10px 14px;
-
-    border: 1px solid var(--border);
-
-    border-radius: 5px;
-
-    color: var(--green);
-
-    text-decoration: none;
-
-    font-size: 0.76rem;
-    font-weight: 800;
-
-    white-space: nowrap;
-
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-}
-
-.welcome-link:hover {
-    background: var(--green-soft);
-    transform: translateY(-1px);
+    line-height: 1.7;
 }
 
 
 /* =========================================================
-   MOBILE ACCOUNT ACTIONS
+   ADMIN / DASHBOARD
    ========================================================= */
 
-.mobile-account-actions {
-    display: none;
-
+.dashboard {
     max-width: 1250px;
 
     margin: 0 auto;
 
-    padding: 0 30px 60px;
+    padding: 55px 30px 90px;
 }
 
-.mobile-account-button,
-.mobile-logout-button {
+.dashboard-header {
     display: flex;
-    align-items: center;
-
-    gap: 14px;
-
-    width: 100%;
-
-    padding: 17px;
-
-    margin-bottom: 10px;
-
-    border-radius: 7px;
-
-    text-decoration: none;
-}
-
-.mobile-account-button {
-    background: white;
-
-    border: 1px solid var(--border);
-
-    color: var(--text);
-}
-
-.mobile-logout-button {
-    background: transparent;
-
-    border: 1px solid var(--border);
-
-    color: var(--text);
-}
-
-.mobile-action-icon {
-    width: 38px;
-    height: 38px;
-
-    flex: 0 0 38px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 6px;
-
-    background: var(--green-soft);
-
-    color: var(--green);
-
-    font-size: 0.9rem;
-}
-
-.mobile-account-button div,
-.mobile-logout-button div {
-    flex: 1;
-}
-
-.mobile-account-button strong,
-.mobile-logout-button strong {
-    display: block;
-
-    color: var(--green-dark);
-
-    font-size: 0.82rem;
-}
-
-.mobile-account-button small,
-.mobile-logout-button small {
-    display: block;
-
-    margin-top: 3px;
-
-    color: var(--muted);
-
-    font-size: 0.7rem;
-}
-
-.mobile-action-arrow {
-    color: var(--green);
-
-    font-size: 1.1rem;
-}
-
-
-/* =========================================================
-   ATTENDANCE FOOTER
-   ========================================================= */
-
-body:not(.home-page) > .footer {
-    display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
 
-    gap: 30px;
-
-    padding: 38px 30px;
-
-    background: var(--green-deep);
-
-    color: white;
-}
-
-body:not(.home-page) > .footer .footer-brand {
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-}
-
-.small-mark {
-    width: 36px;
-    height: 36px;
-
-    font-size: 0.9rem;
-}
-
-body:not(.home-page) > .footer .footer-brand > div:last-child {
-    display: flex;
-    flex-direction: column;
-}
-
-body:not(.home-page) > .footer .footer-brand strong {
-    font-size: 0.82rem;
-}
-
-body:not(.home-page) > .footer .footer-brand span {
-    margin-top: 3px;
-
-    color: rgba(255, 255, 255, 0.45);
-
-    font-size: 0.66rem;
-}
-
-.footer-right {
-    display: flex;
-    align-items: center;
-
-    gap: 20px;
-
-    color: rgba(255, 255, 255, 0.45);
-
-    font-size: 0.68rem;
-}
-
-.footer-right a {
-    color: rgba(255, 255, 255, 0.72);
-
-    text-decoration: none;
-
-    font-weight: 700;
-}
-
-.footer-right a:hover {
-    color: white;
-}
-
-
-/* =========================================================
-   ADMIN
-   ========================================================= */
-
-.admin-layout {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-
-    min-height: calc(100vh - 78px);
-
-    max-width: 1300px;
-
-    margin: 0 auto;
-}
-
-.admin-sidebar {
-    padding: 30px 15px;
-
-    background: white;
-
-    border-right: 1px solid var(--border);
-}
-
-.admin-sidebar-title {
-    padding: 0 12px 15px;
-
-    color: #788078;
-
-    font-size: 0.65rem;
-    font-weight: 800;
-
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-}
-
-.admin-nav {
-    display: block;
-
-    padding: 11px 12px;
-
-    margin-bottom: 4px;
-
-    border-radius: 5px;
-
-    color: #4f594f;
-
-    font-size: 0.82rem;
-    font-weight: 700;
-
-    text-decoration: none;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
-}
-
-.admin-nav:hover {
-    color: var(--green);
-    background: var(--green-soft);
-}
-
-.admin-nav.active {
-    background: var(--green);
-    color: white;
-}
-
-.admin-main {
-    padding: 45px;
-}
-
-.admin-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    gap: 25px;
 
     margin-bottom: 30px;
 }
 
-.admin-heading h1 {
+.dashboard-header h1 {
     margin: 0;
 
     color: var(--green-dark);
 
-    font-size: 2.3rem;
+    font-size: clamp(2.4rem, 5vw, 4.2rem);
 
-    letter-spacing: -0.04em;
+    line-height: 0.95;
+
+    letter-spacing: -0.055em;
 }
 
-.admin-heading p {
-    margin-top: 7px;
+.dashboard-header p {
+    margin: 12px 0 0;
 
     color: var(--muted);
-}
 
-.admin-date {
-    padding: 9px 13px;
+    font-size: 0.88rem;
 
-    border-radius: 5px;
-
-    background: var(--green-soft);
-
-    color: var(--green);
-
-    font-size: 0.72rem;
-    font-weight: 800;
+    line-height: 1.6;
 }
 
 
@@ -1880,501 +1578,276 @@ body:not(.home-page) > .footer .footer-brand span {
    ADMIN STATS
    ========================================================= */
 
-.admin-stats {
+.stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns: repeat(4, 1fr);
 
     gap: 15px;
 
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
-.admin-stat {
-    padding: 25px;
+.stat-card {
+    padding: 22px;
 
     background: white;
 
     border: 1px solid var(--border);
 
-    border-radius: 7px;
+    border-radius: 8px;
+
+    box-shadow: var(--shadow-soft);
 }
 
-.admin-stat-label {
+.stat-card span {
     display: block;
 
     margin-bottom: 8px;
 
     color: var(--muted);
 
-    font-size: 0.68rem;
+    font-size: 0.67rem;
     font-weight: 800;
 
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
 }
 
-.admin-stat strong {
+.stat-card strong {
     color: var(--green-dark);
 
-    font-size: 2.3rem;
+    font-size: 2rem;
+
+    line-height: 1;
 }
 
 
 /* =========================================================
-   ADMIN SECTIONS
+   ACTION BAR
    ========================================================= */
 
-.admin-section {
-    margin-bottom: 20px;
+.action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    padding: 25px;
+    gap: 15px;
+
+    margin-bottom: 20px;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    min-width: 240px;
+
+    padding: 11px 13px;
 
     background: white;
 
     border: 1px solid var(--border);
 
-    border-radius: 7px;
-}
+    border-radius: 5px;
 
-.admin-section-header h2 {
-    margin: 0;
-
-    color: var(--green-dark);
-
-    font-size: 1.3rem;
-}
-
-.admin-section-header p {
-    color: var(--muted);
+    color: var(--text);
 
     font-size: 0.8rem;
 }
 
+.search-box input:focus {
+    outline: none;
 
-/* =========================================================
-   ADMIN TABLE
-   ========================================================= */
+    border-color: #82b97e;
 
-.admin-table-wrapper {
-    width: 100%;
-
-    overflow-x: auto;
-}
-
-.admin-table {
-    width: 100%;
-
-    margin-top: 18px;
-
-    border-collapse: collapse;
-}
-
-.admin-table th {
-    padding: 12px;
-
-    background: var(--green);
-
-    color: white;
-
-    text-align: left;
-
-    font-size: 0.72rem;
-}
-
-.admin-table td {
-    padding: 12px;
-
-    border-bottom: 1px solid var(--border);
-
-    font-size: 0.82rem;
-}
-
-.admin-table tbody tr:nth-child(even) {
-    background: #f5f8f4;
-}
-
-.admin-table tbody tr:hover {
-    background: var(--green-soft);
-}
-
-.status-present {
-    display: inline-block;
-
-    padding: 4px 8px;
-
-    border-radius: 20px;
-
-    background: #e4f3e1;
-
-    color: var(--green);
-
-    font-size: 0.7rem;
-    font-weight: 800;
+    box-shadow: 0 0 0 3px rgba(22, 133, 27, 0.08);
 }
 
 
 /* =========================================================
-   ADMIN LINKS
+   RESPONSIVE
    ========================================================= */
 
-.admin-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 15px 3px;
-
-    border-bottom: 1px solid var(--border);
-
-    text-decoration: none;
-}
-
-.admin-link strong {
-    display: block;
-
-    margin-bottom: 3px;
-
-    color: var(--green-dark);
-}
-
-.admin-link span {
-    color: var(--muted);
-
-    font-size: 0.78rem;
-}
-
-.admin-arrow {
-    color: var(--green);
-
-    font-size: 1.2rem;
-}
-
-
-/* =========================================================
-   TABLET
-   ========================================================= */
-
-@media (max-width: 900px) {
-
-    .header-inner {
-        padding: 14px 20px;
-    }
-
-    .home-hero {
-        min-height: 650px;
-
-        background-attachment: scroll;
-    }
-
-    .hero-inner {
-        padding: 135px 22px 150px;
-    }
-
-    .home-content {
-        margin-top: -50px;
-
-        padding: 0 18px 70px;
-    }
-
-    .checkin-panel {
-        padding: 35px;
-    }
-
-    .home-information {
-        background-attachment: scroll;
-    }
+@media (max-width: 1000px) {
 
     .home-information-inner {
         grid-template-columns: 1fr;
 
-        gap: 30px;
-
-        padding: 75px 22px;
+        gap: 35px;
     }
 
-    .page-hero {
-        min-height: 390px;
-    }
-
-    .page-hero-content {
-        padding: 75px 25px 90px;
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .page-hero-decoration {
-        right: 3%;
-
-        opacity: 0.65;
+        right: 4%;
+        opacity: 0.55;
     }
 
-    .attendance-section {
-        padding: 60px 22px 75px;
-    }
-
-    .attendance-summary {
-        gap: 12px;
-    }
-
-    .summary-card {
-        padding: 20px;
-    }
-
-    .welcome-card {
-        margin-left: 22px;
-        margin-right: 22px;
-    }
-
-    .admin-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .admin-sidebar {
-        display: flex;
-
-        overflow-x: auto;
-
-        padding: 10px;
-
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .admin-sidebar-title {
+    .account-details {
         display: none;
-    }
-
-    .admin-nav {
-        white-space: nowrap;
-    }
-
-    .admin-main {
-        padding: 30px 20px;
     }
 }
 
 
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-    /* -----------------------------------------
-       HOME HEADER
-       ----------------------------------------- */
+@media (max-width: 800px) {
 
     .header-inner {
-        min-height: 70px;
+        padding: 13px 20px;
+    }
 
-        padding: 12px 15px;
-
-        gap: 12px;
+    .site-header nav {
+        gap: 2px;
     }
 
     .site-header nav a {
-        padding: 7px 9px;
-
-        font-size: 0.68rem;
+        padding: 8px 9px;
+        font-size: 0.72rem;
     }
 
-    .brand-subtitle {
-        display: none;
+    .hero-inner {
+        padding: 150px 25px 170px;
     }
 
-
-    /* -----------------------------------------
-       ATTENDANCE HEADER
-       ----------------------------------------- */
-
-    .navbar {
-        min-height: 70px;
-
-        padding: 12px 15px;
-
-        flex-wrap: wrap;
-
-        gap: 8px;
+    .home-content {
+        margin-top: -35px;
+        padding-left: 18px;
+        padding-right: 18px;
     }
 
-    .nav-links {
-        order: 3;
-
-        width: 100%;
-
-        justify-content: center;
-
-        padding-top: 3px;
+    .checkin-panel {
+        padding: 35px 30px;
     }
 
-    .nav-links a {
-        padding: 7px 9px;
-
-        font-size: 0.68rem;
+    .attendance-summary {
+        grid-template-columns: 1fr;
     }
 
-    .account-details,
-    .account-chevron,
-    .logout {
-        display: none;
-    }
-
-    .account-pill {
-        padding: 3px;
-    }
-
-    .navbar .brand-mark {
-        width: 38px;
-        height: 38px;
-
-        flex-basis: 38px;
-    }
-
-    .navbar .brand-text span {
-        font-size: 0.88rem;
-    }
-
-
-    /* -----------------------------------------
-       ATTENDANCE HERO
-       ----------------------------------------- */
-
-    .page-hero {
-        min-height: 350px;
-
-        background-attachment: scroll;
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
     .page-hero-content {
-        padding: 70px 20px 80px;
-    }
-
-    .page-hero h1 {
-        font-size: 3.35rem;
-    }
-
-    .page-hero p {
-        max-width: 100%;
-
-        font-size: 0.88rem;
+        padding-left: 25px;
+        padding-right: 25px;
     }
 
     .page-hero-decoration {
         display: none;
     }
 
-
-    /* -----------------------------------------
-       ATTENDANCE CONTENT
-       ----------------------------------------- */
-
-    .attendance-section {
-        padding: 50px 15px 60px;
+    .navbar {
+        padding: 13px 20px;
     }
 
-    .section-heading {
-        display: block;
-
-        margin-bottom: 24px;
-    }
-
-    .section-heading h2 {
-        font-size: 2.35rem;
-    }
-
-    .section-heading .secondary-button {
-        margin-top: 18px;
-    }
-
-    .attendance-summary {
-        grid-template-columns: 1fr;
-
-        gap: 10px;
-
-        margin-bottom: 16px;
-    }
-
-    .summary-card {
-        min-height: auto;
-
-        padding: 20px;
-    }
-
-    .summary-card strong {
-        font-size: 2rem;
-    }
-
-    .attendance-card-header {
-        align-items: flex-start;
-
-        padding: 21px 18px;
-    }
-
-    .attendance-card-header h3 {
-        font-size: 1.1rem;
-    }
-
-    .record-count {
-        font-size: 0.62rem;
-    }
-
-    .attendance-table {
-        min-width: 560px;
-    }
-
-    .attendance-table th,
-    .attendance-table td {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    .empty-attendance {
-        padding: 55px 20px;
-    }
-
-    .welcome-card {
+    .nav-links {
         display: none;
     }
 
-    .mobile-account-actions {
-        display: block;
-
-        padding-left: 15px;
-        padding-right: 15px;
+    .nav-account {
+        margin-left: auto;
     }
 
+    .attendance-section {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 
-    /* -----------------------------------------
-       HOME
-       ----------------------------------------- */
+    .dashboard {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .dashboard-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .action-bar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-box input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .attendance-card {
+        overflow-x: auto;
+    }
+
+    .attendance-table {
+        min-width: 650px;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .site-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .site-header .brand-text {
+        display: none;
+    }
+
+    .site-header .logo {
+        width: 39px;
+        height: 39px;
+    }
+
+    .site-header nav a {
+        padding: 7px 8px;
+
+        font-size: 0.68rem;
+    }
+
+    .hero-inner {
+        padding: 135px 20px 155px;
+    }
 
     .hero h1 {
-        font-size: 3.5rem;
+        font-size: clamp(3.3rem, 17vw, 5rem);
     }
 
     .hero p:not(.section-label) {
-        font-size: 0.9rem;
-    }
-
-    .home-content {
-        margin-top: -40px;
-
-        padding: 0 12px 60px;
+        font-size: 0.88rem;
     }
 
     .checkin-panel {
-        padding: 30px 25px;
+        padding: 30px 23px;
     }
 
     .checkin-panel h2 {
         font-size: 2.5rem;
     }
 
-    .checkin-button,
-    .checkin-login {
-        width: 100%;
+    .home-information-inner {
+        padding: 70px 20px;
     }
 
-    .home-information {
-        min-height: 500px;
+    .home-information h2 {
+        font-size: 3rem;
     }
 
     .footer-inner {
@@ -2390,97 +1863,100 @@ body:not(.home-page) > .footer .footer-brand span {
         padding-right: 20px;
     }
 
+    .navbar {
+        min-height: 68px;
 
-    /* -----------------------------------------
-       ADMIN
-       ----------------------------------------- */
+        padding: 10px 15px;
+    }
 
-    .admin-stats {
+    .navbar .brand-mark {
+        width: 38px;
+        height: 38px;
+
+        flex-basis: 38px;
+    }
+
+    .navbar .brand-text span {
+        font-size: 0.86rem;
+    }
+
+    .navbar .brand-text small {
+        font-size: 0.55rem;
+    }
+
+    .logout,
+    .login-button {
+        padding: 8px 10px;
+        font-size: 0.68rem;
+    }
+
+    .page-hero {
+        min-height: 350px;
+    }
+
+    .page-hero-content {
+        padding: 85px 20px 90px;
+    }
+
+    .page-hero h1 {
+        font-size: clamp(3.2rem, 16vw, 5rem);
+    }
+
+    .attendance-section {
+        padding: 45px 15px 65px;
+    }
+
+    .dashboard {
+        padding: 40px 15px 65px;
+    }
+
+    .stats-grid {
         grid-template-columns: 1fr;
     }
 
-    .admin-heading {
-        display: block;
+    .card-body {
+        padding: 20px;
     }
 
-    .admin-date {
-        display: inline-block;
-
-        margin-top: 12px;
-    }
-
-    .admin-table {
-        min-width: 600px;
-    }
-
-
-    /* -----------------------------------------
-       ATTENDANCE FOOTER
-       ----------------------------------------- */
-
-    body:not(.home-page) > .footer {
-        align-items: flex-start;
-
-        flex-direction: column;
-
-        padding: 35px 20px;
-    }
-
-    .footer-right {
-        align-items: flex-start;
-
-        flex-direction: column;
-
-        gap: 8px;
+    .summary-card {
+        min-height: 125px;
     }
 }
 
 
 /* =========================================================
-   SMALL MOBILE
+   REDUCED MOTION
    ========================================================= */
 
-@media (max-width: 430px) {
+@media (prefers-reduced-motion: reduce) {
 
-    .navbar .brand-text small {
-        display: none;
+    html {
+        scroll-behavior: auto;
     }
 
-    .nav-links {
-        gap: 0;
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 
-    .nav-links a {
-        padding: 6px 7px;
-
-        font-size: 0.64rem;
+    .home-hero,
+    .home-information {
+        background-attachment: scroll;
     }
+}
+.nav-inner {
+    width: 100%;
+    max-width: 1250px;
+    min-height: 78px;
+    margin: 0 auto;
+    padding: 14px 30px;
 
-    .page-hero h1 {
-        font-size: 3rem;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    .page-hero p {
-        font-size: 0.84rem;
-    }
-
-    .attendance-section {
-        padding-top: 42px;
-    }
-
-    .section-heading h2 {
-        font-size: 2.1rem;
-    }
-
-    .attendance-card-header {
-        padding: 18px 15px;
-    }
-
-    .attendance-table {
-        min-width: 520px;
-    }
-
-    .empty-attendance {
-        padding: 45px 18px;
-    }
+    gap: 25px;
 }
