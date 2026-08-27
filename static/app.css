@@ -8,7 +8,6 @@
     --green-dark: #003d01;
     --green-deep: #002500;
     --green-bright: #16851b;
-
     --green-soft: #eaf4e8;
     --green-pale: #f3f7f1;
 
@@ -76,7 +75,7 @@ textarea:focus-visible {
 
 
 /* =========================================================
-   GLOBAL
+   SHARED
    ========================================================= */
 
 main {
@@ -91,10 +90,8 @@ main {
     margin: 0 0 18px;
 
     color: var(--green);
-
     font-size: 0.7rem;
     font-weight: 800;
-
     letter-spacing: 0.2em;
     text-transform: uppercase;
 }
@@ -105,25 +102,28 @@ main {
     width: 28px;
     height: 2px;
 
-    background: var(--green);
+    background: currentColor;
 }
 
 
 /* =========================================================
    FLOATING HERO NAVIGATION
-   Used by HOME + ATTENDANCE pages
+   Used by both home.html and my-attendance.html
    ========================================================= */
 
 .hero-nav {
     position: absolute;
-    z-index: 100;
 
     top: 0;
     left: 0;
 
+    z-index: 100;
+
     width: 100%;
 
-    padding: 18px 30px;
+    min-height: 78px;
+
+    padding: 14px 30px;
 
     display: flex;
     align-items: center;
@@ -133,6 +133,8 @@ main {
 
     color: white;
 
+    background: transparent;
+
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -140,21 +142,26 @@ main {
     display: flex;
     align-items: center;
 
-    gap: 12px;
+    gap: 13px;
 
     color: white;
+
     text-decoration: none;
 
-    font-size: 0.95rem;
-    font-weight: 800;
+    min-width: 0;
 
-    white-space: nowrap;
+    font-size: 0.98rem;
+    font-weight: 800;
+}
+
+.hero-brand span {
+    color: white;
 }
 
 .hero-brand-name {
     display: block;
 
-    font-size: 0.95rem;
+    font-size: 0.98rem;
     font-weight: 800;
 }
 
@@ -163,41 +170,41 @@ main {
 
     margin-top: 4px;
 
-    color: rgba(255, 255, 255, 0.48);
+    color: rgba(255, 255, 255, 0.55);
 
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     font-weight: 700;
 
     letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
-.hero-brand img,
 .hero-logo {
-    width: 42px;
-    height: 42px;
+    width: 43px;
+    height: 43px;
 
     object-fit: contain;
 }
 
-.hero-nav-links,
-.hero-links {
+.hero-links,
+.hero-nav-links {
     display: flex;
     align-items: center;
 
     gap: 4px;
 }
 
-.hero-nav-links a,
-.hero-links a {
+.hero-links a,
+.hero-nav-links a {
     padding: 9px 14px;
 
     border-radius: 5px;
 
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, 0.82);
 
     text-decoration: none;
 
-    font-size: 0.77rem;
+    font-size: 0.78rem;
     font-weight: 700;
 
     transition:
@@ -206,8 +213,8 @@ main {
         transform 0.2s ease;
 }
 
-.hero-nav-links a:hover,
-.hero-links a:hover {
+.hero-links a:hover,
+.hero-nav-links a:hover {
     background: rgba(255, 255, 255, 0.12);
     color: white;
 }
@@ -217,23 +224,22 @@ main {
     color: white;
 }
 
+.hero-nav-logout {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
 .hero-nav-login {
-    background: white !important;
+    background: white;
     color: var(--green-dark) !important;
 }
 
 .hero-nav-login:hover {
-    background: #f1f5ef !important;
-    transform: translateY(-1px);
-}
-
-.hero-nav-logout {
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #f0f5ef !important;
 }
 
 
 /* =========================================================
-   HOME HERO
+   HOMEPAGE HERO
    ========================================================= */
 
 .home-hero {
@@ -251,15 +257,14 @@ main {
     background-image:
         linear-gradient(
             90deg,
-            rgba(0, 25, 0, 0.90) 0%,
-            rgba(0, 55, 0, 0.60) 45%,
-            rgba(0, 30, 0, 0.22) 100%
+            rgba(0, 25, 0, 0.88) 0%,
+            rgba(0, 55, 0, 0.58) 45%,
+            rgba(0, 30, 0, 0.20) 100%
         ),
         url("/static/images/burnside-campus.jpg");
 
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
 }
 
 .home-hero::after {
@@ -271,7 +276,7 @@ main {
     background:
         linear-gradient(
             to bottom,
-            transparent 58%,
+            transparent 60%,
             var(--cream) 100%
         );
 
@@ -280,6 +285,7 @@ main {
 
 .hero-inner {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
@@ -287,22 +293,18 @@ main {
 
     margin: 0 auto;
 
-    padding: 175px 30px 190px;
+    padding: 170px 30px 190px;
 }
 
 .hero-content {
-    max-width: 700px;
+    max-width: 680px;
 }
 
 .hero-content .section-label {
     color: #bde2ba;
 }
 
-.hero-content .section-label::before {
-    background: #81ca7c;
-}
-
-.hero h1 {
+.hero-content h1 {
     margin: 0;
 
     color: white;
@@ -316,11 +318,11 @@ main {
     font-weight: 800;
 }
 
-.hero h1 span {
+.hero-content h1 span {
     color: #a9dba5;
 }
 
-.hero-content > p:not(.section-label) {
+.hero-content p:not(.section-label) {
     max-width: 560px;
 
     margin: 28px 0;
@@ -328,96 +330,8 @@ main {
     color: rgba(255, 255, 255, 0.86);
 
     font-size: 1rem;
+
     line-height: 1.7;
-}
-
-
-/* =========================================================
-   HOME CHECK-IN PANEL
-   ========================================================= */
-
-.home-content {
-    position: relative;
-    z-index: 5;
-
-    max-width: 1100px;
-
-    margin: -55px auto 0;
-
-    padding: 0 25px 90px;
-}
-
-.checkin-panel {
-    position: relative;
-
-    padding: 45px 50px;
-
-    background: white;
-
-    border: 1px solid var(--border);
-    border-left: 5px solid var(--green);
-
-    border-radius: 8px;
-
-    box-shadow: var(--shadow);
-}
-
-.checkin-panel .section-label {
-    margin-bottom: 14px;
-}
-
-.checkin-panel h2 {
-    margin: 0;
-
-    max-width: 700px;
-
-    color: var(--green-dark);
-
-    font-size: clamp(2.4rem, 5vw, 4rem);
-
-    line-height: 0.95;
-
-    letter-spacing: -0.055em;
-}
-
-.checkin-panel > p {
-    max-width: 600px;
-
-    margin: 18px 0 24px;
-
-    color: var(--muted);
-
-    font-size: 0.95rem;
-    line-height: 1.7;
-}
-
-.signed-in {
-    display: inline-flex;
-    align-items: center;
-
-    gap: 8px;
-
-    width: fit-content;
-
-    margin: 5px 0 18px;
-
-    padding: 9px 13px;
-
-    background: var(--green-soft);
-
-    border: 1px solid #d6e8d2;
-
-    border-radius: 5px;
-}
-
-.signed-in-label {
-    color: var(--muted);
-    font-size: 0.75rem;
-}
-
-.signed-in strong {
-    color: var(--green-dark);
-    font-size: 0.8rem;
 }
 
 
@@ -429,6 +343,7 @@ main {
 .primary-button,
 .secondary-button {
     display: inline-flex;
+
     align-items: center;
     justify-content: center;
 
@@ -484,10 +399,6 @@ main {
     background: var(--green-dark);
 }
 
-.primary-button span {
-    margin-left: 14px;
-}
-
 .secondary-button {
     padding: 12px 17px;
 
@@ -500,6 +411,8 @@ main {
     font-size: 0.82rem;
 
     white-space: nowrap;
+
+    cursor: pointer;
 }
 
 .secondary-button:hover {
@@ -507,8 +420,102 @@ main {
     border-color: #c9dcc6;
 }
 
+
+/* =========================================================
+   HOMEPAGE CHECK-IN PANEL
+   ========================================================= */
+
+.home-content {
+    position: relative;
+
+    z-index: 5;
+
+    max-width: 1100px;
+
+    margin: -55px auto 0;
+
+    padding: 0 25px 90px;
+}
+
+.checkin-panel {
+    position: relative;
+
+    padding: 45px 50px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--green);
+
+    border-radius: 8px;
+
+    box-shadow: var(--shadow);
+}
+
+.checkin-panel .section-label {
+    margin-bottom: 14px;
+    color: var(--green);
+}
+
+.checkin-panel h2 {
+    margin: 0;
+
+    max-width: 700px;
+
+    color: var(--green-dark);
+
+    font-size: clamp(2.4rem, 5vw, 4rem);
+
+    line-height: 0.95;
+
+    letter-spacing: -0.055em;
+}
+
+.checkin-panel > p {
+    max-width: 600px;
+
+    margin: 18px 0 24px;
+
+    color: var(--muted);
+
+    font-size: 0.95rem;
+
+    line-height: 1.7;
+}
+
+.signed-in {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    width: fit-content;
+
+    margin: 5px 0 18px;
+
+    padding: 9px 13px;
+
+    background: var(--green-soft);
+
+    border: 1px solid #d6e8d2;
+
+    border-radius: 5px;
+}
+
+.signed-in-label {
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.signed-in strong {
+    color: var(--green-dark);
+    font-size: 0.8rem;
+}
+
 .checkin-button {
     display: inline-flex;
+
     align-items: center;
     justify-content: space-between;
 
@@ -534,6 +541,7 @@ main {
 
 .checkin-button::after {
     content: "→";
+
     margin-left: 25px;
 }
 
@@ -563,7 +571,7 @@ main {
 
 
 /* =========================================================
-   HOME INFORMATION
+   HOMEPAGE INFORMATION
    ========================================================= */
 
 .home-information {
@@ -594,6 +602,7 @@ main {
 
 .home-information-inner {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
@@ -604,6 +613,7 @@ main {
     padding: 90px 30px;
 
     display: grid;
+
     grid-template-columns: 1fr 1fr;
 
     gap: 80px;
@@ -611,10 +621,6 @@ main {
 
 .home-information .section-label {
     color: #a8d6a4;
-}
-
-.home-information .section-label::before {
-    background: #81ca7c;
 }
 
 .home-information h2 {
@@ -637,12 +643,13 @@ main {
     color: rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
+
     line-height: 1.8;
 }
 
 
 /* =========================================================
-   HOME FOOTER
+   HOMEPAGE FOOTER
    ========================================================= */
 
 body.home-page > footer {
@@ -650,13 +657,9 @@ body.home-page > footer {
     color: white;
 }
 
-footer {
-    background: var(--green-deep);
-    color: white;
-}
-
 .footer-inner {
     width: 100%;
+
     max-width: 1250px;
 
     margin: 0 auto;
@@ -683,6 +686,7 @@ footer {
     color: rgba(255, 255, 255, 0.48);
 
     font-size: 0.75rem;
+
     line-height: 1.7;
 }
 
@@ -692,14 +696,17 @@ footer {
     color: white;
 
     font-size: 0.72rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
+
     text-transform: uppercase;
 }
 
 .footer-links {
     display: flex;
+
     flex-direction: column;
 
     gap: 9px;
@@ -735,13 +742,9 @@ footer {
 
 
 /* =========================================================
-   ATTENDANCE HERO
-   Floating nav sits ON the image
+   MY ATTENDANCE HERO
+   Navigation sits INSIDE / OVER the image
    ========================================================= */
-
-.attendance-page {
-    background: var(--cream);
-}
 
 .attendance-hero {
     position: relative;
@@ -758,13 +761,14 @@ footer {
     background-image:
         linear-gradient(
             90deg,
-            rgba(0, 25, 0, 0.91) 0%,
-            rgba(0, 55, 0, 0.68) 48%,
+            rgba(0, 25, 0, 0.90) 0%,
+            rgba(0, 55, 0, 0.70) 50%,
             rgba(0, 30, 0, 0.30) 100%
         ),
         url("/static/images/burnside-campus.jpg");
 
     background-size: cover;
+
     background-position: center;
 }
 
@@ -772,6 +776,7 @@ footer {
     content: "";
 
     position: absolute;
+
     inset: 0;
 
     background:
@@ -786,22 +791,25 @@ footer {
 
 .attendance-hero-inner {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
+
     max-width: 1250px;
 
     margin: 0 auto;
 
-    padding: 135px 30px 125px;
+    padding: 145px 30px 125px;
 }
 
 .attendance-hero-content {
-    max-width: 720px;
+    max-width: 700px;
 }
 
 .hero-eyebrow {
     display: inline-flex;
+
     align-items: center;
 
     gap: 10px;
@@ -811,6 +819,7 @@ footer {
     color: #bde2ba;
 
     font-size: 0.7rem;
+
     font-weight: 800;
 
     letter-spacing: 0.2em;
@@ -819,17 +828,10 @@ footer {
 }
 
 .hero-eyebrow span {
-    width: 8px;
-    height: 8px;
+    width: 28px;
+    height: 2px;
 
-    flex: 0 0 8px;
-
-    border-radius: 50%;
-
-    background: #8dd786;
-
-    box-shadow:
-        0 0 0 4px rgba(141, 215, 134, 0.12);
+    background: #81ca7c;
 }
 
 .attendance-hero h1 {
@@ -864,23 +866,31 @@ footer {
 
 
 /* =========================================================
-   ATTENDANCE MAIN
+   MY ATTENDANCE MAIN
    ========================================================= */
 
 .attendance-main {
     position: relative;
+
     z-index: 5;
 
     max-width: 1250px;
 
-    margin: -25px auto 0;
+    margin: -30px auto 0;
 
     padding: 0 30px 90px;
 }
 
+
+/* =========================================================
+   ATTENDANCE INTRO
+   ========================================================= */
+
 .attendance-intro {
     display: flex;
+
     align-items: flex-end;
+
     justify-content: space-between;
 
     gap: 30px;
@@ -890,6 +900,8 @@ footer {
 
 .attendance-intro .section-label {
     margin-bottom: 12px;
+
+    color: var(--green);
 }
 
 .attendance-intro h2 {
@@ -967,6 +979,7 @@ footer {
 
 .summary-label {
     position: relative;
+
     z-index: 1;
 
     display: block;
@@ -976,6 +989,7 @@ footer {
     color: var(--muted);
 
     font-size: 0.68rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
@@ -985,6 +999,7 @@ footer {
 
 .summary-card strong {
     position: relative;
+
     z-index: 1;
 
     display: block;
@@ -1000,6 +1015,7 @@ footer {
 
 .summary-card small {
     position: relative;
+
     z-index: 1;
 
     display: block;
@@ -1013,7 +1029,7 @@ footer {
 
 
 /* =========================================================
-   ATTENDANCE TABLE CARD
+   ATTENDANCE CARD
    ========================================================= */
 
 .attendance-card {
@@ -1032,17 +1048,20 @@ footer {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     gap: 20px;
 
-    padding: 24px 25px;
+    padding: 25px;
 
     border-bottom: 1px solid var(--border);
 }
 
 .attendance-card-header .section-label {
     margin-bottom: 10px;
+
+    color: var(--green);
 }
 
 .attendance-card-header h3 {
@@ -1050,19 +1069,28 @@ footer {
 
     color: var(--green-dark);
 
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+
+    letter-spacing: -0.02em;
 }
 
 .record-count {
-    padding: 7px 11px;
+    display: inline-flex;
 
-    background: var(--green-soft);
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 7px 12px;
 
     border-radius: 999px;
+
+    background: var(--green-soft);
 
     color: var(--green);
 
     font-size: 0.7rem;
+
     font-weight: 800;
 
     white-space: nowrap;
@@ -1075,6 +1103,7 @@ footer {
 
 .attendance-table-wrapper {
     width: 100%;
+
     overflow-x: auto;
 }
 
@@ -1094,6 +1123,7 @@ footer {
     text-align: left;
 
     font-size: 0.7rem;
+
     font-weight: 800;
 
     letter-spacing: 0.08em;
@@ -1111,6 +1141,10 @@ footer {
     font-size: 0.84rem;
 }
 
+.attendance-table tr:last-child td {
+    border-bottom: 0;
+}
+
 .attendance-table tbody tr {
     transition: background 0.15s ease;
 }
@@ -1119,29 +1153,27 @@ footer {
     background: var(--green-pale);
 }
 
-.attendance-table tr:last-child td {
-    border-bottom: 0;
-}
-
 
 /* =========================================================
-   ATTENDANCE STUDENT
+   STUDENT
    ========================================================= */
 
 .attendance-student {
     display: flex;
+
     align-items: center;
 
     gap: 11px;
 }
 
 .attendance-avatar {
-    width: 34px;
-    height: 34px;
+    width: 35px;
+    height: 35px;
 
-    flex: 0 0 34px;
+    flex: 0 0 35px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1149,25 +1181,24 @@ footer {
 
     background: var(--green-soft);
 
-    color: var(--green-dark);
+    color: var(--green);
 
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+
     font-weight: 800;
 }
 
-
-/* =========================================================
-   ATTENDANCE STATUS
-   ========================================================= */
+.attendance-student strong {
+    color: var(--green-dark);
+}
 
 .attendance-time {
     color: var(--muted);
-
-    font-size: 0.8rem;
 }
 
 .attendance-status {
     display: inline-flex;
+
     align-items: center;
 
     gap: 8px;
@@ -1175,6 +1206,7 @@ footer {
     color: #176b18;
 
     font-size: 0.75rem;
+
     font-weight: 800;
 }
 
@@ -1186,7 +1218,7 @@ footer {
 
     border-radius: 50%;
 
-    background: #45a844;
+    background: #49a844;
 }
 
 
@@ -1195,18 +1227,19 @@ footer {
    ========================================================= */
 
 .empty-attendance {
-    padding: 65px 30px;
+    padding: 65px 25px;
 
     text-align: center;
 }
 
 .empty-icon {
-    width: 58px;
-    height: 58px;
+    width: 54px;
+    height: 54px;
 
     margin: 0 auto 18px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1216,7 +1249,7 @@ footer {
 
     color: var(--green);
 
-    font-size: 1.6rem;
+    font-size: 1.5rem;
 }
 
 .empty-attendance h3 {
@@ -1224,17 +1257,17 @@ footer {
 
     color: var(--green-dark);
 
-    font-size: 1.3rem;
+    font-size: 1.15rem;
 }
 
 .empty-attendance p {
-    max-width: 480px;
+    max-width: 520px;
 
-    margin: 0 auto 24px;
+    margin: 0 auto 22px;
 
     color: var(--muted);
 
-    font-size: 0.85rem;
+    font-size: 0.84rem;
 
     line-height: 1.7;
 }
@@ -1245,12 +1278,13 @@ footer {
    ========================================================= */
 
 .attendance-account-card {
-    margin-top: 22px;
-
     display: flex;
+
     align-items: center;
 
     gap: 18px;
+
+    margin-top: 22px;
 
     padding: 22px 25px;
 
@@ -1270,6 +1304,7 @@ footer {
     flex: 0 0 52px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1277,11 +1312,10 @@ footer {
 
     border-radius: 50%;
 
-    background: var(--green);
+    background: var(--green-soft);
 
-    color: white;
+    color: var(--green);
 
-    font-size: 1rem;
     font-weight: 800;
 }
 
@@ -1293,8 +1327,9 @@ footer {
 }
 
 .attendance-account-info {
-    flex: 1;
     min-width: 0;
+
+    flex: 1;
 }
 
 .attendance-account-info > span {
@@ -1305,11 +1340,10 @@ footer {
     color: var(--muted);
 
     font-size: 0.65rem;
+
     font-weight: 800;
 
-    letter-spacing: 0.12em;
-
-    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .attendance-account-info h3 {
@@ -1325,24 +1359,23 @@ footer {
 
     color: var(--muted);
 
-    font-size: 0.76rem;
+    font-size: 0.75rem;
 }
 
 .account-arrow {
     padding: 10px 14px;
 
-    border: 1px solid var(--border);
-
-    border-radius: 5px;
-
     color: var(--green);
 
     text-decoration: none;
 
-    font-size: 0.75rem;
+    font-size: 0.78rem;
+
     font-weight: 800;
 
     white-space: nowrap;
+
+    border-radius: 5px;
 
     transition:
         background 0.2s ease,
@@ -1357,45 +1390,42 @@ footer {
 
 
 /* =========================================================
-   SITE FOOTER
+   STATUS BADGES
    ========================================================= */
 
-.site-footer {
-    background: var(--green-deep);
+.status-badge {
+    display: inline-flex;
 
-    color: white;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 0.68rem;
+
+    font-weight: 800;
 }
 
-.site-footer .footer-inner {
-    display: flex;
-
-    align-items: flex-start;
-    justify-content: space-between;
-
-    gap: 50px;
+.status-present {
+    background: #e5f3e2;
+    color: #176b18;
 }
 
-.site-footer .footer-inner > div:first-child {
-    display: flex;
-    flex-direction: column;
+.status-absent {
+    background: #f9e5e5;
+    color: #9b2424;
 }
 
-.site-footer strong {
-    font-size: 0.95rem;
+.status-late {
+    background: #fff2d8;
+    color: #8b5b00;
 }
 
-.site-footer .footer-inner span {
-    margin-top: 7px;
-
-    color: rgba(255, 255, 255, 0.45);
-
-    font-size: 0.72rem;
-}
-
-.site-footer .footer-links {
-    flex-direction: row;
-
-    gap: 20px;
+.status-unknown {
+    background: #edf0ed;
+    color: #667066;
 }
 
 
@@ -1449,6 +1479,7 @@ footer {
     color: var(--green-dark);
 
     font-size: 0.76rem;
+
     font-weight: 800;
 }
 
@@ -1479,8 +1510,7 @@ footer {
 .form-group textarea:focus {
     border-color: #82b97e;
 
-    box-shadow:
-        0 0 0 3px rgba(22, 133, 27, 0.08);
+    box-shadow: 0 0 0 3px rgba(22, 133, 27, 0.08);
 
     outline: none;
 }
@@ -1493,7 +1523,7 @@ footer {
 
 
 /* =========================================================
-   ALERTS
+   FLASH / ALERTS
    ========================================================= */
 
 .flash,
@@ -1507,6 +1537,7 @@ footer {
     border-radius: 6px;
 
     font-size: 0.82rem;
+
     font-weight: 700;
 }
 
@@ -1549,44 +1580,6 @@ footer {
 
 
 /* =========================================================
-   EMPTY STATES
-   ========================================================= */
-
-.empty-state {
-    padding: 55px 25px;
-
-    text-align: center;
-
-    background: white;
-
-    border: 1px solid var(--border);
-
-    border-radius: 8px;
-
-    box-shadow: var(--shadow-soft);
-}
-
-.empty-state h2,
-.empty-state h3 {
-    margin: 0 0 10px;
-
-    color: var(--green-dark);
-}
-
-.empty-state p {
-    max-width: 500px;
-
-    margin: 0 auto;
-
-    color: var(--muted);
-
-    font-size: 0.85rem;
-
-    line-height: 1.7;
-}
-
-
-/* =========================================================
    ADMIN / DASHBOARD
    ========================================================= */
 
@@ -1602,6 +1595,7 @@ footer {
     display: flex;
 
     align-items: flex-end;
+
     justify-content: space-between;
 
     gap: 25px;
@@ -1630,11 +1624,6 @@ footer {
 
     line-height: 1.6;
 }
-
-
-/* =========================================================
-   ADMIN STATS
-   ========================================================= */
 
 .stats-grid {
     display: grid;
@@ -1666,6 +1655,7 @@ footer {
     color: var(--muted);
 
     font-size: 0.67rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
@@ -1690,6 +1680,7 @@ footer {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     gap: 15px;
@@ -1737,8 +1728,7 @@ footer {
 
     border-color: #82b97e;
 
-    box-shadow:
-        0 0 0 3px rgba(22, 133, 27, 0.08);
+    box-shadow: 0 0 0 3px rgba(22, 133, 27, 0.08);
 }
 
 
@@ -1757,15 +1747,6 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
 
-    .attendance-summary {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .hero-nav {
-        padding-left: 22px;
-        padding-right: 22px;
-    }
-
     .account-details {
         display: none;
     }
@@ -1775,10 +1756,11 @@ footer {
 @media (max-width: 800px) {
 
     .hero-nav {
-        padding: 14px 20px;
+        padding: 13px 20px;
     }
 
-    .hero-nav-links {
+    .hero-nav-links,
+    .hero-links {
         gap: 2px;
     }
 
@@ -1786,7 +1768,7 @@ footer {
     .hero-links a {
         padding: 8px 9px;
 
-        font-size: 0.7rem;
+        font-size: 0.72rem;
     }
 
     .hero-inner {
@@ -1809,19 +1791,19 @@ footer {
         padding-right: 25px;
     }
 
-    .attendance-intro {
-        align-items: flex-start;
-
-        flex-direction: column;
+    .attendance-main {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
     .attendance-summary {
         grid-template-columns: 1fr;
     }
 
-    .attendance-main {
-        padding-left: 20px;
-        padding-right: 20px;
+    .attendance-intro {
+        align-items: flex-start;
+
+        flex-direction: column;
     }
 
     .attendance-card {
@@ -1832,16 +1814,21 @@ footer {
         min-width: 650px;
     }
 
-    .attendance-account-card {
-        align-items: flex-start;
+    .home-information-inner {
+        padding: 70px 20px;
     }
 
-    .site-footer .footer-inner {
-        flex-direction: column;
+    .footer-inner {
+        grid-template-columns: 1fr;
+
+        gap: 30px;
+
+        padding: 45px 20px;
     }
 
-    .site-footer .footer-links {
-        flex-wrap: wrap;
+    .footer-bottom {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 
     .dashboard {
@@ -1871,7 +1858,9 @@ footer {
 @media (max-width: 600px) {
 
     .hero-nav {
-        padding: 12px 15px;
+        min-height: 68px;
+
+        padding: 10px 15px;
     }
 
     .hero-brand-school {
@@ -1882,33 +1871,27 @@ footer {
         font-size: 0.82rem;
     }
 
+    .hero-logo {
+        width: 38px;
+        height: 38px;
+    }
+
     .hero-nav-links a,
     .hero-links a {
         padding: 7px 7px;
 
-        font-size: 0.64rem;
-    }
-
-    .hero-logo {
-        width: 36px;
-        height: 36px;
-    }
-
-    .home-hero {
-        min-height: 650px;
-
-        background-attachment: scroll;
+        font-size: 0.66rem;
     }
 
     .hero-inner {
         padding: 135px 20px 155px;
     }
 
-    .hero h1 {
+    .hero-content h1 {
         font-size: clamp(3.3rem, 17vw, 5rem);
     }
 
-    .hero-content > p:not(.section-label) {
+    .hero-content p:not(.section-label) {
         font-size: 0.88rem;
     }
 
@@ -1920,86 +1903,40 @@ footer {
         font-size: 2.5rem;
     }
 
-    .home-information {
-        min-height: 500px;
-
-        background-attachment: scroll;
-    }
-
-    .home-information-inner {
-        padding: 70px 20px;
-    }
-
     .home-information h2 {
         font-size: 3rem;
     }
 
-    .footer-inner {
-        grid-template-columns: 1fr;
-
-        gap: 30px;
-
-        padding: 45px 20px;
-    }
-
-    .footer-bottom {
-        padding-left: 20px;
-        padding-right: 20px;
-    }
-
-    /* Attendance */
-
     .attendance-hero {
-        min-height: 420px;
+        min-height: 400px;
     }
 
     .attendance-hero-inner {
-        padding: 125px 20px 105px;
+        padding: 125px 20px 100px;
     }
 
     .attendance-hero h1 {
         font-size: clamp(3.2rem, 16vw, 5rem);
     }
 
-    .attendance-hero p {
-        font-size: 0.88rem;
-    }
-
     .attendance-main {
-        margin-top: -15px;
-
-        padding:
-            0 15px 65px;
-    }
-
-    .attendance-intro h2 {
-        font-size: 2.5rem;
+        padding: 0 15px 65px;
     }
 
     .attendance-card-header {
-        align-items: flex-start;
-
-        flex-direction: column;
+        padding: 20px;
     }
 
     .attendance-account-card {
+        align-items: flex-start;
+
         flex-wrap: wrap;
 
         padding: 20px;
     }
 
-    .attendance-account-info {
-        width: calc(100% - 70px);
-    }
-
     .account-arrow {
-        width: 100%;
-
-        text-align: center;
-    }
-
-    .summary-card {
-        min-height: 125px;
+        margin-left: 70px;
     }
 
     .stats-grid {
@@ -2008,6 +1945,10 @@ footer {
 
     .card-body {
         padding: 20px;
+    }
+
+    .summary-card {
+        min-height: 125px;
     }
 }
 
@@ -2031,8 +1972,7 @@ footer {
     }
 
     .home-hero,
-    .home-information,
-    .attendance-hero {
+    .home-information {
         background-attachment: scroll;
     }
 }
