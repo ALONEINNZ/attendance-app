@@ -1,162 +1,268 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>My Attendance | Burnside Attendance</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='app.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', filename='script.js') }}"
+        defer
+    ></script>
 </head>
 
-<body>
+
+<body class="attendance-page">
+
+
+<!-- =========================================================
+     NAVIGATION
+========================================================= -->
 
 <header class="navbar">
 
-    <a href="{{ url_for('home') }}" class="brand">
-        <div class="brand-mark">B</div>
+    <div class="nav-inner">
 
-        <div class="brand-text">
-            <span>Burnside</span>
-            <small>Attendance</small>
-        </div>
-    </a>
+        <!-- BRAND -->
 
+        <a
+            href="{{ url_for('home') }}"
+            class="brand"
+        >
 
-    <nav class="nav-links">
+            {% if logo_url %}
 
-        <a href="{{ url_for('home') }}">
-            Home
-        </a>
+                <img
+                    src="{{ logo_url }}"
+                    alt="Burnside High School"
+                    class="logo"
+                >
 
-        <a href="{{ url_for('checkin') }}">
-            Check In
-        </a>
+            {% else %}
 
-        {% if session.get('username') %}
-        <a href="{{ url_for('my_attendance') }}" class="active">
-            My Attendance
-        </a>
-        {% endif %}
-
-    </nav>
-
-
-    <!-- ACCOUNT -->
-
-    <div class="nav-account">
-
-        {% if session.get('username') %}
-
-            <a href="{{ url_for('account') }}" class="account-pill">
-
-                {% if session.get('picture') %}
-
-                    <img
-                        src="{{ session.get('picture') }}"
-                        alt="Profile"
-                        class="account-pfp">
-
-                {% else %}
-
-                    <div class="account-pfp fallback-pfp">
-                        {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
-                    </div>
-
-                {% endif %}
-
-
-                <div class="account-details">
-
-                    <strong>
-                        {{ session.get('name') or session.get('username') }}
-                    </strong>
-
-                    <span>
-                        {{ session.get('email') or session.get('username') }}
-                    </span>
-
+                <div class="brand-mark">
+                    B
                 </div>
 
+            {% endif %}
 
-                <span class="account-chevron">
-                    ⌄
+
+            <div class="brand-text">
+
+                <span>
+                    Burnside
                 </span>
 
+                <small>
+                    Attendance
+                </small>
+
+            </div>
+
+        </a>
+
+
+
+        <!-- NAVIGATION LINKS -->
+
+        <nav class="nav-links">
+
+            <a href="{{ url_for('home') }}">
+                Home
             </a>
 
-
-            <!-- DESKTOP LOGOUT -->
-
-            <a href="{{ url_for('logout') }}" class="logout">
-                Log out
+            <a href="{{ url_for('checkin') }}">
+                Check In
             </a>
 
-        {% else %}
+            {% if session.get('username') %}
 
-            <a href="{{ url_for('login') }}" class="login-button">
-                Sign in
-            </a>
+                <a
+                    href="{{ url_for('my_attendance') }}"
+                    class="active"
+                >
+                    My Attendance
+                </a>
 
-        {% endif %}
+            {% endif %}
+
+            {% if session.get('is_admin') %}
+
+                <a href="{{ url_for('admin') }}">
+                    Admin
+                </a>
+
+            {% endif %}
+
+        </nav>
+
+
+
+        <!-- ACCOUNT -->
+
+        <div class="nav-account">
+
+            {% if session.get('username') %}
+
+                <a
+                    href="{{ url_for('account') }}"
+                    class="account-pill"
+                >
+
+                    {% if session.get('picture') %}
+
+                        <img
+                            src="{{ session.get('picture') }}"
+                            alt="Profile"
+                            class="account-pfp"
+                        >
+
+                    {% else %}
+
+                        <div class="account-pfp fallback-pfp">
+
+                            {{
+                                (
+                                    session.get('name')
+                                    or session.get('username')
+                                    or 'S'
+                                )[0] | upper
+                            }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="account-details">
+
+                        <strong>
+                            {{
+                                session.get('name')
+                                or session.get('username')
+                            }}
+                        </strong>
+
+                        <span>
+                            {{
+                                session.get('email')
+                                or session.get('username')
+                            }}
+                        </span>
+
+                    </div>
+
+
+                    <span class="account-chevron">
+                        ⌄
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout"
+                >
+                    Log out
+                </a>
+
+            {% else %}
+
+                <a
+                    href="{{ url_for('login') }}"
+                    class="login-button"
+                >
+                    Sign in
+                </a>
+
+            {% endif %}
+
+        </div>
 
     </div>
 
 </header>
 
 
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section
+    class="page-hero attendance-page-hero"
+    style="
+        background-image:
+            linear-gradient(
+                90deg,
+                rgba(0, 29, 0, 0.94) 0%,
+                rgba(0, 61, 1, 0.82) 45%,
+                rgba(0, 61, 1, 0.45) 100%
+            ),
+            url('{{ url_for('static', filename='burnside-building.jpg') }}');
+    "
+>
+
+    <div class="page-hero-content">
+
+        <div class="eyebrow">
+
+            <span class="status-dot"></span>
+
+            Student attendance
+
+        </div>
+
+
+        <h1>
+            My <span>attendance.</span>
+        </h1>
+
+
+        <p>
+            View your check-ins and keep track of your attendance
+            throughout the school year.
+        </p>
+
+    </div>
+
+
+    <div class="page-hero-decoration">
+
+        <div class="hero-circle attendance-circle">
+
+            <div class="circle-inner">
+                ✓
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
 <main>
 
 
-    <!-- PAGE HERO -->
-
-    <section class="page-hero">
-
-        <div class="page-hero-content">
-
-            <div class="eyebrow">
-                <span class="status-dot"></span>
-                Student attendance
-            </div>
-
-
-            <h1>
-                My <span>attendance.</span>
-            </h1>
-
-
-            <p>
-                View your check-ins and keep track of your attendance
-                throughout the school year.
-            </p>
-
-        </div>
-
-
-        <div class="page-hero-decoration">
-
-            <div class="hero-circle attendance-circle">
-
-                <div class="circle-inner">
-                    ✓
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ATTENDANCE -->
+    <!-- =====================================================
+         ATTENDANCE SECTION
+    ====================================================== -->
 
     <section class="section attendance-section">
-
-
-        <!-- SECTION HEADER -->
 
         <div class="section-heading attendance-heading">
 
@@ -175,22 +281,23 @@
 
             <a
                 href="{{ url_for('checkin') }}"
-                class="secondary-button">
-
+                class="secondary-button"
+            >
                 Check in →
-
             </a>
 
         </div>
 
 
 
-        <!-- SUMMARY -->
+        <!-- =================================================
+             SUMMARY CARDS
+        ================================================== -->
 
         <div class="attendance-summary">
 
 
-            <!-- TOTAL -->
+            <!-- TOTAL CHECK-INS -->
 
             <div class="summary-card">
 
@@ -207,6 +314,7 @@
                 </small>
 
             </div>
+
 
 
             <!-- ACCOUNT -->
@@ -226,6 +334,7 @@
                 </small>
 
             </div>
+
 
 
             <!-- STATUS -->
@@ -256,7 +365,9 @@
 
 
 
-        <!-- ATTENDANCE TABLE -->
+        <!-- =================================================
+             ATTENDANCE TABLE
+        ================================================== -->
 
         <div class="attendance-card">
 
@@ -290,7 +401,6 @@
 
             {% if attendance %}
 
-
                 <div class="attendance-table-wrapper">
 
                     <table class="attendance-table">
@@ -320,32 +430,41 @@
 
                             {% for record in attendance %}
 
-                            <tr>
+                                <tr>
+
+                                    <td>
+
+                                        <strong>
+                                            {{ record["name"] }}
+                                        </strong>
+
+                                    </td>
 
 
-                                <td>
-                                    <strong>
-                                        {{ record["name"] }}
-                                    </strong>
-                                </td>
+                                    <td>
 
-                                <td>
-                                    {{ record["time"] }}
-                                </td>
-                                <td>
+                                        <span class="attendance-time">
+                                            {{ record["time"] }}
+                                        </span>
 
-                                    <span class="attendance-status present">
-
-                                        <span class="status-dot"></span>
-
-                                        Present
-
-                                    </span>
-
-                                </td>
+                                    </td>
 
 
-                            </tr>
+                                    <td>
+
+                                        <span
+                                            class="attendance-status present"
+                                        >
+
+                                            <span class="status-dot"></span>
+
+                                            Present
+
+                                        </span>
+
+                                    </td>
+
+                                </tr>
 
                             {% endfor %}
 
@@ -355,9 +474,7 @@
 
                 </div>
 
-
             {% else %}
-
 
                 <!-- EMPTY STATE -->
 
@@ -381,7 +498,8 @@
 
                     <a
                         href="{{ url_for('checkin') }}"
-                        class="primary-button">
+                        class="primary-button"
+                    >
 
                         <span>
                             Check in now
@@ -395,7 +513,6 @@
 
                 </div>
 
-
             {% endif %}
 
         </div>
@@ -404,142 +521,153 @@
 
 
 
-    <!-- ACCOUNT STATUS -->
+    <!-- =====================================================
+         ACCOUNT STATUS
+    ====================================================== -->
 
     {% if session.get('username') %}
 
-    <section class="welcome-card">
+        <section class="welcome-card">
 
 
-        <div class="welcome-avatar">
+            <div class="welcome-avatar">
 
-            {% if session.get('picture') %}
+                {% if session.get('picture') %}
 
-                <img
-                    src="{{ session.get('picture') }}"
-                    alt="Profile picture">
+                    <img
+                        src="{{ session.get('picture') }}"
+                        alt="Profile picture"
+                    >
 
-            {% else %}
+                {% else %}
 
-                {{ (session.get('name')
-                    or session.get('username')
-                    or 'S')[0] | upper }}
+                    {{
+                        (
+                            session.get('name')
+                            or session.get('username')
+                            or 'S'
+                        )[0] | upper
+                    }}
 
-            {% endif %}
+                {% endif %}
 
-        </div>
-
-
-
-        <div class="welcome-text">
-
-            <span>
-                YOUR ACCOUNT
-            </span>
-
-
-            <h3>
-
-                {{ session.get('name')
-                   or session.get('username') }}
-
-            </h3>
-
-
-            <p>
-                Your attendance records are linked to your
-                student account.
-            </p>
-
-        </div>
+            </div>
 
 
 
-        <a
-            href="{{ url_for('account') }}"
-            class="welcome-link">
+            <div class="welcome-text">
 
-            Account →
+                <span>
+                    YOUR ACCOUNT
+                </span>
 
-        </a>
 
-    </section>
+                <h3>
+
+                    {{
+                        session.get('name')
+                        or session.get('username')
+                    }}
+
+                </h3>
+
+
+                <p>
+                    Your attendance records are linked to your
+                    student account.
+                </p>
+
+            </div>
+
+
+
+            <a
+                href="{{ url_for('account') }}"
+                class="welcome-link"
+            >
+                Account →
+            </a>
+
+        </section>
 
     {% endif %}
 
 
 
-    <!-- MOBILE ACCOUNT ACTIONS -->
+    <!-- =====================================================
+         MOBILE ACCOUNT ACTIONS
+    ====================================================== -->
 
     {% if session.get('username') %}
 
-    <section class="mobile-account-actions">
+        <section class="mobile-account-actions">
 
 
-        <!-- ACCOUNT -->
+            <!-- ACCOUNT -->
 
-        <a
-            href="{{ url_for('account') }}"
-            class="mobile-account-button">
+            <a
+                href="{{ url_for('account') }}"
+                class="mobile-account-button"
+            >
 
-            <span class="mobile-action-icon">
-                ◉
-            </span>
-
-
-            <div>
-
-                <strong>
-                    Account
-                </strong>
-
-                <small>
-                    Manage your student profile
-                </small>
-
-            </div>
+                <span class="mobile-action-icon">
+                    ◉
+                </span>
 
 
-            <span class="mobile-action-arrow">
-                →
-            </span>
+                <div>
 
-        </a>
+                    <strong>
+                        Account
+                    </strong>
 
+                    <small>
+                        Manage your student profile
+                    </small>
 
-
-        <!-- LOGOUT -->
-
-        <a
-            href="{{ url_for('logout') }}"
-            class="mobile-logout-button">
-
-            <span class="mobile-action-icon">
-                ↪
-            </span>
+                </div>
 
 
-            <div>
+                <span class="mobile-action-arrow">
+                    →
+                </span>
 
-                <strong>
-                    Log out
-                </strong>
-
-                <small>
-                    Sign out of your Burnside account
-                </small>
-
-            </div>
+            </a>
 
 
-            <span class="mobile-action-arrow">
-                →
-            </span>
 
-        </a>
+            <!-- LOGOUT -->
+
+            <a
+                href="{{ url_for('logout') }}"
+                class="mobile-logout-button"
+            >
+
+                <span class="mobile-action-icon">
+                    ↪
+                </span>
 
 
-    </section>
+                <div>
+
+                    <strong>
+                        Log out
+                    </strong>
+
+                    <small>
+                        Sign out of your Burnside account
+                    </small>
+
+                </div>
+
+
+                <span class="mobile-action-arrow">
+                    →
+                </span>
+
+            </a>
+
+        </section>
 
     {% endif %}
 
@@ -547,16 +675,29 @@
 
 
 
-<!-- FOOTER -->
+<!-- =========================================================
+     FOOTER
+========================================================= -->
 
 <footer class="footer">
 
-
     <div class="footer-brand">
 
-        <div class="brand-mark small-mark">
-            B
-        </div>
+        {% if logo_url %}
+
+            <img
+                src="{{ logo_url }}"
+                alt="Burnside High School"
+                class="logo small-logo"
+            >
+
+        {% else %}
+
+            <div class="brand-mark small-mark">
+                B
+            </div>
+
+        {% endif %}
 
 
         <div>
@@ -585,10 +726,9 @@
         <a
             href="https://www.burnside.school.nz/"
             target="_blank"
-            rel="noopener">
-
+            rel="noopener"
+        >
             School website →
-
         </a>
 
     </div>
@@ -598,4 +738,3 @@
 
 </body>
 </html>
-```

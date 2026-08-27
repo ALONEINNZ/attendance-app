@@ -2,9 +2,8 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-<<<<<<< HEAD
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -21,16 +20,21 @@
         src="{{ url_for('static', filename='script.js') }}"
         defer
     ></script>
-
 </head>
 
 
 <body class="admin-page">
 
 
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
 <header class="site-header">
 
     <div class="header-inner">
+
+        <!-- BRAND -->
 
         <a
             href="{{ url_for('home') }}"
@@ -45,7 +49,14 @@
                     alt="Burnside High School"
                 >
 
+            {% else %}
+
+                <div class="brand-mark">
+                    B
+                </div>
+
             {% endif %}
+
 
             <div class="brand-text">
 
@@ -62,17 +73,102 @@
         </a>
 
 
-        <nav>
+        <!-- NAVIGATION -->
+
+        <nav class="nav-links">
 
             <a href="{{ url_for('home') }}">
                 Home
             </a>
 
-            <a href="{{ url_for('logout') }}">
-                Logout
+            <a href="{{ url_for('checkin') }}">
+                Check In
+            </a>
+
+            <a href="{{ url_for('my_attendance') }}">
+                My Attendance
+            </a>
+
+            <a
+                href="{{ url_for('admin') }}"
+                class="active"
+            >
+                Admin
             </a>
 
         </nav>
+
+
+        <!-- ACCOUNT -->
+
+        {% if session.get('username') %}
+
+            <div class="nav-account">
+
+                <a
+                    href="{{ url_for('account') }}"
+                    class="account-pill"
+                >
+
+                    {% if session.get('picture') %}
+
+                        <img
+                            src="{{ session.get('picture') }}"
+                            alt="Profile"
+                            class="account-pfp"
+                        >
+
+                    {% else %}
+
+                        <div class="account-pfp fallback-pfp">
+                            {{
+                                (
+                                    session.get('name')
+                                    or session.get('username')
+                                    or 'S'
+                                )[0] | upper
+                            }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="account-details">
+
+                        <strong>
+                            {{
+                                session.get('name')
+                                or session.get('username')
+                            }}
+                        </strong>
+
+                        <span>
+                            {{
+                                session.get('email')
+                                or session.get('username')
+                            }}
+                        </span>
+
+                    </div>
+
+
+                    <span class="account-chevron">
+                        ⌄
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('logout') }}"
+                    class="logout"
+                >
+                    Logout
+                </a>
+
+            </div>
+
+        {% endif %}
 
     </div>
 
@@ -80,9 +176,21 @@
 
 
 
-<!-- HERO -->
+<!-- =========================================================
+     HERO
+========================================================= -->
 
-<section class="hero admin-hero">
+<section
+    class="hero admin-hero"
+    style="
+        background-image:
+            linear-gradient(
+                rgba(0, 35, 0, 0.72),
+                rgba(0, 35, 0, 0.72)
+            ),
+            url('{{ url_for('static', filename='burnside-building.jpg') }}');
+    "
+>
 
     <div class="hero-inner">
 
@@ -92,440 +200,24 @@
                 BURNSIDE HIGH SCHOOL
             </p>
 
-            <h1>
-                Attendance Administration
-            </h1>
-
-            <p>
-                View student attendance and monitor today's
-                check-ins from one place.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- ADMIN CONTENT -->
-
-<main class="admin-content">
-
-
-    <section class="admin-intro">
-
-        <h2>
-            Today's attendance
-        </h2>
-
-        <p>
-            Attendance information recorded by the Burnside
-            Attendance system.
-        </p>
-
-    </section>
-
-
-
-    <!-- STATISTICS -->
-
-    <section class="admin-statistics">
-
-        <div class="admin-stat">
-
-            <span class="admin-stat-label">
-                Total Students
-            </span>
-
-            <strong>
-                {{ total_users }}
-            </strong>
-
-        </div>
-
-
-        <div class="admin-stat">
-
-            <span class="admin-stat-label">
-                Present Today
-            </span>
-
-            <strong>
-                {{ present_today }}
-            </strong>
-
-        </div>
-
-
-        <div class="admin-stat">
-
-            <span class="admin-stat-label">
-                Absent Today
-            </span>
-
-            <strong>
-                {{ absent_today }}
-            </strong>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- ATTENDANCE -->
-
-    <section
-        class="admin-section"
-        id="attendance"
-    >
-
-        <div class="admin-section-heading">
-
-            <h2>
-                Recent Attendance
-            </h2>
-
-            <p>
-                The most recent student check-ins.
-=======
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Admin Dashboard | Burnside Attendance</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='app.css') }}">
-
-    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
-</head>
-
-<body>
-
-<header class="navbar">
-
-    <!-- BRAND -->
-    <a href="{{ url_for('home') }}" class="brand">
-
-        <div class="brand-mark">
-            B
-        </div>
-
-        <div class="brand-text">
-            <span>Burnside</span>
-            <small>Attendance</small>
-        </div>
-
-    </a>
-
-
-    <!-- NAVIGATION -->
-    <nav class="nav-links">
-
-        <a href="{{ url_for('home') }}">
-            Home
-        </a>
-
-        <a href="{{ url_for('checkin') }}">
-            Check In
-        </a>
-
-        <a href="{{ url_for('my_attendance') }}">
-            My Attendance
-        </a>
-
-        <a href="{{ url_for('admin') }}" class="active">
-            Admin
-        </a>
-
-    </nav>
-
-
-    <!-- ACCOUNT -->
-    <div class="nav-account">
-
-        {% if session.get('username') %}
-
-            <a href="{{ url_for('account') }}" class="account-pill">
-
-                {% if session.get('picture') %}
-
-                    <img
-                        src="{{ session.get('picture') }}"
-                        alt="Profile"
-                        class="account-pfp">
-
-                {% else %}
-
-                    <div class="account-pfp fallback-pfp">
-                        {{ (session.get('name') or session.get('username') or 'S')[0] | upper }}
-                    </div>
-
-                {% endif %}
-
-                <div class="account-details">
-
-                    <strong>
-                        {{ session.get('name') or session.get('username') }}
-                    </strong>
-
-                    <span>
-                        {{ session.get('email') or session.get('username') }}
-                    </span>
-
-                </div>
-
-                <span class="account-chevron">
-                    ⌄
-                </span>
-
-            </a>
-
-            <a href="{{ url_for('logout') }}" class="logout">
-                Logout
-            </a>
-
-        {% endif %}
-
-    </div>
-
-</header>
-
-
-<main class="admin-page">
-
-
-    <!-- HERO -->
-
-    <section class="admin-hero">
-
-        <div>
-
-            <div class="eyebrow admin-eyebrow">
-
-                <span class="status-dot"></span>
-
-                ADMINISTRATION
-
-            </div>
 
             <h1>
                 Attendance<br>
-                <span>dashboard.</span>
+                <span>Administration.</span>
             </h1>
+
 
             <p>
                 Welcome, {{ admin_name }}.
-                View student check-ins and manage attendance from one place.
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
+                View student check-ins and manage attendance
+                from one place.
             </p>
 
         </div>
 
 
-<<<<<<< HEAD
-        {% if attendance %}
+        <!-- ADMIN ACCESS BADGE -->
 
-            <div class="admin-table-wrap">
-
-                <table class="admin-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Student
-                            </th>
-
-                            <th>
-                                Date & Time
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for record in attendance %}
-
-                            <tr>
-
-                                <td>
-                                    <strong>
-                                        {{ record.name }}
-                                    </strong>
-                                </td>
-
-                                <td>
-                                    {{ record.time }}
-                                </td>
-
-                                <td>
-
-                                    <span class="status-present">
-                                        Present
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        {% else %}
-
-            <div class="admin-empty">
-
-                <strong>
-                    No attendance recorded
-                </strong>
-
-                <p>
-                    There are currently no attendance records.
-                </p>
-
-            </div>
-
-        {% endif %}
-
-    </section>
-
-
-
-    <!-- STUDENT OPTIONS -->
-
-    <section
-        class="admin-section"
-        id="students"
-    >
-
-        <div class="admin-section-heading">
-
-            <h2>
-                Student Attendance
-            </h2>
-
-            <p>
-                Useful links for managing attendance.
-            </p>
-
-        </div>
-
-
-        <div class="admin-links">
-
-            <a
-                href="#attendance"
-                class="admin-link"
-            >
-
-                <div>
-
-                    <strong>
-                        View Recent Attendance
-                    </strong>
-
-                    <span>
-                        View the latest student check-ins.
-                    </span>
-
-                </div>
-
-                <span class="admin-arrow">
-                    →
-                </span>
-
-            </a>
-
-
-            <a
-                href="{{ url_for('home') }}"
-                class="admin-link"
-            >
-
-                <div>
-
-                    <strong>
-                        Student Check-in
-                    </strong>
-
-                    <span>
-                        Open the student attendance page.
-                    </span>
-
-                </div>
-
-                <span class="admin-arrow">
-                    →
-                </span>
-
-            </a>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- SYSTEM INFORMATION -->
-
-    <section
-        class="admin-section"
-        id="settings"
-    >
-
-        <div class="admin-section-heading">
-
-            <h2>
-                Administration
-            </h2>
-
-            <p>
-                Current account and system information.
-            </p>
-
-        </div>
-
-
-        <div class="admin-system">
-
-            <div class="admin-system-item">
-
-                <span>
-                    System
-                </span>
-
-                <strong>
-                    Burnside Attendance
-                </strong>
-
-            </div>
-
-
-            <div class="admin-system-item">
-
-                <span>
-                    Account type
-                </span>
-
-                <strong>
-                    Administrator
-                </strong>
-=======
         <div class="admin-hero-badge">
 
             <span class="admin-badge-icon">
@@ -546,11 +238,22 @@
 
         </div>
 
-    </section>
+    </div>
+
+</section>
 
 
 
-    <!-- OVERVIEW -->
+<!-- =========================================================
+     MAIN CONTENT
+========================================================= -->
+
+<main class="admin-content">
+
+
+    <!-- =====================================================
+         OVERVIEW
+    ====================================================== -->
 
     <section class="admin-section">
 
@@ -566,6 +269,11 @@
                     Today's attendance.
                 </h2>
 
+                <p>
+                    Attendance information recorded by the
+                    Burnside Attendance system.
+                </p>
+
             </div>
 
         </div>
@@ -574,7 +282,7 @@
         <div class="admin-stats">
 
 
-            <!-- REGISTERED USERS -->
+            <!-- TOTAL STUDENTS -->
 
             <div class="admin-stat-card">
 
@@ -585,11 +293,11 @@
                 <div>
 
                     <span>
-                        REGISTERED USERS
+                        REGISTERED STUDENTS
                     </span>
 
                     <strong>
-                        {{ users|length }}
+                        {{ total_users if total_users is defined else users|length }}
                     </strong>
 
                 </div>
@@ -597,7 +305,8 @@
             </div>
 
 
-            <!-- CHECKED IN -->
+
+            <!-- PRESENT -->
 
             <div class="admin-stat-card admin-stat-green">
 
@@ -608,30 +317,51 @@
                 <div>
 
                     <span>
-                        CHECKED IN
+                        PRESENT TODAY
                     </span>
 
                     <strong>
-                        {{ attendance|length }}
+                        {{ present_today if present_today is defined else attendance|length }}
                     </strong>
 
                 </div>
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
 
             </div>
 
 
-<<<<<<< HEAD
-            <div class="admin-system-item">
 
-                <span>
-                    Signed in as
-                </span>
+            <!-- ABSENT -->
 
-                <strong>
-                    {{ session.get('username') }}
-                </strong>
-=======
+            <div class="admin-stat-card">
+
+                <div class="admin-stat-icon">
+                    –
+                </div>
+
+                <div>
+
+                    <span>
+                        ABSENT TODAY
+                    </span>
+
+                    <strong>
+                        {{
+                            absent_today
+                            if absent_today is defined
+                            else (
+                                (users|length - attendance|length)
+                                if (users|length - attendance|length) > 0
+                                else 0
+                            )
+                        }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+
             <!-- LATEST CHECK-IN -->
 
             <div class="admin-stat-card">
@@ -649,15 +379,18 @@
                     <strong>
 
                         {% if attendance %}
+
                             {{ attendance[0]["time"] }}
+
                         {% else %}
+
                             —
+
                         {% endif %}
 
                     </strong>
 
                 </div>
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
 
             </div>
 
@@ -666,12 +399,15 @@
     </section>
 
 
-<<<<<<< HEAD
-=======
 
-    <!-- ATTENDANCE -->
+    <!-- =====================================================
+         RECENT ATTENDANCE
+    ====================================================== -->
 
-    <section class="admin-section">
+    <section
+        class="admin-section"
+        id="attendance"
+    >
 
         <div class="admin-section-heading">
 
@@ -685,17 +421,23 @@
                     Student attendance.
                 </h2>
 
+                <p>
+                    The most recent student check-ins.
+                </p>
+
             </div>
 
 
             <span class="admin-count">
 
                 {{ attendance|length }}
+
                 check-ins
 
             </span>
 
         </div>
+
 
 
         <div class="admin-table-card">
@@ -739,9 +481,15 @@
 
                                             <div class="admin-student-avatar">
 
-                                                {{ (row["name"] or "S")[0] | upper }}
+                                                {{
+                                                    (
+                                                        row["name"]
+                                                        or "S"
+                                                    )[0] | upper
+                                                }}
 
                                             </div>
+
 
                                             <strong>
                                                 {{ row["name"] }}
@@ -796,7 +544,8 @@
                     </h3>
 
                     <p>
-                        Student attendance will appear here once someone checks in.
+                        Student attendance will appear here
+                        once someone checks in.
                     </p>
 
                 </div>
@@ -809,9 +558,14 @@
 
 
 
-    <!-- REGISTERED USERS -->
+    <!-- =====================================================
+         REGISTERED STUDENTS
+    ====================================================== -->
 
-    <section class="admin-section">
+    <section
+        class="admin-section"
+        id="students"
+    >
 
         <div class="admin-section-heading">
 
@@ -825,17 +579,24 @@
                     Registered students.
                 </h2>
 
+                <p>
+                    Google accounts registered with the
+                    Burnside Attendance system.
+                </p>
+
             </div>
 
 
             <span class="admin-count">
 
                 {{ users|length }}
+
                 users
 
             </span>
 
         </div>
+
 
 
         <div class="admin-table-card">
@@ -887,13 +648,18 @@
                                                     src="{{ user['pfp'] }}"
                                                     alt="Profile"
                                                     class="admin-student-avatar"
-                                                    style="object-fit: cover;">
+                                                >
 
                                             {% else %}
 
                                                 <div class="admin-student-avatar">
 
-                                                    {{ (user["username"] or "S")[0] | upper }}
+                                                    {{
+                                                        (
+                                                            user["username"]
+                                                            or "S"
+                                                        )[0] | upper
+                                                    }}
 
                                                 </div>
 
@@ -910,16 +676,12 @@
 
 
                                     <td>
-
                                         {{ user["email"] }}
-
                                     </td>
 
 
                                     <td>
-
                                         {{ user["code"] }}
-
                                     </td>
 
 
@@ -972,7 +734,8 @@
                     </h3>
 
                     <p>
-                        Google accounts will appear here after students sign in.
+                        Google accounts will appear here after
+                        students sign in.
                     </p>
 
                 </div>
@@ -985,9 +748,14 @@
 
 
 
-    <!-- ADMIN TOOLS -->
+    <!-- =====================================================
+         ADMIN TOOLS
+    ====================================================== -->
 
-    <section class="admin-section">
+    <section
+        class="admin-section"
+        id="settings"
+    >
 
         <div class="admin-section-heading">
 
@@ -1001,20 +769,27 @@
                     Quick actions.
                 </h2>
 
+                <p>
+                    Manage the attendance system and your
+                    administrator session.
+                </p>
+
             </div>
 
         </div>
 
 
+
         <div class="admin-actions">
 
 
-            <!-- RESET ATTENDANCE -->
+            <!-- RESET -->
 
             <button
                 type="button"
                 class="admin-action-card"
-                onclick="resetAttendance()">
+                onclick="resetAttendance()"
+            >
 
                 <div class="admin-action-icon">
                     ↻
@@ -1039,11 +814,13 @@
             </button>
 
 
+
             <!-- HOME -->
 
             <a
                 href="{{ url_for('home') }}"
-                class="admin-action-card">
+                class="admin-action-card"
+            >
 
                 <div class="admin-action-icon">
                     ←
@@ -1068,11 +845,44 @@
             </a>
 
 
+
+            <!-- CHECK-IN -->
+
+            <a
+                href="{{ url_for('checkin') }}"
+                class="admin-action-card"
+            >
+
+                <div class="admin-action-icon">
+                    ✓
+                </div>
+
+                <div>
+
+                    <strong>
+                        Student check-in
+                    </strong>
+
+                    <span>
+                        Open the student attendance page.
+                    </span>
+
+                </div>
+
+                <b>
+                    →
+                </b>
+
+            </a>
+
+
+
             <!-- LOGOUT -->
 
             <a
                 href="{{ url_for('logout') }}"
-                class="admin-action-card admin-danger">
+                class="admin-action-card admin-danger"
+            >
 
                 <div class="admin-action-icon">
                     ×
@@ -1101,82 +911,34 @@
     </section>
 
 
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
 </main>
 
 
 
-<<<<<<< HEAD
-<footer>
-
-    <div class="footer-inner">
-
-        <div>
-
-            <div class="footer-brand">
-                Burnside Attendance
-            </div>
-
-            <p class="footer-text">
-                Burnside High School
-            </p>
-
-            <p class="footer-text">
-                151 Greers Road<br>
-                Christchurch 8440
-            </p>
-
-        </div>
-
-
-        <div>
-
-            <p class="footer-heading">
-                Attendance
-            </p>
-
-            <div class="footer-links">
-
-                <a href="{{ url_for('home') }}">
-                    Student Check-in
-                </a>
-
-                <a href="{{ url_for('my_attendance') }}">
-                    My Attendance
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <div>
-
-            <p class="footer-heading">
-                School
-            </p>
-
-            <div class="footer-links">
-
-                <a href="{{ url_for('home') }}">
-                    Home
-                </a>
-
-                <a href="{{ url_for('logout') }}">
-                    Logout
-                </a>
-
-            </div>
-=======
-<!-- FOOTER -->
+<!-- =========================================================
+     FOOTER
+========================================================= -->
 
 <footer class="footer">
 
     <div class="footer-brand">
 
-        <div class="brand-mark small-mark">
-            B
-        </div>
+        {% if logo_url %}
+
+            <img
+                src="{{ logo_url }}"
+                class="logo"
+                alt="Burnside High School"
+            >
+
+        {% else %}
+
+            <div class="brand-mark small-mark">
+                B
+            </div>
+
+        {% endif %}
+
 
         <div>
 
@@ -1187,17 +949,12 @@
             <span>
                 Student check-in portal
             </span>
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
 
         </div>
 
     </div>
 
 
-<<<<<<< HEAD
-    <div class="footer-bottom">
-        Burnside Attendance System
-=======
     <div class="footer-right">
 
         <span>
@@ -1207,22 +964,20 @@
         <a
             href="https://www.burnside.school.nz/"
             target="_blank"
-            rel="noopener">
-
+            rel="noopener noreferrer"
+        >
             School website →
-
         </a>
 
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
     </div>
 
 </footer>
 
 
-<<<<<<< HEAD
-</body>
 
-=======
+<!-- =========================================================
+     RESET ATTENDANCE
+========================================================= -->
 
 <script>
 
@@ -1236,6 +991,7 @@ async function resetAttendance() {
         return;
     }
 
+
     try {
 
         const response = await fetch(
@@ -1245,12 +1001,20 @@ async function resetAttendance() {
             }
         );
 
+
         const data = await response.json();
 
-        alert(data.message);
+
+        alert(
+            data.message ||
+            "Attendance has been reset."
+        );
+
 
         if (response.ok) {
+
             location.reload();
+
         }
 
     } catch (error) {
@@ -1269,5 +1033,4 @@ async function resetAttendance() {
 
 
 </body>
->>>>>>> 749d5e88f0acf1efb560d774d268179e47f56b1d
 </html>

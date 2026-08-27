@@ -1,29 +1,33 @@
 /* =========================================================
    BURNSIDE ATTENDANCE
-   Unified application stylesheet
-========================================================= */
+   Unified stylesheet
+   ========================================================= */
 
 :root {
     --green: #005f02;
     --green-dark: #003d01;
     --green-deep: #002500;
     --green-bright: #16851b;
+
     --green-soft: #eaf4e8;
+    --green-pale: #f3f7f1;
 
     --cream: #f4f6f1;
     --white: #ffffff;
 
     --text: #172017;
     --muted: #687268;
+
     --border: #dfe7df;
 
-    --shadow: 0 18px 45px rgba(0, 30, 0, .10);
-    --shadow-soft: 0 10px 30px rgba(0, 30, 0, .07);
+    --shadow: 0 18px 45px rgba(0, 30, 0, 0.10);
+    --shadow-soft: 0 10px 30px rgba(0, 30, 0, 0.07);
 }
+
 
 /* =========================================================
    RESET
-========================================================= */
+   ========================================================= */
 
 * {
     box-sizing: border-box;
@@ -47,15 +51,11 @@ a {
 
 button,
 input {
-    font-family: inherit;
+    font: inherit;
 }
 
-/* =========================================================
-   GLOBAL
-========================================================= */
-
-main {
-    min-height: 60vh;
+img {
+    max-width: 100%;
 }
 
 ::selection {
@@ -70,243 +70,155 @@ input:focus-visible {
     outline-offset: 3px;
 }
 
-/* =========================================================
-   NAVBAR
-========================================================= */
 
-.navbar {
+/* =========================================================
+   SHARED
+   ========================================================= */
+
+main {
+    min-height: 60vh;
+}
+
+.section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    margin: 0 0 18px;
+
+    color: #bde2ba;
+
+    font-size: 0.7rem;
+    font-weight: 800;
+
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.section-label::before {
+    content: "";
+
+    width: 28px;
+    height: 2px;
+
+    background: #81ca7c;
+}
+
+
+/* =========================================================
+   HOME HEADER
+   ========================================================= */
+
+.site-header {
     position: relative;
     z-index: 100;
+
     width: 100%;
+
+    background: var(--green-deep);
+    color: white;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-inner {
+    width: 100%;
+    max-width: 1250px;
+
     min-height: 78px;
+
+    margin: 0 auto;
+    padding: 14px 30px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    padding: 16px 30px;
-
-    background: var(--green-deep);
-    color: white;
-
-    border-bottom: 1px solid rgba(255,255,255,.08);
+    gap: 30px;
 }
 
-.brand {
+.site-header .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
 
-    color: white;
-    text-decoration: none;
-}
-
-.brand-mark {
-    width: 42px;
-    height: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid rgba(255,255,255,.25);
-    border-radius: 6px;
-
-    background: rgba(255,255,255,.08);
-
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 800;
-}
-
-.brand-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-}
-
-.brand-text span {
-    font-size: 1rem;
-    font-weight: 800;
-}
-
-.brand-text small {
-    margin-top: 4px;
-
-    color: rgba(255,255,255,.55);
-
-    font-size: .62rem;
-    font-weight: 700;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-}
-
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.nav-links a {
-    padding: 9px 14px;
-
-    color: rgba(255,255,255,.78);
-    text-decoration: none;
-
-    border-radius: 5px;
-
-    font-size: .82rem;
-    font-weight: 700;
-
-    transition:
-        background .2s ease,
-        color .2s ease;
-}
-
-.nav-links a:hover {
-    background: rgba(255,255,255,.10);
-    color: white;
-}
-
-.nav-links a.active {
-    background: rgba(255,255,255,.14);
-    color: white;
-}
-
-/* =========================================================
-   NAV ACCOUNT
-========================================================= */
-
-.nav-account {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.account-pill {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding: 6px 9px;
+    gap: 13px;
 
     color: white;
     text-decoration: none;
 
-    border-radius: 6px;
-
-    transition: background .2s ease;
+    min-width: 0;
 }
 
-.account-pill:hover {
-    background: rgba(255,255,255,.08);
+.site-header .logo {
+    width: 43px;
+    height: 43px;
+
+    object-fit: contain;
+
+    flex: 0 0 43px;
 }
 
-.account-pfp {
-    width: 34px;
-    height: 34px;
-
-    flex: 0 0 34px;
-
-    object-fit: cover;
-
-    border-radius: 50%;
-}
-
-.fallback-pfp {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: var(--green-bright);
-
-    color: white;
-
-    font-size: .8rem;
-    font-weight: 800;
-}
-
-.account-details {
+.site-header .brand-text {
     display: flex;
     flex-direction: column;
 
     min-width: 0;
 }
 
-.account-details strong {
-    max-width: 170px;
+.brand-name {
+    color: white;
 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 0.98rem;
+    font-weight: 800;
 
-    font-size: .76rem;
+    line-height: 1.1;
 }
 
-.account-details span {
-    max-width: 190px;
+.brand-subtitle {
+    margin-top: 4px;
 
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.5);
 
-    margin-top: 2px;
+    font-size: 0.62rem;
+    font-weight: 700;
 
-    color: rgba(255,255,255,.52);
-
-    font-size: .62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
-.account-chevron {
-    margin-left: 2px;
-
-    color: rgba(255,255,255,.5);
-    font-size: 1rem;
-}
-
-.logout,
-.login-button {
-    display: inline-flex;
+.site-header nav {
+    display: flex;
     align-items: center;
-    justify-content: center;
 
+    gap: 4px;
+}
+
+.site-header nav a {
     padding: 9px 14px;
 
     border-radius: 5px;
 
-    font-size: .76rem;
-    font-weight: 800;
+    color: rgba(255, 255, 255, 0.76);
 
     text-decoration: none;
 
+    font-size: 0.78rem;
+    font-weight: 700;
+
     transition:
-        background .2s ease,
-        transform .2s ease;
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
-.logout {
-    border: 1px solid rgba(255,255,255,.16);
-    color: rgba(255,255,255,.78);
-}
-
-.logout:hover {
-    background: rgba(255,255,255,.10);
+.site-header nav a:hover {
+    background: rgba(255, 255, 255, 0.1);
     color: white;
 }
 
-.login-button {
-    background: white;
-    color: var(--green-dark);
-}
-
-.login-button:hover {
-    background: #f0f5ef;
-    transform: translateY(-1px);
-}
 
 /* =========================================================
    HOME HERO
-========================================================= */
+   ========================================================= */
 
 .home-hero {
     position: relative;
@@ -316,16 +228,16 @@ input:focus-visible {
     display: flex;
     align-items: center;
 
-    color: white;
-
     overflow: hidden;
+
+    color: white;
 
     background-image:
         linear-gradient(
             90deg,
-            rgba(0,25,0,.88) 0%,
-            rgba(0,55,0,.58) 45%,
-            rgba(0,30,0,.20) 100%
+            rgba(0, 25, 0, 0.88) 0%,
+            rgba(0, 55, 0, 0.58) 45%,
+            rgba(0, 30, 0, 0.2) 100%
         ),
         url("/static/images/burnside-campus.jpg");
 
@@ -357,7 +269,7 @@ input:focus-visible {
     width: 100%;
     max-width: 1250px;
 
-    margin: auto;
+    margin: 0 auto;
 
     padding: 155px 30px 170px;
 }
@@ -366,39 +278,16 @@ input:focus-visible {
     max-width: 680px;
 }
 
-.section-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-
-    margin: 0 0 18px;
-
-    color: #bde2ba;
-
-    font-size: .7rem;
-    font-weight: 800;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-}
-
-.section-label::before {
-    content: "";
-
-    width: 28px;
-    height: 2px;
-
-    background: #81ca7c;
-}
-
 .hero h1 {
     margin: 0;
 
     color: white;
 
     font-size: clamp(3.8rem, 7vw, 7rem);
-    line-height: .9;
+    line-height: 0.9;
 
-    letter-spacing: -.065em;
+    letter-spacing: -0.065em;
+
     font-weight: 800;
 }
 
@@ -411,36 +300,46 @@ input:focus-visible {
 
     margin: 28px 0;
 
-    color: rgba(255,255,255,.85);
+    color: rgba(255, 255, 255, 0.85);
 
     font-size: 1rem;
     line-height: 1.7;
 }
 
+
 /* =========================================================
    BUTTONS
-========================================================= */
+   ========================================================= */
 
-.btn {
+.btn,
+.primary-button,
+.secondary-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    padding: 14px 22px;
+    text-decoration: none;
+
+    font-weight: 800;
 
     border-radius: 5px;
 
-    text-decoration: none;
-
-    font-size: .85rem;
-    font-weight: 800;
-
     transition:
-        transform .2s ease,
-        background .2s ease;
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
-.btn:hover {
+.btn {
+    padding: 14px 22px;
+
+    font-size: 0.85rem;
+}
+
+.btn:hover,
+.primary-button:hover,
+.secondary-button:hover {
     transform: translateY(-2px);
 }
 
@@ -453,43 +352,29 @@ input:focus-visible {
     background: #f0f5ef;
 }
 
-.primary-button,
-.secondary-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 5px;
-
-    text-decoration: none;
-
-    font-size: .82rem;
-    font-weight: 800;
-
-    transition:
-        background .2s ease,
-        transform .2s ease;
-}
-
 .primary-button {
     padding: 14px 20px;
 
     background: var(--green);
     color: white;
+
+    font-size: 0.82rem;
 }
 
 .primary-button:hover {
     background: var(--green-dark);
-    transform: translateY(-2px);
 }
 
 .secondary-button {
     padding: 12px 17px;
 
+    background: white;
+
     border: 1px solid var(--border);
 
-    background: white;
     color: var(--green);
+
+    font-size: 0.82rem;
 
     white-space: nowrap;
 }
@@ -497,13 +382,12 @@ input:focus-visible {
 .secondary-button:hover {
     background: var(--green-soft);
     border-color: #c9dcc6;
-
-    transform: translateY(-1px);
 }
 
+
 /* =========================================================
-   HOME CHECK-IN
-========================================================= */
+   HOME CHECK-IN PANEL
+   ========================================================= */
 
 .home-content {
     position: relative;
@@ -533,6 +417,7 @@ input:focus-visible {
 
 .checkin-panel .section-label {
     margin-bottom: 14px;
+
     color: var(--green);
 }
 
@@ -548,9 +433,9 @@ input:focus-visible {
     color: var(--green-dark);
 
     font-size: clamp(2.4rem, 5vw, 4rem);
-    line-height: .95;
+    line-height: 0.95;
 
-    letter-spacing: -.055em;
+    letter-spacing: -0.055em;
 }
 
 .checkin-panel > p {
@@ -560,34 +445,37 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .95rem;
+    font-size: 0.95rem;
     line-height: 1.7;
 }
 
 .signed-in {
     display: inline-flex;
     align-items: center;
+
     gap: 8px;
 
     width: fit-content;
 
     margin: 5px 0 18px;
+
     padding: 9px 13px;
 
     background: var(--green-soft);
 
     border: 1px solid #d6e8d2;
+
     border-radius: 5px;
 }
 
 .signed-in-label {
     color: var(--muted);
-    font-size: .75rem;
+    font-size: 0.75rem;
 }
 
 .signed-in strong {
     color: var(--green-dark);
-    font-size: .8rem;
+    font-size: 0.8rem;
 }
 
 .checkin-button {
@@ -605,14 +493,14 @@ input:focus-visible {
     background: var(--green);
     color: white;
 
-    font-size: .88rem;
+    font-size: 0.88rem;
     font-weight: 800;
 
     cursor: pointer;
 
     transition:
-        background .2s ease,
-        transform .2s ease;
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .checkin-button::after {
@@ -629,31 +517,25 @@ input:focus-visible {
     margin: 14px 0 0;
 
     color: var(--green);
+
     font-weight: 700;
 }
 
 .checkin-login {
-    display: inline-block;
-
     margin-top: 8px;
-    padding: 15px 22px;
-
-    border-radius: 5px;
 
     background: var(--green);
     color: white;
-
-    text-decoration: none;
-    font-weight: 800;
 }
 
 .checkin-login:hover {
     background: var(--green-dark);
 }
 
+
 /* =========================================================
    HOME INFORMATION
-========================================================= */
+   ========================================================= */
 
 .home-information {
     position: relative;
@@ -670,9 +552,9 @@ input:focus-visible {
     background-image:
         linear-gradient(
             90deg,
-            rgba(0,30,0,.90),
-            rgba(0,50,0,.62),
-            rgba(0,30,0,.25)
+            rgba(0, 30, 0, 0.9),
+            rgba(0, 50, 0, 0.62),
+            rgba(0, 30, 0, 0.25)
         ),
         url("/static/images/burnside-campus.jpg");
 
@@ -688,7 +570,8 @@ input:focus-visible {
     width: 100%;
     max-width: 1250px;
 
-    margin: auto;
+    margin: 0 auto;
+
     padding: 90px 30px;
 
     display: grid;
@@ -709,42 +592,392 @@ input:focus-visible {
     color: white;
 
     font-size: clamp(3rem, 5vw, 5rem);
-    line-height: .94;
+    line-height: 0.94;
 
-    letter-spacing: -.06em;
+    letter-spacing: -0.06em;
 }
 
 .home-information p:not(.section-label) {
     max-width: 550px;
 
-    color: rgba(255,255,255,.82);
+    color: rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
     line-height: 1.8;
 }
 
+
 /* =========================================================
-   MY ATTENDANCE
-========================================================= */
+   HOME FOOTER
+   ========================================================= */
+
+body.home-page > footer {
+    background: var(--green-deep);
+    color: white;
+}
+
+.footer-inner {
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 55px 30px;
+
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+
+    gap: 50px;
+}
+
+.footer-brand {
+    color: white;
+
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.footer-text {
+    margin: 8px 0 0;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 0.75rem;
+    line-height: 1.7;
+}
+
+.footer-heading {
+    margin: 0 0 14px;
+
+    color: white;
+
+    font-size: 0.72rem;
+    font-weight: 800;
+
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.55);
+
+    text-decoration: none;
+
+    font-size: 0.75rem;
+
+    transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: white;
+}
+
+.footer-bottom {
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 18px 30px 25px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    color: rgba(255, 255, 255, 0.3);
+
+    font-size: 0.65rem;
+}
+
+
+/* =========================================================
+   ATTENDANCE HEADER
+   Uses same visual language as home
+   ========================================================= */
+
+.navbar {
+    position: relative;
+    z-index: 100;
+
+    width: 100%;
+
+    min-height: 78px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 30px;
+
+    background: var(--green-deep);
+    color: white;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    gap: 25px;
+}
+
+.navbar .brand {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    color: white;
+    text-decoration: none;
+
+    min-width: 0;
+}
+
+.navbar .brand-mark {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 42px;
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: white;
+
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.navbar .brand-text {
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.1;
+}
+
+.navbar .brand-text span {
+    color: white;
+
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.navbar .brand-text small {
+    margin-top: 4px;
+
+    color: rgba(255, 255, 255, 0.5);
+
+    font-size: 0.62rem;
+    font-weight: 700;
+
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+}
+
+.nav-links a {
+    padding: 9px 14px;
+
+    border-radius: 5px;
+
+    color: rgba(255, 255, 255, 0.76);
+
+    text-decoration: none;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-links a.active {
+    background: rgba(255, 255, 255, 0.14);
+    color: white;
+}
+
+
+/* =========================================================
+   ACCOUNT
+   ========================================================= */
+
+.nav-account {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+}
+
+.account-pill {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 6px 9px;
+
+    color: white;
+    text-decoration: none;
+
+    border-radius: 6px;
+
+    transition: background 0.2s ease;
+}
+
+.account-pill:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.account-pfp {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+}
+
+.fallback-pfp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--green-bright);
+
+    color: white;
+
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.account-details strong {
+    max-width: 170px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 0.76rem;
+}
+
+.account-details span {
+    max-width: 190px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    margin-top: 2px;
+
+    color: rgba(255, 255, 255, 0.52);
+
+    font-size: 0.62rem;
+}
+
+.account-chevron {
+    margin-left: 2px;
+
+    color: rgba(255, 255, 255, 0.5);
+
+    font-size: 1rem;
+}
+
+.logout,
+.login-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 9px 14px;
+
+    border-radius: 5px;
+
+    font-size: 0.76rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.logout {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.logout:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.login-button {
+    background: white;
+    color: var(--green-dark);
+}
+
+.login-button:hover {
+    background: #f0f5ef;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   ATTENDANCE HERO
+   ========================================================= */
 
 .page-hero {
     position: relative;
 
-    min-height: 360px;
+    min-height: 410px;
 
     display: flex;
     align-items: center;
 
     overflow: hidden;
 
-    background:
+    color: white;
+
+    background-image:
         linear-gradient(
             90deg,
-            rgba(0,45,0,.97),
-            rgba(0,70,0,.91)
-        );
+            rgba(0, 25, 0, 0.9) 0%,
+            rgba(0, 55, 0, 0.7) 50%,
+            rgba(0, 30, 0, 0.35) 100%
+        ),
+        url("/static/images/burnside-campus.jpg");
 
-    color: white;
+    background-size: cover;
+    background-position: center;
 }
 
 .page-hero::after {
@@ -754,10 +987,10 @@ input:focus-visible {
     inset: 0;
 
     background:
-        radial-gradient(
-            circle at 80% 45%,
-            rgba(120,190,110,.16),
-            transparent 38%
+        linear-gradient(
+            to bottom,
+            transparent 55%,
+            var(--cream) 100%
         );
 
     pointer-events: none;
@@ -772,21 +1005,23 @@ input:focus-visible {
 
     margin: 0 auto;
 
-    padding: 75px 30px 70px;
+    padding: 95px 30px 105px;
 }
 
 .eyebrow {
     display: inline-flex;
     align-items: center;
+
     gap: 10px;
 
     margin-bottom: 18px;
 
     color: #bde2ba;
 
-    font-size: .7rem;
+    font-size: 0.7rem;
     font-weight: 800;
-    letter-spacing: .2em;
+
+    letter-spacing: 0.2em;
     text-transform: uppercase;
 }
 
@@ -800,7 +1035,7 @@ input:focus-visible {
 
     background: #8dd786;
 
-    box-shadow: 0 0 0 4px rgba(141,215,134,.12);
+    box-shadow: 0 0 0 4px rgba(141, 215, 134, 0.12);
 }
 
 .page-hero h1 {
@@ -808,10 +1043,11 @@ input:focus-visible {
 
     color: white;
 
-    font-size: clamp(3.5rem, 7vw, 6.5rem);
-    line-height: .9;
+    font-size: clamp(3.8rem, 7vw, 6.8rem);
+    line-height: 0.9;
 
-    letter-spacing: -.065em;
+    letter-spacing: -0.065em;
+
     font-weight: 800;
 }
 
@@ -822,9 +1058,9 @@ input:focus-visible {
 .page-hero p {
     max-width: 610px;
 
-    margin: 24px 0 0;
+    margin: 25px 0 0;
 
-    color: rgba(255,255,255,.76);
+    color: rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
     line-height: 1.7;
@@ -834,7 +1070,7 @@ input:focus-visible {
     position: absolute;
     z-index: 1;
 
-    right: 7%;
+    right: 9%;
     top: 50%;
 
     transform: translateY(-50%);
@@ -843,27 +1079,27 @@ input:focus-visible {
 }
 
 .hero-circle {
-    width: 180px;
-    height: 180px;
+    width: 190px;
+    height: 190px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid rgba(255,255,255,.16);
+    border: 1px solid rgba(255, 255, 255, 0.18);
 
     border-radius: 50%;
 
-    background: rgba(255,255,255,.035);
+    background: rgba(255, 255, 255, 0.04);
 
     box-shadow:
-        0 0 0 25px rgba(255,255,255,.02),
-        0 0 0 50px rgba(255,255,255,.015);
+        0 0 0 25px rgba(255, 255, 255, 0.02),
+        0 0 0 50px rgba(255, 255, 255, 0.015);
 }
 
 .circle-inner {
-    width: 85px;
-    height: 85px;
+    width: 88px;
+    height: 88px;
 
     display: flex;
     align-items: center;
@@ -871,7 +1107,7 @@ input:focus-visible {
 
     border-radius: 50%;
 
-    background: rgba(255,255,255,.10);
+    background: rgba(255, 255, 255, 0.1);
 
     color: #a9dba5;
 
@@ -879,16 +1115,17 @@ input:focus-visible {
     font-weight: 300;
 }
 
+
 /* =========================================================
    ATTENDANCE SECTION
-========================================================= */
+   ========================================================= */
 
 .attendance-section {
     max-width: 1250px;
 
     margin: 0 auto;
 
-    padding: 70px 30px 90px;
+    padding: 65px 30px 90px;
 }
 
 .section-heading {
@@ -917,18 +1154,18 @@ input:focus-visible {
     color: var(--green-dark);
 
     font-size: clamp(2.2rem, 4vw, 3.5rem);
-    line-height: .95;
+    line-height: 0.95;
 
-    letter-spacing: -.055em;
+    letter-spacing: -0.055em;
 }
 
+
 /* =========================================================
-   ATTENDANCE SUMMARY
-========================================================= */
+   SUMMARY
+   ========================================================= */
 
 .attendance-summary {
     display: grid;
-
     grid-template-columns: repeat(3, 1fr);
 
     gap: 16px;
@@ -943,14 +1180,15 @@ input:focus-visible {
 
     padding: 24px;
 
+    overflow: hidden;
+
     background: white;
 
     border: 1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
-
-    overflow: hidden;
 }
 
 .summary-card::after {
@@ -968,7 +1206,7 @@ input:focus-visible {
 
     background: var(--green-soft);
 
-    opacity: .65;
+    opacity: 0.65;
 }
 
 .summary-label {
@@ -981,10 +1219,10 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 800;
 
-    letter-spacing: .1em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
 }
 
@@ -998,7 +1236,8 @@ input:focus-visible {
 
     font-size: 2.35rem;
     line-height: 1;
-    letter-spacing: -.04em;
+
+    letter-spacing: -0.04em;
 }
 
 .summary-card small {
@@ -1011,7 +1250,7 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .76rem;
+    font-size: 0.76rem;
 }
 
 .summary-status {
@@ -1019,19 +1258,21 @@ input:focus-visible {
     padding-top: 6px;
 }
 
+
 /* =========================================================
    ATTENDANCE CARD
-========================================================= */
+   ========================================================= */
 
 .attendance-card {
+    overflow: hidden;
+
     background: white;
 
     border: 1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
-
-    overflow: hidden;
 }
 
 .attendance-card-header {
@@ -1062,7 +1303,8 @@ input:focus-visible {
     color: var(--green-dark);
 
     font-size: 1.3rem;
-    letter-spacing: -.025em;
+
+    letter-spacing: -0.025em;
 }
 
 .record-count {
@@ -1077,18 +1319,20 @@ input:focus-visible {
 
     color: var(--green);
 
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 800;
 
     white-space: nowrap;
 }
 
+
 /* =========================================================
    ATTENDANCE TABLE
-========================================================= */
+   ========================================================= */
 
 .attendance-table-wrapper {
     width: 100%;
+
     overflow-x: auto;
 }
 
@@ -1107,10 +1351,10 @@ input:focus-visible {
 
     text-align: left;
 
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 800;
 
-    letter-spacing: .08em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
@@ -1121,7 +1365,7 @@ input:focus-visible {
 
     color: var(--text);
 
-    font-size: .84rem;
+    font-size: 0.84rem;
 }
 
 .attendance-table tbody tr:last-child td {
@@ -1133,7 +1377,7 @@ input:focus-visible {
 }
 
 .attendance-table tbody tr {
-    transition: background .15s ease;
+    transition: background 0.15s ease;
 }
 
 .attendance-table tbody tr:hover {
@@ -1142,16 +1386,19 @@ input:focus-visible {
 
 .attendance-table td strong {
     color: var(--green-dark);
-    font-size: .85rem;
+
+    font-size: 0.85rem;
 }
+
 
 /* =========================================================
    PRESENT STATUS
-========================================================= */
+   ========================================================= */
 
 .attendance-status {
     display: inline-flex;
     align-items: center;
+
     gap: 7px;
 
     padding: 6px 10px;
@@ -1162,7 +1409,7 @@ input:focus-visible {
 
     color: var(--green);
 
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 800;
 }
 
@@ -1177,9 +1424,10 @@ input:focus-visible {
     box-shadow: none;
 }
 
+
 /* =========================================================
-   EMPTY ATTENDANCE
-========================================================= */
+   EMPTY STATE
+   ========================================================= */
 
 .empty-attendance {
     padding: 75px 25px;
@@ -1212,7 +1460,8 @@ input:focus-visible {
     color: var(--green-dark);
 
     font-size: 1.45rem;
-    letter-spacing: -.025em;
+
+    letter-spacing: -0.025em;
 }
 
 .empty-attendance p {
@@ -1222,7 +1471,7 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .86rem;
+    font-size: 0.86rem;
     line-height: 1.7;
 }
 
@@ -1230,14 +1479,16 @@ input:focus-visible {
     margin-left: 20px;
 }
 
+
 /* =========================================================
-   WELCOME / ACCOUNT CARD
-========================================================= */
+   ACCOUNT CARD
+   ========================================================= */
 
 .welcome-card {
     max-width: 1190px;
 
     margin: 0 auto 45px;
+
     padding: 24px 28px;
 
     display: flex;
@@ -1248,6 +1499,7 @@ input:focus-visible {
     background: white;
 
     border: 1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1294,10 +1546,10 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .63rem;
+    font-size: 0.63rem;
     font-weight: 800;
 
-    letter-spacing: .12em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
@@ -1314,27 +1566,28 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .77rem;
+    font-size: 0.77rem;
 }
 
 .welcome-link {
     padding: 10px 14px;
 
     border: 1px solid var(--border);
+
     border-radius: 5px;
 
     color: var(--green);
 
     text-decoration: none;
 
-    font-size: .76rem;
+    font-size: 0.76rem;
     font-weight: 800;
 
     white-space: nowrap;
 
     transition:
-        background .2s ease,
-        transform .2s ease;
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 .welcome-link:hover {
@@ -1342,9 +1595,10 @@ input:focus-visible {
     transform: translateY(-1px);
 }
 
+
 /* =========================================================
    MOBILE ACCOUNT ACTIONS
-========================================================= */
+   ========================================================= */
 
 .mobile-account-actions {
     display: none;
@@ -1360,6 +1614,7 @@ input:focus-visible {
 .mobile-logout-button {
     display: flex;
     align-items: center;
+
     gap: 14px;
 
     width: 100%;
@@ -1405,7 +1660,7 @@ input:focus-visible {
 
     color: var(--green);
 
-    font-size: .9rem;
+    font-size: 0.9rem;
 }
 
 .mobile-account-button div,
@@ -1419,7 +1674,7 @@ input:focus-visible {
 
     color: var(--green-dark);
 
-    font-size: .82rem;
+    font-size: 0.82rem;
 }
 
 .mobile-account-button small,
@@ -1430,19 +1685,21 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .7rem;
+    font-size: 0.7rem;
 }
 
 .mobile-action-arrow {
     color: var(--green);
+
     font-size: 1.1rem;
 }
 
-/* =========================================================
-   FOOTER
-========================================================= */
 
-.footer {
+/* =========================================================
+   ATTENDANCE FOOTER
+   ========================================================= */
+
+body:not(.home-page) > .footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1456,9 +1713,10 @@ input:focus-visible {
     color: white;
 }
 
-.footer-brand {
+body:not(.home-page) > .footer .footer-brand {
     display: flex;
     align-items: center;
+
     gap: 12px;
 }
 
@@ -1466,38 +1724,39 @@ input:focus-visible {
     width: 36px;
     height: 36px;
 
-    font-size: .9rem;
+    font-size: 0.9rem;
 }
 
-.footer-brand > div:last-child {
+body:not(.home-page) > .footer .footer-brand > div:last-child {
     display: flex;
     flex-direction: column;
 }
 
-.footer-brand strong {
-    font-size: .82rem;
+body:not(.home-page) > .footer .footer-brand strong {
+    font-size: 0.82rem;
 }
 
-.footer-brand span {
+body:not(.home-page) > .footer .footer-brand span {
     margin-top: 3px;
 
-    color: rgba(255,255,255,.45);
+    color: rgba(255, 255, 255, 0.45);
 
-    font-size: .66rem;
+    font-size: 0.66rem;
 }
 
 .footer-right {
     display: flex;
     align-items: center;
+
     gap: 20px;
 
-    color: rgba(255,255,255,.45);
+    color: rgba(255, 255, 255, 0.45);
 
-    font-size: .68rem;
+    font-size: 0.68rem;
 }
 
 .footer-right a {
-    color: rgba(255,255,255,.72);
+    color: rgba(255, 255, 255, 0.72);
 
     text-decoration: none;
 
@@ -1508,20 +1767,20 @@ input:focus-visible {
     color: white;
 }
 
+
 /* =========================================================
    ADMIN
-========================================================= */
+   ========================================================= */
 
 .admin-layout {
     display: grid;
-
     grid-template-columns: 220px 1fr;
 
     min-height: calc(100vh - 78px);
 
     max-width: 1300px;
 
-    margin: auto;
+    margin: 0 auto;
 }
 
 .admin-sidebar {
@@ -1537,10 +1796,10 @@ input:focus-visible {
 
     color: #788078;
 
-    font-size: .65rem;
+    font-size: 0.65rem;
     font-weight: 800;
 
-    letter-spacing: .15em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
 }
 
@@ -1555,19 +1814,18 @@ input:focus-visible {
 
     color: #4f594f;
 
-    font-size: .82rem;
+    font-size: 0.82rem;
     font-weight: 700;
 
     text-decoration: none;
 
     transition:
-        background .2s ease,
-        color .2s ease;
+        background 0.2s ease,
+        color 0.2s ease;
 }
 
 .admin-nav:hover {
     color: var(--green);
-
     background: var(--green-soft);
 }
 
@@ -1594,11 +1852,13 @@ input:focus-visible {
     color: var(--green-dark);
 
     font-size: 2.3rem;
-    letter-spacing: -.04em;
+
+    letter-spacing: -0.04em;
 }
 
 .admin-heading p {
     margin-top: 7px;
+
     color: var(--muted);
 }
 
@@ -1611,17 +1871,17 @@ input:focus-visible {
 
     color: var(--green);
 
-    font-size: .72rem;
+    font-size: 0.72rem;
     font-weight: 800;
 }
 
+
 /* =========================================================
    ADMIN STATS
-========================================================= */
+   ========================================================= */
 
 .admin-stats {
     display: grid;
-
     grid-template-columns: repeat(3, 1fr);
 
     gap: 15px;
@@ -1635,6 +1895,7 @@ input:focus-visible {
     background: white;
 
     border: 1px solid var(--border);
+
     border-radius: 7px;
 }
 
@@ -1645,29 +1906,33 @@ input:focus-visible {
 
     color: var(--muted);
 
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 800;
 
     text-transform: uppercase;
-    letter-spacing: .07em;
+    letter-spacing: 0.07em;
 }
 
 .admin-stat strong {
     color: var(--green-dark);
+
     font-size: 2.3rem;
 }
 
+
 /* =========================================================
    ADMIN SECTIONS
-========================================================= */
+   ========================================================= */
 
 .admin-section {
     margin-bottom: 20px;
+
     padding: 25px;
 
     background: white;
 
     border: 1px solid var(--border);
+
     border-radius: 7px;
 }
 
@@ -1681,15 +1946,18 @@ input:focus-visible {
 
 .admin-section-header p {
     color: var(--muted);
-    font-size: .8rem;
+
+    font-size: 0.8rem;
 }
+
 
 /* =========================================================
    ADMIN TABLE
-========================================================= */
+   ========================================================= */
 
 .admin-table-wrapper {
     width: 100%;
+
     overflow-x: auto;
 }
 
@@ -1710,7 +1978,7 @@ input:focus-visible {
 
     text-align: left;
 
-    font-size: .72rem;
+    font-size: 0.72rem;
 }
 
 .admin-table td {
@@ -1718,7 +1986,7 @@ input:focus-visible {
 
     border-bottom: 1px solid var(--border);
 
-    font-size: .82rem;
+    font-size: 0.82rem;
 }
 
 .admin-table tbody tr:nth-child(even) {
@@ -1740,13 +2008,14 @@ input:focus-visible {
 
     color: var(--green);
 
-    font-size: .7rem;
+    font-size: 0.7rem;
     font-weight: 800;
 }
 
+
 /* =========================================================
    ADMIN LINKS
-========================================================= */
+   ========================================================= */
 
 .admin-link {
     display: flex;
@@ -1770,26 +2039,30 @@ input:focus-visible {
 
 .admin-link span {
     color: var(--muted);
-    font-size: .78rem;
+
+    font-size: 0.78rem;
 }
 
 .admin-arrow {
     color: var(--green);
+
     font-size: 1.2rem;
 }
 
+
 /* =========================================================
-   RESPONSIVE — TABLET
-========================================================= */
+   TABLET
+   ========================================================= */
 
 @media (max-width: 900px) {
 
-    .navbar {
+    .header-inner {
         padding: 14px 20px;
     }
 
     .home-hero {
         min-height: 650px;
+
         background-attachment: scroll;
     }
 
@@ -1799,6 +2072,7 @@ input:focus-visible {
 
     .home-content {
         margin-top: -50px;
+
         padding: 0 18px 70px;
     }
 
@@ -1818,13 +2092,18 @@ input:focus-visible {
         padding: 75px 22px;
     }
 
+    .page-hero {
+        min-height: 390px;
+    }
+
     .page-hero-content {
-        padding: 65px 25px;
+        padding: 75px 25px 90px;
     }
 
     .page-hero-decoration {
         right: 3%;
-        opacity: .7;
+
+        opacity: 0.65;
     }
 
     .attendance-section {
@@ -1872,11 +2151,39 @@ input:focus-visible {
     }
 }
 
+
 /* =========================================================
-   RESPONSIVE — MOBILE
-========================================================= */
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 700px) {
+
+    /* -----------------------------------------
+       HOME HEADER
+       ----------------------------------------- */
+
+    .header-inner {
+        min-height: 70px;
+
+        padding: 12px 15px;
+
+        gap: 12px;
+    }
+
+    .site-header nav a {
+        padding: 7px 9px;
+
+        font-size: 0.68rem;
+    }
+
+    .brand-subtitle {
+        display: none;
+    }
+
+
+    /* -----------------------------------------
+       ATTENDANCE HEADER
+       ----------------------------------------- */
 
     .navbar {
         min-height: 70px;
@@ -1884,6 +2191,7 @@ input:focus-visible {
         padding: 12px 15px;
 
         flex-wrap: wrap;
+
         gap: 8px;
     }
 
@@ -1900,7 +2208,7 @@ input:focus-visible {
     .nav-links a {
         padding: 7px 9px;
 
-        font-size: .68rem;
+        font-size: 0.68rem;
     }
 
     .account-details,
@@ -1913,23 +2221,30 @@ input:focus-visible {
         padding: 3px;
     }
 
-    .brand-mark {
+    .navbar .brand-mark {
         width: 38px;
         height: 38px;
+
+        flex-basis: 38px;
     }
 
-    .brand-text span {
-        font-size: .88rem;
+    .navbar .brand-text span {
+        font-size: 0.88rem;
     }
 
-    /* Attendance hero */
+
+    /* -----------------------------------------
+       ATTENDANCE HERO
+       ----------------------------------------- */
 
     .page-hero {
-        min-height: 330px;
+        min-height: 350px;
+
+        background-attachment: scroll;
     }
 
     .page-hero-content {
-        padding: 65px 20px 60px;
+        padding: 70px 20px 80px;
     }
 
     .page-hero h1 {
@@ -1939,14 +2254,17 @@ input:focus-visible {
     .page-hero p {
         max-width: 100%;
 
-        font-size: .88rem;
+        font-size: 0.88rem;
     }
 
     .page-hero-decoration {
         display: none;
     }
 
-    /* Attendance content */
+
+    /* -----------------------------------------
+       ATTENDANCE CONTENT
+       ----------------------------------------- */
 
     .attendance-section {
         padding: 50px 15px 60px;
@@ -1976,6 +2294,7 @@ input:focus-visible {
 
     .summary-card {
         min-height: auto;
+
         padding: 20px;
     }
 
@@ -1994,7 +2313,7 @@ input:focus-visible {
     }
 
     .record-count {
-        font-size: .62rem;
+        font-size: 0.62rem;
     }
 
     .attendance-table {
@@ -2022,14 +2341,17 @@ input:focus-visible {
         padding-right: 15px;
     }
 
-    /* Home */
+
+    /* -----------------------------------------
+       HOME
+       ----------------------------------------- */
 
     .hero h1 {
         font-size: 3.5rem;
     }
 
     .hero p:not(.section-label) {
-        font-size: .9rem;
+        font-size: 0.9rem;
     }
 
     .home-content {
@@ -2051,7 +2373,27 @@ input:focus-visible {
         width: 100%;
     }
 
-    /* Admin */
+    .home-information {
+        min-height: 500px;
+    }
+
+    .footer-inner {
+        grid-template-columns: 1fr;
+
+        gap: 30px;
+
+        padding: 45px 20px;
+    }
+
+    .footer-bottom {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+
+    /* -----------------------------------------
+       ADMIN
+       ----------------------------------------- */
 
     .admin-stats {
         grid-template-columns: 1fr;
@@ -2071,9 +2413,12 @@ input:focus-visible {
         min-width: 600px;
     }
 
-    /* Footer */
 
-    .footer {
+    /* -----------------------------------------
+       ATTENDANCE FOOTER
+       ----------------------------------------- */
+
+    body:not(.home-page) > .footer {
         align-items: flex-start;
 
         flex-direction: column;
@@ -2090,13 +2435,14 @@ input:focus-visible {
     }
 }
 
+
 /* =========================================================
    SMALL MOBILE
-========================================================= */
+   ========================================================= */
 
 @media (max-width: 430px) {
 
-    .brand-text small {
+    .navbar .brand-text small {
         display: none;
     }
 
@@ -2107,7 +2453,7 @@ input:focus-visible {
     .nav-links a {
         padding: 6px 7px;
 
-        font-size: .64rem;
+        font-size: 0.64rem;
     }
 
     .page-hero h1 {
@@ -2115,7 +2461,7 @@ input:focus-visible {
     }
 
     .page-hero p {
-        font-size: .84rem;
+        font-size: 0.84rem;
     }
 
     .attendance-section {
