@@ -1,14 +1,29 @@
+/* =========================================================
+   BURNSIDE ATTENDANCE
+   Unified application stylesheet
+========================================================= */
+
 :root {
     --green: #005f02;
     --green-dark: #003d01;
+    --green-deep: #002500;
     --green-bright: #16851b;
     --green-soft: #eaf4e8;
+
     --cream: #f4f6f1;
     --white: #ffffff;
+
     --text: #172017;
     --muted: #687268;
     --border: #dfe7df;
+
+    --shadow: 0 18px 45px rgba(0, 30, 0, .10);
+    --shadow-soft: 0 10px 30px rgba(0, 30, 0, .07);
 }
+
+/* =========================================================
+   RESET
+========================================================= */
 
 * {
     box-sizing: border-box;
@@ -36,98 +51,281 @@ input {
 }
 
 /* =========================================================
-   HEADER
+   GLOBAL
 ========================================================= */
 
-.site-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
+main {
+    min-height: 60vh;
+}
+
+::selection {
+    background: var(--green);
     color: white;
 }
 
-.header-inner {
-    max-width: 1250px;
-    margin: auto;
-    padding: 22px 30px;
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 3px solid #75bd70;
+    outline-offset: 3px;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.navbar {
+    position: relative;
+    z-index: 100;
+    width: 100%;
+    min-height: 78px;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    padding: 16px 30px;
+
+    background: var(--green-deep);
+    color: white;
+
+    border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
 .brand {
     display: flex;
     align-items: center;
     gap: 12px;
+
     color: white;
     text-decoration: none;
 }
 
-.brand .logo {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
+.brand-mark {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 6px;
+
+    background: rgba(255,255,255,.08);
+
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 800;
 }
 
 .brand-text {
     display: flex;
     flex-direction: column;
+    line-height: 1.1;
 }
 
-.brand-name {
+.brand-text span {
     font-size: 1rem;
     font-weight: 800;
 }
 
-.brand-subtitle {
-    margin-top: 3px;
-    font-size: .65rem;
+.brand-text small {
+    margin-top: 4px;
+
+    color: rgba(255,255,255,.55);
+
+    font-size: .62rem;
+    font-weight: 700;
     letter-spacing: .14em;
     text-transform: uppercase;
-    opacity: .75;
 }
 
-.site-header nav {
+.nav-links {
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.site-header nav a {
+.nav-links a {
     padding: 9px 14px;
-    color: white;
+
+    color: rgba(255,255,255,.78);
     text-decoration: none;
+
     border-radius: 5px;
+
     font-size: .82rem;
     font-weight: 700;
-    transition: background .2s ease;
+
+    transition:
+        background .2s ease,
+        color .2s ease;
 }
 
-.site-header nav a:hover {
-    background: rgba(255,255,255,.15);
+.nav-links a:hover {
+    background: rgba(255,255,255,.10);
+    color: white;
+}
+
+.nav-links a.active {
+    background: rgba(255,255,255,.14);
+    color: white;
 }
 
 /* =========================================================
-   HERO
-   ONLY ONE IMAGE — NO ::BEFORE IMAGE
+   NAV ACCOUNT
+========================================================= */
+
+.nav-account {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.account-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 6px 9px;
+
+    color: white;
+    text-decoration: none;
+
+    border-radius: 6px;
+
+    transition: background .2s ease;
+}
+
+.account-pill:hover {
+    background: rgba(255,255,255,.08);
+}
+
+.account-pfp {
+    width: 34px;
+    height: 34px;
+
+    flex: 0 0 34px;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+}
+
+.fallback-pfp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--green-bright);
+
+    color: white;
+
+    font-size: .8rem;
+    font-weight: 800;
+}
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+.account-details strong {
+    max-width: 170px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: .76rem;
+}
+
+.account-details span {
+    max-width: 190px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    margin-top: 2px;
+
+    color: rgba(255,255,255,.52);
+
+    font-size: .62rem;
+}
+
+.account-chevron {
+    margin-left: 2px;
+
+    color: rgba(255,255,255,.5);
+    font-size: 1rem;
+}
+
+.logout,
+.login-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 9px 14px;
+
+    border-radius: 5px;
+
+    font-size: .76rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+.logout {
+    border: 1px solid rgba(255,255,255,.16);
+    color: rgba(255,255,255,.78);
+}
+
+.logout:hover {
+    background: rgba(255,255,255,.10);
+    color: white;
+}
+
+.login-button {
+    background: white;
+    color: var(--green-dark);
+}
+
+.login-button:hover {
+    background: #f0f5ef;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   HOME HERO
 ========================================================= */
 
 .home-hero {
     position: relative;
+
     min-height: 720px;
+
     display: flex;
     align-items: center;
+
     color: white;
+
     overflow: hidden;
 
     background-image:
         linear-gradient(
             90deg,
-            rgba(0, 25, 0, .88) 0%,
-            rgba(0, 55, 0, .58) 45%,
-            rgba(0, 30, 0, .20) 100%
+            rgba(0,25,0,.88) 0%,
+            rgba(0,55,0,.58) 45%,
+            rgba(0,30,0,.20) 100%
         ),
         url("/static/images/burnside-campus.jpg");
 
@@ -136,31 +334,31 @@ input {
     background-attachment: fixed;
 }
 
-/*
-   IMPORTANT:
-   No background image here.
-   This only adds the fade at the bottom.
-*/
-
 .home-hero::after {
     content: "";
+
     position: absolute;
     inset: 0;
+
     background:
         linear-gradient(
             to bottom,
             transparent 65%,
             var(--cream) 100%
         );
+
     pointer-events: none;
 }
 
 .hero-inner {
     position: relative;
     z-index: 2;
+
     width: 100%;
     max-width: 1250px;
+
     margin: auto;
+
     padding: 155px 30px 170px;
 }
 
@@ -172,8 +370,11 @@ input {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+
     margin: 0 0 18px;
+
     color: #bde2ba;
+
     font-size: .7rem;
     font-weight: 800;
     letter-spacing: .2em;
@@ -182,16 +383,21 @@ input {
 
 .section-label::before {
     content: "";
+
     width: 28px;
     height: 2px;
+
     background: #81ca7c;
 }
 
 .hero h1 {
     margin: 0;
+
     color: white;
+
     font-size: clamp(3.8rem, 7vw, 7rem);
     line-height: .9;
+
     letter-spacing: -.065em;
     font-weight: 800;
 }
@@ -202,26 +408,36 @@ input {
 
 .hero p:not(.section-label) {
     max-width: 560px;
+
     margin: 28px 0;
+
     color: rgba(255,255,255,.85);
+
     font-size: 1rem;
     line-height: 1.7;
 }
 
 /* =========================================================
-   BUTTON
+   BUTTONS
 ========================================================= */
 
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     padding: 14px 22px;
+
     border-radius: 5px;
+
     text-decoration: none;
+
     font-size: .85rem;
     font-weight: 800;
-    transition: transform .2s ease, background .2s ease;
+
+    transition:
+        transform .2s ease,
+        background .2s ease;
 }
 
 .btn:hover {
@@ -237,26 +453,82 @@ input {
     background: #f0f5ef;
 }
 
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 5px;
+
+    text-decoration: none;
+
+    font-size: .82rem;
+    font-weight: 800;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+.primary-button {
+    padding: 14px 20px;
+
+    background: var(--green);
+    color: white;
+}
+
+.primary-button:hover {
+    background: var(--green-dark);
+    transform: translateY(-2px);
+}
+
+.secondary-button {
+    padding: 12px 17px;
+
+    border: 1px solid var(--border);
+
+    background: white;
+    color: var(--green);
+
+    white-space: nowrap;
+}
+
+.secondary-button:hover {
+    background: var(--green-soft);
+    border-color: #c9dcc6;
+
+    transform: translateY(-1px);
+}
+
 /* =========================================================
-   CHECK-IN
+   HOME CHECK-IN
 ========================================================= */
 
 .home-content {
     position: relative;
     z-index: 5;
+
     max-width: 1100px;
+
     margin: -55px auto 0;
+
     padding: 0 25px 90px;
 }
 
 .checkin-panel {
     position: relative;
+
     padding: 45px 50px;
+
     background: white;
+
     border: 1px solid var(--border);
     border-left: 5px solid var(--green);
+
     border-radius: 8px;
-    box-shadow: 0 18px 45px rgba(0,30,0,.11);
+
+    box-shadow: var(--shadow);
 }
 
 .checkin-panel .section-label {
@@ -270,33 +542,40 @@ input {
 
 .checkin-panel h2 {
     margin: 0;
+
     max-width: 700px;
+
     color: var(--green-dark);
+
     font-size: clamp(2.4rem, 5vw, 4rem);
     line-height: .95;
+
     letter-spacing: -.055em;
 }
 
 .checkin-panel > p {
     max-width: 600px;
+
     margin: 18px 0 24px;
+
     color: var(--muted);
+
     font-size: .95rem;
     line-height: 1.7;
 }
-
-/* =========================================================
-   SIGNED IN
-========================================================= */
 
 .signed-in {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+
     width: fit-content;
+
     margin: 5px 0 18px;
     padding: 9px 13px;
+
     background: var(--green-soft);
+
     border: 1px solid #d6e8d2;
     border-radius: 5px;
 }
@@ -311,24 +590,29 @@ input {
     font-size: .8rem;
 }
 
-/* =========================================================
-   CHECK-IN BUTTON
-========================================================= */
-
 .checkin-button {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
+
     min-width: 190px;
+
     padding: 15px 20px;
+
     border: 0;
     border-radius: 5px;
+
     background: var(--green);
     color: white;
+
     font-size: .88rem;
     font-weight: 800;
+
     cursor: pointer;
-    transition: background .2s ease, transform .2s ease;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
 }
 
 .checkin-button::after {
@@ -343,17 +627,22 @@ input {
 
 .checkin-status {
     margin: 14px 0 0;
+
     color: var(--green);
     font-weight: 700;
 }
 
 .checkin-login {
     display: inline-block;
+
     margin-top: 8px;
     padding: 15px 22px;
+
     border-radius: 5px;
+
     background: var(--green);
     color: white;
+
     text-decoration: none;
     font-weight: 800;
 }
@@ -363,16 +652,19 @@ input {
 }
 
 /* =========================================================
-   INFORMATION SECTION
-   ONLY ONE IMAGE — NO ::BEFORE IMAGE
+   HOME INFORMATION
 ========================================================= */
 
 .home-information {
     position: relative;
+
     min-height: 560px;
+
     display: flex;
     align-items: center;
+
     overflow: hidden;
+
     color: white;
 
     background-image:
@@ -389,20 +681,19 @@ input {
     background-attachment: fixed;
 }
 
-/*
-   NO ::before.
-   NO second campus image.
-*/
-
 .home-information-inner {
     position: relative;
     z-index: 2;
+
     width: 100%;
     max-width: 1250px;
+
     margin: auto;
     padding: 90px 30px;
+
     display: grid;
     grid-template-columns: 1fr 1fr;
+
     gap: 80px;
 }
 
@@ -412,80 +703,809 @@ input {
 
 .home-information h2 {
     margin: 0;
+
     max-width: 600px;
+
     color: white;
+
     font-size: clamp(3rem, 5vw, 5rem);
     line-height: .94;
+
     letter-spacing: -.06em;
 }
 
 .home-information p:not(.section-label) {
     max-width: 550px;
+
     color: rgba(255,255,255,.82);
+
     font-size: 1rem;
     line-height: 1.8;
+}
+
+/* =========================================================
+   MY ATTENDANCE
+========================================================= */
+
+.page-hero {
+    position: relative;
+
+    min-height: 360px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,45,0,.97),
+            rgba(0,70,0,.91)
+        );
+
+    color: white;
+}
+
+.page-hero::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at 80% 45%,
+            rgba(120,190,110,.16),
+            transparent 38%
+        );
+
+    pointer-events: none;
+}
+
+.page-hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 75px 30px 70px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 18px;
+
+    color: #bde2ba;
+
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+
+    flex: 0 0 8px;
+
+    border-radius: 50%;
+
+    background: #8dd786;
+
+    box-shadow: 0 0 0 4px rgba(141,215,134,.12);
+}
+
+.page-hero h1 {
+    margin: 0;
+
+    color: white;
+
+    font-size: clamp(3.5rem, 7vw, 6.5rem);
+    line-height: .9;
+
+    letter-spacing: -.065em;
+    font-weight: 800;
+}
+
+.page-hero h1 span {
+    color: #a9dba5;
+}
+
+.page-hero p {
+    max-width: 610px;
+
+    margin: 24px 0 0;
+
+    color: rgba(255,255,255,.76);
+
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.page-hero-decoration {
+    position: absolute;
+    z-index: 1;
+
+    right: 7%;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    pointer-events: none;
+}
+
+.hero-circle {
+    width: 180px;
+    height: 180px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255,255,255,.16);
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.035);
+
+    box-shadow:
+        0 0 0 25px rgba(255,255,255,.02),
+        0 0 0 50px rgba(255,255,255,.015);
+}
+
+.circle-inner {
+    width: 85px;
+    height: 85px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.10);
+
+    color: #a9dba5;
+
+    font-size: 2.3rem;
+    font-weight: 300;
+}
+
+/* =========================================================
+   ATTENDANCE SECTION
+========================================================= */
+
+.attendance-section {
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 70px 30px 90px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    margin-bottom: 30px;
+}
+
+.attendance-heading .section-label {
+    margin-bottom: 12px;
+
+    color: var(--green);
+}
+
+.attendance-heading .section-label::before {
+    background: var(--green);
+}
+
+.section-heading h2 {
+    margin: 0;
+
+    color: var(--green-dark);
+
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    line-height: .95;
+
+    letter-spacing: -.055em;
+}
+
+/* =========================================================
+   ATTENDANCE SUMMARY
+========================================================= */
+
+.attendance-summary {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 22px;
+}
+
+.summary-card {
+    position: relative;
+
+    min-height: 145px;
+
+    padding: 24px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    box-shadow: var(--shadow-soft);
+
+    overflow: hidden;
+}
+
+.summary-card::after {
+    content: "";
+
+    position: absolute;
+
+    right: -25px;
+    bottom: -40px;
+
+    width: 100px;
+    height: 100px;
+
+    border-radius: 50%;
+
+    background: var(--green-soft);
+
+    opacity: .65;
+}
+
+.summary-label {
+    position: relative;
+    z-index: 1;
+
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: var(--muted);
+
+    font-size: .68rem;
+    font-weight: 800;
+
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.summary-card strong {
+    position: relative;
+    z-index: 1;
+
+    display: block;
+
+    color: var(--green-dark);
+
+    font-size: 2.35rem;
+    line-height: 1;
+    letter-spacing: -.04em;
+}
+
+.summary-card small {
+    position: relative;
+    z-index: 1;
+
+    display: block;
+
+    margin-top: 10px;
+
+    color: var(--muted);
+
+    font-size: .76rem;
+}
+
+.summary-status {
+    font-size: 1.65rem !important;
+    padding-top: 6px;
+}
+
+/* =========================================================
+   ATTENDANCE CARD
+========================================================= */
+
+.attendance-card {
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    box-shadow: var(--shadow-soft);
+
+    overflow: hidden;
+}
+
+.attendance-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 26px 28px;
+
+    border-bottom: 1px solid var(--border);
+}
+
+.attendance-card-header .section-label {
+    margin-bottom: 8px;
+
+    color: var(--green);
+}
+
+.attendance-card-header .section-label::before {
+    background: var(--green);
+}
+
+.attendance-card-header h3 {
+    margin: 0;
+
+    color: var(--green-dark);
+
+    font-size: 1.3rem;
+    letter-spacing: -.025em;
+}
+
+.record-count {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 10px;
+
+    border-radius: 20px;
+
+    background: var(--green-soft);
+
+    color: var(--green);
+
+    font-size: .68rem;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+/* =========================================================
+   ATTENDANCE TABLE
+========================================================= */
+
+.attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.attendance-table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+.attendance-table th {
+    padding: 14px 22px;
+
+    background: var(--green);
+
+    color: white;
+
+    text-align: left;
+
+    font-size: .68rem;
+    font-weight: 800;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.attendance-table td {
+    padding: 17px 22px;
+
+    border-bottom: 1px solid var(--border);
+
+    color: var(--text);
+
+    font-size: .84rem;
+}
+
+.attendance-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.attendance-table tbody tr:nth-child(even) {
+    background: #f8faf7;
+}
+
+.attendance-table tbody tr {
+    transition: background .15s ease;
+}
+
+.attendance-table tbody tr:hover {
+    background: var(--green-soft);
+}
+
+.attendance-table td strong {
+    color: var(--green-dark);
+    font-size: .85rem;
+}
+
+/* =========================================================
+   PRESENT STATUS
+========================================================= */
+
+.attendance-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    background: #e4f3e1;
+
+    color: var(--green);
+
+    font-size: .68rem;
+    font-weight: 800;
+}
+
+.attendance-status .status-dot {
+    width: 6px;
+    height: 6px;
+
+    flex-basis: 6px;
+
+    background: var(--green);
+
+    box-shadow: none;
+}
+
+/* =========================================================
+   EMPTY ATTENDANCE
+========================================================= */
+
+.empty-attendance {
+    padding: 75px 25px;
+
+    text-align: center;
+}
+
+.empty-icon {
+    width: 58px;
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 18px;
+
+    border-radius: 50%;
+
+    background: var(--green-soft);
+
+    color: var(--green);
+
+    font-size: 1.5rem;
+}
+
+.empty-attendance h3 {
+    margin: 0 0 9px;
+
+    color: var(--green-dark);
+
+    font-size: 1.45rem;
+    letter-spacing: -.025em;
+}
+
+.empty-attendance p {
+    max-width: 440px;
+
+    margin: 0 auto 22px;
+
+    color: var(--muted);
+
+    font-size: .86rem;
+    line-height: 1.7;
+}
+
+.button-arrow {
+    margin-left: 20px;
+}
+
+/* =========================================================
+   WELCOME / ACCOUNT CARD
+========================================================= */
+
+.welcome-card {
+    max-width: 1190px;
+
+    margin: 0 auto 45px;
+    padding: 24px 28px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    box-shadow: var(--shadow-soft);
+}
+
+.welcome-avatar {
+    width: 52px;
+    height: 52px;
+
+    flex: 0 0 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border-radius: 50%;
+
+    background: var(--green-soft);
+
+    color: var(--green);
+
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.welcome-avatar img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+.welcome-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.welcome-text > span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--muted);
+
+    font-size: .63rem;
+    font-weight: 800;
+
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.welcome-text h3 {
+    margin: 0;
+
+    color: var(--green-dark);
+
+    font-size: 1.05rem;
+}
+
+.welcome-text p {
+    margin: 4px 0 0;
+
+    color: var(--muted);
+
+    font-size: .77rem;
+}
+
+.welcome-link {
+    padding: 10px 14px;
+
+    border: 1px solid var(--border);
+    border-radius: 5px;
+
+    color: var(--green);
+
+    text-decoration: none;
+
+    font-size: .76rem;
+    font-weight: 800;
+
+    white-space: nowrap;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
+}
+
+.welcome-link:hover {
+    background: var(--green-soft);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   MOBILE ACCOUNT ACTIONS
+========================================================= */
+
+.mobile-account-actions {
+    display: none;
+
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding: 0 30px 60px;
+}
+
+.mobile-account-button,
+.mobile-logout-button {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: 100%;
+
+    padding: 17px;
+
+    margin-bottom: 10px;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+}
+
+.mobile-account-button {
+    background: white;
+
+    border: 1px solid var(--border);
+
+    color: var(--text);
+}
+
+.mobile-logout-button {
+    background: transparent;
+
+    border: 1px solid var(--border);
+
+    color: var(--text);
+}
+
+.mobile-action-icon {
+    width: 38px;
+    height: 38px;
+
+    flex: 0 0 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 6px;
+
+    background: var(--green-soft);
+
+    color: var(--green);
+
+    font-size: .9rem;
+}
+
+.mobile-account-button div,
+.mobile-logout-button div {
+    flex: 1;
+}
+
+.mobile-account-button strong,
+.mobile-logout-button strong {
+    display: block;
+
+    color: var(--green-dark);
+
+    font-size: .82rem;
+}
+
+.mobile-account-button small,
+.mobile-logout-button small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: .7rem;
+}
+
+.mobile-action-arrow {
+    color: var(--green);
+    font-size: 1.1rem;
 }
 
 /* =========================================================
    FOOTER
 ========================================================= */
 
-footer {
-    background: #002500;
-    color: white;
-}
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-.footer-inner {
-    max-width: 1250px;
-    margin: auto;
-    padding: 55px 30px;
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 60px;
+    gap: 30px;
+
+    padding: 38px 30px;
+
+    background: var(--green-deep);
+
+    color: white;
 }
 
 .footer-brand {
-    font-size: 1rem;
-    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
-.footer-text {
-    max-width: 400px;
-    color: rgba(255,255,255,.5);
-    font-size: .8rem;
-    line-height: 1.6;
+.small-mark {
+    width: 36px;
+    height: 36px;
+
+    font-size: .9rem;
 }
 
-.footer-heading {
-    color: #91c58c;
-    font-size: .65rem;
-    font-weight: 800;
-    letter-spacing: .15em;
-    text-transform: uppercase;
-}
-
-.footer-links {
+.footer-brand > div:last-child {
     display: flex;
     flex-direction: column;
-    gap: 9px;
 }
 
-.footer-links a {
-    color: rgba(255,255,255,.7);
+.footer-brand strong {
     font-size: .82rem;
+}
+
+.footer-brand span {
+    margin-top: 3px;
+
+    color: rgba(255,255,255,.45);
+
+    font-size: .66rem;
+}
+
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    color: rgba(255,255,255,.45);
+
+    font-size: .68rem;
+}
+
+.footer-right a {
+    color: rgba(255,255,255,.72);
+
     text-decoration: none;
+
+    font-weight: 700;
 }
 
-.footer-links a:hover {
+.footer-right a:hover {
     color: white;
-}
-
-.footer-bottom {
-    padding: 17px;
-    border-top: 1px solid rgba(255,255,255,.08);
-    color: rgba(255,255,255,.4);
-    font-size: .65rem;
-    text-align: center;
 }
 
 /* =========================================================
@@ -494,41 +1514,60 @@ footer {
 
 .admin-layout {
     display: grid;
+
     grid-template-columns: 220px 1fr;
-    min-height: calc(100vh - 80px);
+
+    min-height: calc(100vh - 78px);
+
     max-width: 1300px;
+
     margin: auto;
 }
 
 .admin-sidebar {
     padding: 30px 15px;
+
     background: white;
+
     border-right: 1px solid var(--border);
 }
 
 .admin-sidebar-title {
     padding: 0 12px 15px;
+
     color: #788078;
+
     font-size: .65rem;
     font-weight: 800;
+
     letter-spacing: .15em;
     text-transform: uppercase;
 }
 
 .admin-nav {
     display: block;
+
     padding: 11px 12px;
+
     margin-bottom: 4px;
+
     border-radius: 5px;
+
     color: #4f594f;
+
     font-size: .82rem;
     font-weight: 700;
+
     text-decoration: none;
-    transition: background .2s ease, color .2s ease;
+
+    transition:
+        background .2s ease,
+        color .2s ease;
 }
 
 .admin-nav:hover {
     color: var(--green);
+
     background: var(--green-soft);
 }
 
@@ -545,12 +1584,15 @@ footer {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+
     margin-bottom: 30px;
 }
 
 .admin-heading h1 {
     margin: 0;
+
     color: var(--green-dark);
+
     font-size: 2.3rem;
     letter-spacing: -.04em;
 }
@@ -562,9 +1604,13 @@ footer {
 
 .admin-date {
     padding: 9px 13px;
+
     border-radius: 5px;
+
     background: var(--green-soft);
+
     color: var(--green);
+
     font-size: .72rem;
     font-weight: 800;
 }
@@ -575,24 +1621,33 @@ footer {
 
 .admin-stats {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
+
     gap: 15px;
+
     margin-bottom: 20px;
 }
 
 .admin-stat {
     padding: 25px;
+
     background: white;
+
     border: 1px solid var(--border);
     border-radius: 7px;
 }
 
 .admin-stat-label {
     display: block;
+
     margin-bottom: 8px;
+
     color: var(--muted);
+
     font-size: .68rem;
     font-weight: 800;
+
     text-transform: uppercase;
     letter-spacing: .07em;
 }
@@ -609,14 +1664,18 @@ footer {
 .admin-section {
     margin-bottom: 20px;
     padding: 25px;
+
     background: white;
+
     border: 1px solid var(--border);
     border-radius: 7px;
 }
 
 .admin-section-header h2 {
     margin: 0;
+
     color: var(--green-dark);
+
     font-size: 1.3rem;
 }
 
@@ -629,23 +1688,36 @@ footer {
    ADMIN TABLE
 ========================================================= */
 
+.admin-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
 .admin-table {
     width: 100%;
+
     margin-top: 18px;
+
     border-collapse: collapse;
 }
 
 .admin-table th {
     padding: 12px;
+
     background: var(--green);
+
     color: white;
+
     text-align: left;
+
     font-size: .72rem;
 }
 
 .admin-table td {
     padding: 12px;
+
     border-bottom: 1px solid var(--border);
+
     font-size: .82rem;
 }
 
@@ -659,10 +1731,15 @@ footer {
 
 .status-present {
     display: inline-block;
+
     padding: 4px 8px;
+
     border-radius: 20px;
+
     background: #e4f3e1;
+
     color: var(--green);
+
     font-size: .7rem;
     font-weight: 800;
 }
@@ -675,14 +1752,19 @@ footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     padding: 15px 3px;
+
     border-bottom: 1px solid var(--border);
+
     text-decoration: none;
 }
 
 .admin-link strong {
     display: block;
+
     margin-bottom: 3px;
+
     color: var(--green-dark);
 }
 
@@ -697,13 +1779,13 @@ footer {
 }
 
 /* =========================================================
-   MOBILE
+   RESPONSIVE — TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
 
-    .header-inner {
-        padding: 18px 20px;
+    .navbar {
+        padding: 14px 20px;
     }
 
     .home-hero {
@@ -730,8 +1812,36 @@ footer {
 
     .home-information-inner {
         grid-template-columns: 1fr;
+
         gap: 30px;
+
         padding: 75px 22px;
+    }
+
+    .page-hero-content {
+        padding: 65px 25px;
+    }
+
+    .page-hero-decoration {
+        right: 3%;
+        opacity: .7;
+    }
+
+    .attendance-section {
+        padding: 60px 22px 75px;
+    }
+
+    .attendance-summary {
+        gap: 12px;
+    }
+
+    .summary-card {
+        padding: 20px;
+    }
+
+    .welcome-card {
+        margin-left: 22px;
+        margin-right: 22px;
     }
 
     .admin-layout {
@@ -740,8 +1850,11 @@ footer {
 
     .admin-sidebar {
         display: flex;
+
         overflow-x: auto;
+
         padding: 10px;
+
         border-right: none;
         border-bottom: 1px solid var(--border);
     }
@@ -760,36 +1873,156 @@ footer {
 }
 
 /* =========================================================
-   SMALL MOBILE
+   RESPONSIVE — MOBILE
 ========================================================= */
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
 
-    .header-inner {
-        padding: 14px 15px;
+    .navbar {
+        min-height: 70px;
+
+        padding: 12px 15px;
+
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
-    .brand .logo {
-        width: 40px;
-        height: 40px;
+    .nav-links {
+        order: 3;
+
+        width: 100%;
+
+        justify-content: center;
+
+        padding-top: 3px;
     }
 
-    .brand-name {
-        font-size: .9rem;
+    .nav-links a {
+        padding: 7px 9px;
+
+        font-size: .68rem;
     }
 
-    .brand-subtitle {
+    .account-details,
+    .account-chevron,
+    .logout {
         display: none;
     }
 
-    .site-header nav {
-        gap: 1px;
+    .account-pill {
+        padding: 3px;
     }
 
-    .site-header nav a {
-        padding: 7px 8px;
-        font-size: .68rem;
+    .brand-mark {
+        width: 38px;
+        height: 38px;
     }
+
+    .brand-text span {
+        font-size: .88rem;
+    }
+
+    /* Attendance hero */
+
+    .page-hero {
+        min-height: 330px;
+    }
+
+    .page-hero-content {
+        padding: 65px 20px 60px;
+    }
+
+    .page-hero h1 {
+        font-size: 3.35rem;
+    }
+
+    .page-hero p {
+        max-width: 100%;
+
+        font-size: .88rem;
+    }
+
+    .page-hero-decoration {
+        display: none;
+    }
+
+    /* Attendance content */
+
+    .attendance-section {
+        padding: 50px 15px 60px;
+    }
+
+    .section-heading {
+        display: block;
+
+        margin-bottom: 24px;
+    }
+
+    .section-heading h2 {
+        font-size: 2.35rem;
+    }
+
+    .section-heading .secondary-button {
+        margin-top: 18px;
+    }
+
+    .attendance-summary {
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+
+        margin-bottom: 16px;
+    }
+
+    .summary-card {
+        min-height: auto;
+        padding: 20px;
+    }
+
+    .summary-card strong {
+        font-size: 2rem;
+    }
+
+    .attendance-card-header {
+        align-items: flex-start;
+
+        padding: 21px 18px;
+    }
+
+    .attendance-card-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .record-count {
+        font-size: .62rem;
+    }
+
+    .attendance-table {
+        min-width: 560px;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .empty-attendance {
+        padding: 55px 20px;
+    }
+
+    .welcome-card {
+        display: none;
+    }
+
+    .mobile-account-actions {
+        display: block;
+
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* Home */
 
     .hero h1 {
         font-size: 3.5rem;
@@ -801,6 +2034,7 @@ footer {
 
     .home-content {
         margin-top: -40px;
+
         padding: 0 12px 60px;
     }
 
@@ -817,6 +2051,8 @@ footer {
         width: 100%;
     }
 
+    /* Admin */
+
     .admin-stats {
         grid-template-columns: 1fr;
     }
@@ -827,258 +2063,78 @@ footer {
 
     .admin-date {
         display: inline-block;
-        margin-top: 12px;
-    }
 
-    .admin-table-wrapper {
-        overflow-x: auto;
+        margin-top: 12px;
     }
 
     .admin-table {
         min-width: 600px;
     }
 
-    .footer-inner {
-        grid-template-columns: 1fr;
-        gap: 30px;
-        padding: 45px 22px;
+    /* Footer */
+
+    .footer {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        padding: 35px 20px;
+    }
+
+    .footer-right {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 8px;
     }
 }
 
 /* =========================================================
-   ACCESSIBILITY
+   SMALL MOBILE
 ========================================================= */
 
-button:focus-visible,
-a:focus-visible {
-    outline: 3px solid #75bd70;
-    outline-offset: 3px;
-}
-<!-- My Attendance page styling -->
-<style>
-/* =========================================================
-   MY ATTENDANCE
-========================================================= */
+@media (max-width: 430px) {
 
-.attendance-page {
-    min-height: 100vh;
-    background: var(--cream);
-    padding: 120px 25px 80px;
-}
-
-.attendance-container {
-    max-width: 1100px;
-    margin: 0 auto;
-}
-
-/* Page heading */
-
-.attendance-header {
-    margin-bottom: 30px;
-}
-
-.attendance-header h1 {
-    margin: 0;
-    color: var(--green-dark);
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    line-height: 1;
-    letter-spacing: -0.05em;
-}
-
-.attendance-header p {
-    margin: 12px 0 0;
-    color: var(--muted);
-    font-size: 1rem;
-}
-
-/* Summary cards */
-
-.attendance-summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 25px;
-}
-
-.attendance-card {
-    padding: 24px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 8px 25px rgba(0, 40, 0, 0.05);
-}
-
-.attendance-card-label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--muted);
-    font-size: .7rem;
-    font-weight: 800;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-.attendance-card strong {
-    color: var(--green-dark);
-    font-size: 2.2rem;
-}
-
-/* Main attendance panel */
-
-.attendance-panel {
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0, 40, 0, 0.06);
-    overflow: hidden;
-}
-
-.attendance-panel-header {
-    padding: 25px 28px;
-    border-bottom: 1px solid var(--border);
-}
-
-.attendance-panel-header h2 {
-    margin: 0;
-    color: var(--green-dark);
-    font-size: 1.3rem;
-}
-
-.attendance-panel-header p {
-    margin: 6px 0 0;
-    color: var(--muted);
-    font-size: .82rem;
-}
-
-/* Table */
-
-.attendance-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.attendance-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.attendance-table th {
-    padding: 14px 20px;
-    background: var(--green);
-    color: white;
-    text-align: left;
-    font-size: .72rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-}
-
-.attendance-table td {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    font-size: .85rem;
-}
-
-.attendance-table tbody tr:nth-child(even) {
-    background: #f7f9f6;
-}
-
-.attendance-table tbody tr:hover {
-    background: var(--green-soft);
-}
-
-/* Present status */
-
-.attendance-present {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: #e4f3e1;
-    color: var(--green);
-    font-size: .7rem;
-    font-weight: 800;
-}
-
-.attendance-present::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--green);
-}
-
-/* Empty attendance */
-
-.attendance-empty {
-    padding: 60px 25px;
-    text-align: center;
-}
-
-.attendance-empty h2 {
-    margin: 0 0 8px;
-    color: var(--green-dark);
-    font-size: 1.4rem;
-}
-
-.attendance-empty p {
-    margin: 0;
-    color: var(--muted);
-    font-size: .9rem;
-}
-
-/* Back button */
-
-.attendance-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 22px;
-    padding: 12px 18px;
-    border-radius: 5px;
-    background: var(--green);
-    color: white;
-    text-decoration: none;
-    font-size: .82rem;
-    font-weight: 700;
-    transition: background .2s ease, transform .2s ease;
-}
-
-.attendance-back:hover {
-    background: var(--green-dark);
-    transform: translateY(-2px);
-}
-
-/* =========================================================
-   MY ATTENDANCE MOBILE
-========================================================= */
-
-@media (max-width: 700px) {
-
-    .attendance-page {
-        padding: 100px 15px 60px;
+    .brand-text small {
+        display: none;
     }
 
-    .attendance-summary {
-        grid-template-columns: 1fr;
+    .nav-links {
+        gap: 0;
     }
 
-    .attendance-card {
-        padding: 20px;
+    .nav-links a {
+        padding: 6px 7px;
+
+        font-size: .64rem;
     }
 
-    .attendance-header h1 {
-        font-size: 2.8rem;
+    .page-hero h1 {
+        font-size: 3rem;
     }
 
-    .attendance-panel-header {
-        padding: 20px;
+    .page-hero p {
+        font-size: .84rem;
+    }
+
+    .attendance-section {
+        padding-top: 42px;
+    }
+
+    .section-heading h2 {
+        font-size: 2.1rem;
+    }
+
+    .attendance-card-header {
+        padding: 18px 15px;
     }
 
     .attendance-table {
-        min-width: 600px;
+        min-width: 520px;
+    }
+
+    .empty-attendance {
+        padding: 45px 18px;
     }
 }
-</style>
