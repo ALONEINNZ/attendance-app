@@ -10,6 +10,7 @@ from flask_mail import Mail
 import secrets
 from werkzeug.middleware.proxy_fix import ProxyFix
 from authlib.integrations.flask_client import OAuth
+from zoneinfo import ZoneInfo
 
 
 # =========================================================
@@ -1023,6 +1024,7 @@ def save_attendance(
 )
 @login_required
 def checkin():
+    
 
     client_ip = get_real_ip()
 
@@ -1067,7 +1069,7 @@ def checkin():
     # =====================================================
 
     try:
-
+        typed_data = request.form.get('study_activity')
         username = session.get(
             "username"
         )
@@ -1102,29 +1104,29 @@ def checkin():
         cursor.execute("""
 
             SELECT
-                username,
-                code,
-                email,
-                pfp
+                id,
+                name,
+                time,
+                study_activity
 
-            FROM users
+            FROM attendance
 
-            WHERE username = ?
+            WHERE name = ?
 
         """, (
-            username,
+            name,
         ))
 
 
-        user = cursor.fetchone()
+        attendance = cursor.fetchone()
 
 
         print(
 
             "CHECKIN USER FROM DATABASE:",
 
-            dict(user)
-            if user
+            dict(attendance)
+            if attendance
             else None,
 
             flush=True
@@ -1135,7 +1137,7 @@ def checkin():
         conn.close()
 
 
-        if not user:
+        if not attendance:
 
             return jsonify({
 
@@ -1149,7 +1151,7 @@ def checkin():
         # CHECK EXISTING ATTENDANCE
         # -------------------------------------------------
 
-        name = user["username"]
+        name = attendance["name"]
 
 
         attendance = load_attendance()
@@ -1169,10 +1171,8 @@ def checkin():
         # SAVE
         # -------------------------------------------------
 
-        current_time = datetime.now().strftime(
-            "%H:%M"
-        )
-
+        # Fetch the current time specifically for New Zealand
+        current_time = datetime.now(ZoneInfo("Pacific/Auckland")).strftime("%H:%M:%S")
 
         save_attendance(
 
