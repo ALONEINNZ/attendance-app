@@ -327,28 +327,46 @@ def init_db():
     # ATTENDANCE DATABASE
     # =====================================================
 
-    conn = get_attendance_db()
+   # =====================================================
+# ATTENDANCE DATABASE
+# =====================================================
 
-    cursor = conn.cursor()
+conn = get_attendance_db()
+cursor = conn.cursor()
 
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS attendance (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        name TEXT UNIQUE NOT NULL,
+
+        time TEXT NOT NULL,
+
+        study_activity TEXT
+
+    )
+""")
+
+# -----------------------------------------------------
+# ADD study_activity TO OLD DATABASES
+# -----------------------------------------------------
+
+try:
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS attendance (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            name TEXT UNIQUE NOT NULL,
-
-            time TEXT NOT NULL
-
-        )
+        ALTER TABLE attendance
+        ADD COLUMN study_activity TEXT
     """)
 
+except sqlite3.OperationalError:
 
-    conn.commit()
+    # Column already exists
+    pass
 
-    conn.close()
 
+conn.commit()
+conn.close()
 
 # =========================================================
 # LOGIN REQUIRED
@@ -961,8 +979,7 @@ def reset_users():
         )
 
 
-    conn = get_attendance_db()
-
+    conn = get_db()
     cursor = conn.cursor()
 
 
@@ -972,12 +989,10 @@ def reset_users():
 
 
     conn.commit()
-
     conn.close()
 
 
     return "All users deleted."
-
 
 # =========================================================
 # SAVE ATTENDANCE
@@ -990,12 +1005,9 @@ def save_attendance(
 ):
 
     conn = get_attendance_db()
-
     cursor = conn.cursor()
 
-
     cursor.execute("""
-
         INSERT INTO attendance
         (
             name,
@@ -1011,21 +1023,27 @@ def save_attendance(
         study_activity
     ))
 
-
     conn.commit()
-
     conn.close()
 
 
 # =========================================================
 # CHECK IN
 # =========================================================
+# =========================================================
+# CHECK IN
+# =========================================================
+
 @app.route(
     "/checkin",
     methods=["GET", "POST"]
 )
 @login_required
 def checkin():
+
+    # =====================================================
+    # CHECK SCHOOL NETWORK
+    # =====================================================
 
     client_ip = get_real_ip()
 
@@ -1034,10 +1052,12 @@ def checkin():
     )
 
     if not allowed:
+
         return jsonify({
             "message":
                 "Check-in is only allowed from school networks or other verified networks"
         }), 403
+
 
     # =====================================================
     # GET
@@ -1053,13 +1073,16 @@ def checkin():
             entries=entries
         )
 
+
     # =====================================================
     # POST
     # =====================================================
 
     try:
 
-        typed_data = request.form.get("study_activity")
+        # -------------------------------------------------
+        # GET SESSION USER
+        # -------------------------------------------------
 
         username = session.get("username")
 
@@ -1069,90 +1092,156 @@ def checkin():
             flush=True
         )
 
+
         if not username:
+
             return jsonify({
                 "message":
                     "You must be logged in."
             }), 401
 
+
         # -------------------------------------------------
-        # FIND USER'S ATTENDANCE RECORD
+        # GET STUDY ACTIVITY
         # -------------------------------------------------
 
-        conn = get_attendance_db()
+        study_activity = request.form.get(
+            "study_activity",
+            ""
+        ).strip()
+
+
+        # =================================================
+        # FIND USER IN MAIN DATABASE
+        # =================================================
+
+        conn = get_db()
         cursor = conn.cursor()
 
         cursor.execute("""
             SELECT
-                id,
-                name,
-                time,
-                study_activity
-            FROM attendance
-            WHERE name = ?
+                username,
+                code,
+                email,
+                pfp
+
+            FROM users
+
+            WHERE username = ?
+
         """, (
             username,
         ))
 
-        attendance = cursor.fetchone()
+        user = cursor.fetchone()
+
+        conn.close()
+
 
         print(
             "CHECKIN USER FROM DATABASE:",
-            dict(attendance)
-            if attendance
+            dict(user)
+            if user
             else None,
             flush=True
         )
 
-        conn.close()
 
         # -------------------------------------------------
-        # USER NOT FOUND
+        # USER DOES NOT EXIST
         # -------------------------------------------------
 
-        if not attendance:
+        if not user:
+
             return jsonify({
                 "message":
                     "User account not found."
             }), 404
 
+
+        # =================================================
+        # CHECK ATTENDANCE DATABASE
+        # =================================================
+
+        attendance_conn = get_attendance_db()
+        attendance_cursor = attendance_conn.cursor()
+
+
+        attendance_cursor.execute("""
+            SELECT
+                id,
+                name,
+                time,
+                study_activity
+
+            FROM attendance
+
+            WHERE name = ?
+
+        """, (
+            username,
+        ))
+
+
+        existing_attendance = (
+            attendance_cursor.fetchone()
+        )
+
+
+        attendance_conn.close()
+
+
+        print(
+            "EXISTING ATTENDANCE:",
+            dict(existing_attendance)
+            if existing_attendance
+            else None,
+            flush=True
+        )
+
+
         # -------------------------------------------------
-        # GET NAME
+        # ALREADY CHECKED IN
         # -------------------------------------------------
 
-        name = attendance["name"]
-
-        # -------------------------------------------------
-        # CHECK EXISTING ATTENDANCE
-        # -------------------------------------------------
-
-        existing_attendance = load_attendance()
-
-        if name in existing_attendance:
+        if existing_attendance:
 
             return jsonify({
                 "message":
                     "Already checked in."
-            })
+            }), 400
 
-        # -------------------------------------------------
-        # SAVE
-        # -------------------------------------------------
+
+        # =================================================
+        # SAVE ATTENDANCE
+        # =================================================
 
         current_time = datetime.now(
             ZoneInfo("Pacific/Auckland")
         ).strftime("%H:%M")
 
+
         save_attendance(
-            name,
+            username,
             current_time,
-            typed_data
+            study_activity
         )
+
+
+        print(
+            "CHECK-IN SUCCESS:",
+            username,
+            current_time,
+            study_activity,
+            flush=True
+        )
+
 
         return jsonify({
             "message":
                 "Checked in successfully."
         })
+
 
     # =====================================================
     # ERRORS
@@ -1165,19 +1254,19 @@ def checkin():
                 "Already checked in."
         }), 400
 
+
     except Exception as e:
 
         print(
             "CHECKIN ERROR:",
-            str(e),
+            repr(e),
             flush=True
         )
 
         return jsonify({
             "message":
                 f"Error: {str(e)}"
-        }), 
-
+        }), 500
 
 @app.route(
     "/admin/reset-attendance",
