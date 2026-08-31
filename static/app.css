@@ -854,8 +854,6 @@ a:focus-visible {
     outline: 3px solid #75bd70;
     outline-offset: 3px;
 }
-<!-- My Attendance page styling -->
-<style>
 /* =========================================================
    MY ATTENDANCE
 ========================================================= */
@@ -1081,4 +1079,3 @@ a:focus-visible {
         min-width: 600px;
     }
 }
-</style>
