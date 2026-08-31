@@ -8,6 +8,7 @@
     --green-dark: #003d01;
     --green-deep: #002500;
     --green-bright: #16851b;
+
     --green-soft: #eaf4e8;
     --green-pale: #f3f7f1;
 
@@ -17,6 +18,10 @@
     --text: #172017;
     --muted: #687268;
     --border: #dfe7df;
+
+    --danger: #a52222;
+    --danger-dark: #7e1717;
+    --danger-soft: #fae8e8;
 
     --shadow: 0 18px 45px rgba(0, 30, 0, 0.10);
     --shadow-soft: 0 10px 30px rgba(0, 30, 0, 0.07);
@@ -86,10 +91,10 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-
     margin: 0 0 18px;
 
     color: var(--green);
+
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.2em;
@@ -108,19 +113,15 @@ main {
 
 /* =========================================================
    FLOATING HERO NAVIGATION
-   Used by both home.html and my-attendance.html
    ========================================================= */
 
 .hero-nav {
     position: absolute;
-
     top: 0;
     left: 0;
-
     z-index: 100;
 
     width: 100%;
-
     min-height: 78px;
 
     padding: 14px 30px;
@@ -144,11 +145,10 @@ main {
 
     gap: 13px;
 
-    color: white;
-
-    text-decoration: none;
-
     min-width: 0;
+
+    color: white;
+    text-decoration: none;
 
     font-size: 0.98rem;
     font-weight: 800;
@@ -201,7 +201,6 @@ main {
     border-radius: 5px;
 
     color: rgba(255, 255, 255, 0.82);
-
     text-decoration: none;
 
     font-size: 0.78rem;
@@ -217,6 +216,8 @@ main {
 .hero-nav-links a:hover {
     background: rgba(255, 255, 255, 0.12);
     color: white;
+
+    transform: translateY(-1px);
 }
 
 .hero-nav-links a.active {
@@ -285,7 +286,6 @@ main {
 
 .hero-inner {
     position: relative;
-
     z-index: 2;
 
     width: 100%;
@@ -310,11 +310,9 @@ main {
     color: white;
 
     font-size: clamp(3.8rem, 7vw, 7rem);
-
     line-height: 0.9;
 
     letter-spacing: -0.065em;
-
     font-weight: 800;
 }
 
@@ -330,7 +328,6 @@ main {
     color: rgba(255, 255, 255, 0.86);
 
     font-size: 1rem;
-
     line-height: 1.7;
 }
 
@@ -427,7 +424,6 @@ main {
 
 .home-content {
     position: relative;
-
     z-index: 5;
 
     max-width: 1100px;
@@ -465,7 +461,6 @@ main {
     color: var(--green-dark);
 
     font-size: clamp(2.4rem, 5vw, 4rem);
-
     line-height: 0.95;
 
     letter-spacing: -0.055em;
@@ -479,7 +474,6 @@ main {
     color: var(--muted);
 
     font-size: 0.95rem;
-
     line-height: 1.7;
 }
 
@@ -541,7 +535,6 @@ main {
 
 .checkin-button::after {
     content: "→";
-
     margin-left: 25px;
 }
 
@@ -602,7 +595,6 @@ main {
 
 .home-information-inner {
     position: relative;
-
     z-index: 2;
 
     width: 100%;
@@ -613,7 +605,6 @@ main {
     padding: 90px 30px;
 
     display: grid;
-
     grid-template-columns: 1fr 1fr;
 
     gap: 80px;
@@ -631,7 +622,6 @@ main {
     color: white;
 
     font-size: clamp(3rem, 5vw, 5rem);
-
     line-height: 0.94;
 
     letter-spacing: -0.06em;
@@ -643,23 +633,21 @@ main {
     color: rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
-
     line-height: 1.8;
 }
 
 
 /* =========================================================
-   HOMEPAGE FOOTER
+   FOOTER
    ========================================================= */
 
-body.home-page > footer {
+.site-footer {
     background: var(--green-deep);
     color: white;
 }
 
 .footer-inner {
     width: 100%;
-
     max-width: 1250px;
 
     margin: 0 auto;
@@ -667,10 +655,27 @@ body.home-page > footer {
     padding: 55px 30px;
 
     display: grid;
-
     grid-template-columns: 2fr 1fr 1fr;
 
     gap: 50px;
+}
+
+.footer-inner strong {
+    display: block;
+
+    color: white;
+
+    font-size: 0.95rem;
+}
+
+.footer-inner span {
+    display: block;
+
+    margin-top: 6px;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    font-size: 0.75rem;
 }
 
 .footer-brand {
@@ -686,7 +691,6 @@ body.home-page > footer {
     color: rgba(255, 255, 255, 0.48);
 
     font-size: 0.75rem;
-
     line-height: 1.7;
 }
 
@@ -696,11 +700,9 @@ body.home-page > footer {
     color: white;
 
     font-size: 0.72rem;
-
     font-weight: 800;
 
     letter-spacing: 0.1em;
-
     text-transform: uppercase;
 }
 
@@ -738,12 +740,24 @@ body.home-page > footer {
     color: rgba(255, 255, 255, 0.3);
 
     font-size: 0.65rem;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.footer-bottom a {
+    color: rgba(255, 255, 255, 0.42);
+    text-decoration: none;
+}
+
+.footer-bottom a:hover {
+    color: white;
 }
 
 
 /* =========================================================
-   MY ATTENDANCE HERO
-   Navigation sits INSIDE / OVER the image
+   ATTENDANCE HERO
    ========================================================= */
 
 .attendance-hero {
@@ -768,7 +782,6 @@ body.home-page > footer {
         url("/static/images/burnside-campus.jpg");
 
     background-size: cover;
-
     background-position: center;
 }
 
@@ -776,7 +789,6 @@ body.home-page > footer {
     content: "";
 
     position: absolute;
-
     inset: 0;
 
     background:
@@ -791,11 +803,9 @@ body.home-page > footer {
 
 .attendance-hero-inner {
     position: relative;
-
     z-index: 2;
 
     width: 100%;
-
     max-width: 1250px;
 
     margin: 0 auto;
@@ -819,11 +829,9 @@ body.home-page > footer {
     color: #bde2ba;
 
     font-size: 0.7rem;
-
     font-weight: 800;
 
     letter-spacing: 0.2em;
-
     text-transform: uppercase;
 }
 
@@ -840,11 +848,9 @@ body.home-page > footer {
     color: white;
 
     font-size: clamp(3.8rem, 7vw, 6.8rem);
-
     line-height: 0.9;
 
     letter-spacing: -0.065em;
-
     font-weight: 800;
 }
 
@@ -860,18 +866,29 @@ body.home-page > footer {
     color: rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
-
     line-height: 1.7;
 }
 
 
 /* =========================================================
-   MY ATTENDANCE MAIN
+   ADMIN HERO
+   ========================================================= */
+
+.admin-hero {
+    min-height: 520px;
+}
+
+.admin-hero .attendance-hero-content {
+    max-width: 760px;
+}
+
+
+/* =========================================================
+   ATTENDANCE MAIN
    ========================================================= */
 
 .attendance-main {
     position: relative;
-
     z-index: 5;
 
     max-width: 1250px;
@@ -890,7 +907,6 @@ body.home-page > footer {
     display: flex;
 
     align-items: flex-end;
-
     justify-content: space-between;
 
     gap: 30px;
@@ -900,7 +916,6 @@ body.home-page > footer {
 
 .attendance-intro .section-label {
     margin-bottom: 12px;
-
     color: var(--green);
 }
 
@@ -910,7 +925,6 @@ body.home-page > footer {
     color: var(--green-dark);
 
     font-size: clamp(2.2rem, 4vw, 3.5rem);
-
     line-height: 0.95;
 
     letter-spacing: -0.055em;
@@ -922,7 +936,6 @@ body.home-page > footer {
     color: var(--muted);
 
     font-size: 0.88rem;
-
     line-height: 1.6;
 }
 
@@ -953,10 +966,19 @@ body.home-page > footer {
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow: var(--shadow);
 }
 
 .summary-card::after {
@@ -979,7 +1001,6 @@ body.home-page > footer {
 
 .summary-label {
     position: relative;
-
     z-index: 1;
 
     display: block;
@@ -989,17 +1010,14 @@ body.home-page > footer {
     color: var(--muted);
 
     font-size: 0.68rem;
-
     font-weight: 800;
 
     letter-spacing: 0.1em;
-
     text-transform: uppercase;
 }
 
 .summary-card strong {
     position: relative;
-
     z-index: 1;
 
     display: block;
@@ -1007,7 +1025,6 @@ body.home-page > footer {
     color: var(--green-dark);
 
     font-size: 2.35rem;
-
     line-height: 1;
 
     letter-spacing: -0.04em;
@@ -1015,7 +1032,6 @@ body.home-page > footer {
 
 .summary-card small {
     position: relative;
-
     z-index: 1;
 
     display: block;
@@ -1033,10 +1049,11 @@ body.home-page > footer {
    ========================================================= */
 
 .attendance-card {
+    margin-bottom: 22px;
+
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1048,7 +1065,6 @@ body.home-page > footer {
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
     gap: 20px;
@@ -1060,7 +1076,6 @@ body.home-page > footer {
 
 .attendance-card-header .section-label {
     margin-bottom: 10px;
-
     color: var(--green);
 }
 
@@ -1078,7 +1093,6 @@ body.home-page > footer {
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
 
     padding: 7px 12px;
@@ -1090,7 +1104,6 @@ body.home-page > footer {
     color: var(--green);
 
     font-size: 0.7rem;
-
     font-weight: 800;
 
     white-space: nowrap;
@@ -1123,11 +1136,9 @@ body.home-page > footer {
     text-align: left;
 
     font-size: 0.7rem;
-
     font-weight: 800;
 
     letter-spacing: 0.08em;
-
     text-transform: uppercase;
 }
 
@@ -1184,7 +1195,6 @@ body.home-page > footer {
     color: var(--green);
 
     font-size: 0.8rem;
-
     font-weight: 800;
 }
 
@@ -1206,7 +1216,6 @@ body.home-page > footer {
     color: #176b18;
 
     font-size: 0.75rem;
-
     font-weight: 800;
 }
 
@@ -1268,8 +1277,109 @@ body.home-page > footer {
     color: var(--muted);
 
     font-size: 0.84rem;
-
     line-height: 1.7;
+}
+
+
+/* =========================================================
+   ADMIN ACTIONS
+   ========================================================= */
+
+.admin-actions-card {
+    margin-top: 22px;
+
+    border-left: 4px solid var(--danger);
+}
+
+.admin-actions-card .attendance-card-header {
+    background: #fffafa;
+}
+
+.admin-actions-card .section-label {
+    color: var(--danger);
+}
+
+.admin-actions-card .attendance-card-header h3 {
+    color: #641717;
+}
+
+.admin-action-content {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 25px;
+}
+
+.admin-action-content > div {
+    min-width: 0;
+}
+
+.admin-action-content strong {
+    display: block;
+
+    color: var(--text);
+
+    font-size: 0.95rem;
+}
+
+.admin-action-content p {
+    max-width: 650px;
+
+    margin: 8px 0 0;
+
+    color: var(--muted);
+
+    font-size: 0.8rem;
+    line-height: 1.65;
+}
+
+.danger-button {
+    flex: 0 0 auto;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 13px 18px;
+
+    border: 1px solid #d8a4a4;
+    border-radius: 5px;
+
+    background: white;
+
+    color: var(--danger);
+
+    font-size: 0.78rem;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.danger-button:hover {
+    background: var(--danger);
+
+    border-color: var(--danger);
+
+    color: white;
+
+    transform: translateY(-2px);
+}
+
+.admin-actions-card .checkin-status {
+    padding: 0 25px 22px;
+
+    margin: 0;
 }
 
 
@@ -1291,7 +1401,6 @@ body.home-page > footer {
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1340,7 +1449,6 @@ body.home-page > footer {
     color: var(--muted);
 
     font-size: 0.65rem;
-
     font-weight: 800;
 
     letter-spacing: 0.1em;
@@ -1370,7 +1478,6 @@ body.home-page > footer {
     text-decoration: none;
 
     font-size: 0.78rem;
-
     font-weight: 800;
 
     white-space: nowrap;
@@ -1404,7 +1511,6 @@ body.home-page > footer {
     border-radius: 999px;
 
     font-size: 0.68rem;
-
     font-weight: 800;
 }
 
@@ -1437,7 +1543,6 @@ body.home-page > footer {
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1479,7 +1584,6 @@ body.home-page > footer {
     color: var(--green-dark);
 
     font-size: 0.76rem;
-
     font-weight: 800;
 }
 
@@ -1493,7 +1597,6 @@ body.home-page > footer {
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 5px;
 
     color: var(--text);
@@ -1510,7 +1613,8 @@ body.home-page > footer {
 .form-group textarea:focus {
     border-color: #82b97e;
 
-    box-shadow: 0 0 0 3px rgba(22, 133, 27, 0.08);
+    box-shadow:
+        0 0 0 3px rgba(22, 133, 27, 0.08);
 
     outline: none;
 }
@@ -1537,7 +1641,6 @@ body.home-page > footer {
     border-radius: 6px;
 
     font-size: 0.82rem;
-
     font-weight: 700;
 }
 
@@ -1595,7 +1698,6 @@ body.home-page > footer {
     display: flex;
 
     align-items: flex-end;
-
     justify-content: space-between;
 
     gap: 25px;
@@ -1609,7 +1711,6 @@ body.home-page > footer {
     color: var(--green-dark);
 
     font-size: clamp(2.4rem, 5vw, 4.2rem);
-
     line-height: 0.95;
 
     letter-spacing: -0.055em;
@@ -1621,7 +1722,6 @@ body.home-page > footer {
     color: var(--muted);
 
     font-size: 0.88rem;
-
     line-height: 1.6;
 }
 
@@ -1641,7 +1741,6 @@ body.home-page > footer {
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1655,7 +1754,6 @@ body.home-page > footer {
     color: var(--muted);
 
     font-size: 0.67rem;
-
     font-weight: 800;
 
     letter-spacing: 0.1em;
@@ -1680,7 +1778,6 @@ body.home-page > footer {
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
     gap: 15px;
@@ -1715,7 +1812,6 @@ body.home-page > footer {
     background: white;
 
     border: 1px solid var(--border);
-
     border-radius: 5px;
 
     color: var(--text);
@@ -1728,16 +1824,17 @@ body.home-page > footer {
 
     border-color: #82b97e;
 
-    box-shadow: 0 0 0 3px rgba(22, 133, 27, 0.08);
+    box-shadow:
+        0 0 0 3px rgba(22, 133, 27, 0.08);
 }
 
-.study-activity{
+.study-activity {
     padding: 11px 13px;
-
-    
 }
+
+
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — 1000px
    ========================================================= */
 
 @media (max-width: 1000px) {
@@ -1756,6 +1853,10 @@ body.home-page > footer {
     }
 }
 
+
+/* =========================================================
+   RESPONSIVE — 800px
+   ========================================================= */
 
 @media (max-width: 800px) {
 
@@ -1818,6 +1919,16 @@ body.home-page > footer {
         min-width: 650px;
     }
 
+    .admin-action-content {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .danger-button {
+        width: 100%;
+    }
+
     .home-information-inner {
         padding: 70px 20px;
     }
@@ -1854,10 +1965,15 @@ body.home-page > footer {
 
     .search-box input {
         width: 100%;
+
         min-width: 0;
     }
 }
 
+
+/* =========================================================
+   RESPONSIVE — 600px
+   ========================================================= */
 
 @media (max-width: 600px) {
 
@@ -1882,7 +1998,7 @@ body.home-page > footer {
 
     .hero-nav-links a,
     .hero-links a {
-        padding: 7px 7px;
+        padding: 7px;
 
         font-size: 0.66rem;
     }
@@ -1928,7 +2044,11 @@ body.home-page > footer {
     }
 
     .attendance-card-header {
+        align-items: flex-start;
+
         padding: 20px;
+
+        flex-direction: column;
     }
 
     .attendance-account-card {
@@ -1953,6 +2073,19 @@ body.home-page > footer {
 
     .summary-card {
         min-height: 125px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+    }
+
+    .admin-action-content {
+        padding: 20px;
+    }
+
+    .admin-actions-card .checkin-status {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 }
 
