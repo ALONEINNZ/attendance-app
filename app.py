@@ -475,10 +475,32 @@ def login_required(f):
 @app.route("/")
 def home():
 
-    return render_template(
-        "Home.html"
-    )
+    study_topics = []
 
+    if session.get("username"):
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                id,
+                name,
+                subject,
+                description
+            FROM study_topics
+            ORDER BY subject, name
+        """)
+
+        study_topics = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+    return render_template(
+        "Home.html",
+        study_topics=study_topics
+    )
 
 # =========================================================
 # GOOGLE CALLBACK

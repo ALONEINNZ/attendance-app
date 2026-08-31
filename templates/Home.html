@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,60 +29,87 @@
 <body class="home-page">
 
 
+<!-- =====================================================
+     NAVIGATION
+===================================================== -->
+
 <div class="hero-nav">
 
-    <a href="{{ url_for('home') }}" class="hero-brand">
+    <a
+        href="{{ url_for('home') }}"
+        class="hero-brand"
+    >
 
         {% if logo_url %}
+
             <img
                 src="{{ logo_url }}"
                 class="hero-logo"
                 alt="Burnside High School"
             >
+
         {% endif %}
 
-        <span>Burnside Attendance</span>
+        <span>
+            Burnside Attendance
+        </span>
 
     </a>
 
- <nav class="hero-links">
 
-    <a href="{{ url_for('home') }}" class="active">
-        Home
-    </a>
+    <nav class="hero-links">
 
-    <a href="{{ url_for('checkin') }}">
-        Check In
-    </a>
-
-    {% if session.get('username') %}
-
-        <a href="{{ url_for('my_attendance') }}">
-            My Attendance
+        <a
+            href="{{ url_for('home') }}"
+            class="active"
+        >
+            Home
         </a>
 
-        {% if session.get('is_admin') %}
-            <a href="{{ url_for('admin') }}">
-                Admin
+
+        <a href="{{ url_for('checkin') }}">
+            Check In
+        </a>
+
+
+        {% if session.get('username') %}
+
+            <a href="{{ url_for('my_attendance') }}">
+                My Attendance
             </a>
+
+
+            {% if session.get('is_admin') %}
+
+                <a href="{{ url_for('admin') }}">
+                    Admin
+                </a>
+
+            {% endif %}
+
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+
+        {% else %}
+
+            <a href="{{ url_for('login') }}">
+                Sign in
+            </a>
+
         {% endif %}
 
-        <a href="{{ url_for('logout') }}">
-            Logout
-        </a>
+    </nav>
 
-    {% else %}
-
-        <a href="{{ url_for('login') }}">
-            Sign in
-        </a>
-
-    {% endif %}
-
-</nav>
 </div>
 
 
+
+<!-- =====================================================
+     HERO
+===================================================== -->
 
 <section class="hero home-hero">
 
@@ -93,9 +121,11 @@
                 BURNSIDE HIGH SCHOOL
             </p>
 
+
             <h1>
                 Student Attendance
             </h1>
+
 
             <p>
                 Check in for Period 1 quickly and securely
@@ -122,8 +152,11 @@
 
 
 
-<main class="home-content">
+<!-- =====================================================
+     CHECK-IN
+===================================================== -->
 
+<main class="home-content">
 
     <section class="checkin-panel">
 
@@ -131,9 +164,11 @@
             PERIOD 1
         </p>
 
+
         <h2>
             Check in for class
         </h2>
+
 
         <p>
 
@@ -154,11 +189,16 @@
         {% if session.get('username') %}
 
 
+            <!-- =========================================
+                 SIGNED IN USER
+            ========================================== -->
+
             <div class="signed-in">
 
                 <span class="signed-in-label">
                     Signed in as
                 </span>
+
 
                 <strong>
                     {{ session.get('username') }}
@@ -166,21 +206,68 @@
 
             </div>
 
+
+
+            <!-- =========================================
+                 STUDY TOPIC
+            ========================================== -->
+
             <div class="study-activity">
 
-                <label for="study_activity">What are you planning to do this study period?</label><br>
-                <textarea id="study_activity" name="study_activity" rows="4" cols="50" placeholder="What are you planning to do this study period?"></textarea>
+                <label for="study_topic">
+
+                    What are you studying this period?
+
+                </label>
+
+
+                <select
+                    id="study_topic"
+                    name="study_topic"
+                >
+
+                    <option value="">
+                        Select a study topic
+                    </option>
+
+
+                    {% for topic in study_topics %}
+
+                        <option value="{{ topic.id }}">
+
+                            {{ topic.subject }}
+                            —
+                            {{ topic.name }}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
             </div>
 
+
+
+            <!-- =========================================
+                 CHECK-IN BUTTON
+            ========================================== -->
 
             <button
                 type="button"
                 class="checkin-button"
                 onclick="checkIn()"
             >
+
                 Check In
+
             </button>
 
+
+
+            <!-- =========================================
+                 STATUS
+            ========================================== -->
 
             <p
                 id="status"
@@ -191,11 +278,17 @@
         {% else %}
 
 
+            <!-- =========================================
+                 NOT SIGNED IN
+            ========================================== -->
+
             <a
                 href="{{ url_for('login') }}"
                 class="btn checkin-login"
             >
+
                 Login with Google
+
             </a>
 
 
@@ -207,15 +300,21 @@
 
 
 
+<!-- =====================================================
+     INFORMATION
+===================================================== -->
+
 <section class="home-information">
 
     <div class="home-information-inner">
+
 
         <div>
 
             <p class="section-label">
                 ATTENDANCE AT BURNSIDE
             </p>
+
 
             <h2>
                 Being at school matters.
@@ -224,20 +323,27 @@
         </div>
 
 
+
         <div>
 
             <p>
+
                 Regular attendance helps students stay
                 connected with their learning, teachers
                 and school community.
+
             </p>
 
+
             <p>
+
                 If you are unable to attend school, please
                 follow the normal Burnside absence process.
+
             </p>
 
         </div>
+
 
     </div>
 
@@ -245,28 +351,49 @@
 
 
 
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
 <footer>
 
     <div class="footer-inner">
 
 
+        <!-- =============================================
+             BRAND
+        ============================================== -->
+
         <div>
 
             <div class="footer-brand">
+
                 Burnside Attendance
+
             </div>
 
-            <p class="footer-text">
-                Burnside High School
-            </p>
 
             <p class="footer-text">
+
+                Burnside High School
+
+            </p>
+
+
+            <p class="footer-text">
+
                 151 Greers Road<br>
                 Christchurch 8440
+
             </p>
 
         </div>
 
+
+
+        <!-- =============================================
+             ATTENDANCE LINKS
+        ============================================== -->
 
         <div>
 
@@ -274,16 +401,22 @@
                 Attendance
             </p>
 
+
             <div class="footer-links">
 
                 <a href="{{ url_for('home') }}">
+
                     Student Check-in
+
                 </a>
+
 
                 {% if session.get('username') %}
 
                     <a href="{{ url_for('my_attendance') }}">
+
                         My Attendance
+
                     </a>
 
                 {% endif %}
@@ -292,6 +425,11 @@
 
         </div>
 
+
+
+        <!-- =============================================
+             ACCOUNT LINKS
+        ============================================== -->
 
         <div>
 
@@ -299,18 +437,23 @@
                 Account
             </p>
 
+
             <div class="footer-links">
 
                 {% if session.get('username') %}
 
                     <a href="{{ url_for('logout') }}">
+
                         Logout
+
                     </a>
 
                 {% else %}
 
                     <a href="{{ url_for('login') }}">
+
                         Login
+
                     </a>
 
                 {% endif %}
@@ -319,15 +462,26 @@
 
         </div>
 
+
     </div>
 
+
+
+    <!-- ===============================================
+         FOOTER BOTTOM
+    ================================================ -->
 
     <div class="footer-bottom">
+
         Burnside Attendance System
+
     </div>
+
 
 </footer>
 
 
 </body>
+
 </html>
+```
