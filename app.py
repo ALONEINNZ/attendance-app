@@ -961,7 +961,7 @@ def reset_users():
         )
 
 
-    conn = get_db()
+    conn = get_attendance_db()
 
     cursor = conn.cursor()
 
@@ -985,7 +985,8 @@ def reset_users():
 
 def save_attendance(
     name,
-    time
+    time,
+    study_activity
 ):
 
     conn = get_attendance_db()
@@ -998,14 +999,16 @@ def save_attendance(
         INSERT INTO attendance
         (
             name,
-            time
+            time,
+            study_activity
         )
 
-        VALUES (?, ?)
+        VALUES (?, ?, ?)
 
     """, (
         name,
-        time
+        time,
+        study_activity
     ))
 
 
@@ -1076,7 +1079,7 @@ def checkin():
         # FIND USER'S ATTENDANCE RECORD
         # -------------------------------------------------
 
-        conn = get_db()
+        conn = get_attendance_db()
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -1142,7 +1145,8 @@ def checkin():
 
         save_attendance(
             name,
-            current_time
+            current_time,
+            typed_data
         )
 
         return jsonify({
@@ -1172,7 +1176,9 @@ def checkin():
         return jsonify({
             "message":
                 f"Error: {str(e)}"
-        }), 500
+        }), 
+
+
 @app.route(
     "/admin/reset-attendance",
     methods=["POST"]
