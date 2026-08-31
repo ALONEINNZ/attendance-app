@@ -1017,32 +1017,24 @@ def save_attendance(
 # =========================================================
 # CHECK IN
 # =========================================================
-
 @app.route(
     "/checkin",
     methods=["GET", "POST"]
 )
 @login_required
 def checkin():
-    
 
     client_ip = get_real_ip()
-
 
     allowed, network_name = is_school_ip(
         client_ip
     )
 
-
     if not allowed:
-
         return jsonify({
-
             "message":
                 "Check-in is only allowed from school networks or other verified networks"
-
         }), 403
-
 
     # =====================================================
     # GET
@@ -1052,28 +1044,21 @@ def checkin():
 
         entries = load_attendance_rows()
 
-
         return render_template(
-
             "checkin.html",
-
             header="checkin",
-
             entries=entries
-
         )
-
 
     # =====================================================
     # POST
     # =====================================================
 
     try:
-        typed_data = request.form.get('study_activity')
-        username = session.get(
-            "username"
-        )
 
+        typed_data = request.form.get("study_activity")
+
+        username = session.get("username")
 
         print(
             "CHECKIN USERNAME FROM SESSION:",
@@ -1081,151 +1066,113 @@ def checkin():
             flush=True
         )
 
-
         if not username:
-
             return jsonify({
-
                 "message":
                     "You must be logged in."
-
             }), 401
 
-
         # -------------------------------------------------
-        # FIND USER
+        # FIND USER'S ATTENDANCE RECORD
         # -------------------------------------------------
 
         conn = get_db()
-
         cursor = conn.cursor()
 
-
         cursor.execute("""
-
             SELECT
                 id,
                 name,
                 time,
                 study_activity
-
             FROM attendance
-
             WHERE name = ?
-
         """, (
-            name,
+            username,
         ))
-
 
         attendance = cursor.fetchone()
 
-
         print(
-
             "CHECKIN USER FROM DATABASE:",
-
             dict(attendance)
             if attendance
             else None,
-
             flush=True
-
         )
-
 
         conn.close()
 
+        # -------------------------------------------------
+        # USER NOT FOUND
+        # -------------------------------------------------
 
         if not attendance:
-
             return jsonify({
-
                 "message":
                     "User account not found."
-
             }), 404
 
+        # -------------------------------------------------
+        # GET NAME
+        # -------------------------------------------------
+
+        name = attendance["name"]
 
         # -------------------------------------------------
         # CHECK EXISTING ATTENDANCE
         # -------------------------------------------------
 
-        name = attendance["name"]
+        existing_attendance = load_attendance()
 
-
-        attendance = load_attendance()
-
-
-        if name in attendance:
+        if name in existing_attendance:
 
             return jsonify({
-
                 "message":
                     "Already checked in."
-
             })
-
 
         # -------------------------------------------------
         # SAVE
         # -------------------------------------------------
 
-        # Fetch the current time specifically for New Zealand
-        current_time = datetime.now(ZoneInfo("Pacific/Auckland")).strftime("%H:%M:%S")
+        current_time = datetime.now(
+            ZoneInfo("Pacific/Auckland")
+        ).strftime("%H:%M")
 
         save_attendance(
-
             name,
-
             current_time
-
         )
 
-
         return jsonify({
-
             "message":
                 "Checked in successfully."
-
         })
 
+    # =====================================================
+    # ERRORS
+    # =====================================================
 
     except sqlite3.IntegrityError:
 
         return jsonify({
-
             "message":
                 "Already checked in."
-
         }), 400
-
 
     except Exception as e:
 
         print(
-
             "CHECKIN ERROR:",
-
             str(e),
-
             flush=True
-
         )
 
-
         return jsonify({
-
             "message":
                 f"Error: {str(e)}"
-
         }), 500
-
-
-# =========================================================
-# RESET ATTENDANCE
-# =========================================================
-
 @app.route(
     "/admin/reset-attendance",
     methods=["POST"]
