@@ -5,3 +5,4 @@ Flask-Mail==0.10.0
 gunicorn
 authlib
 requests
+psycopg2-binary
