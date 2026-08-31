@@ -1,32 +1,33 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
 
-    <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta charset="UTF-8">
 
-    <title>Administration | Burnside Attendance</title>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='app.css') }}"
-    >
+<title>Administration | Burnside Attendance</title>
 
-    <script
-        src="{{ url_for('static', filename='script.js') }}"
-        defer
-    ></script>
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='app.css') }}"
+>
+
+<script
+    src="{{ url_for('static', filename='script.js') }}"
+    defer
+></script>
+
 
 </head>
 
-
 <body class="attendance-page admin-page">
-
 
 <!-- =========================================================
      HERO
@@ -35,112 +36,90 @@
 <section class="attendance-hero admin-hero">
 
 
-    <!-- FLOATING NAVIGATION -->
+<div class="hero-nav">
 
-    <div class="hero-nav">
+    <a
+        href="{{ url_for('home') }}"
+        class="hero-brand"
+    >
 
-        <a
-            href="{{ url_for('home') }}"
-            class="hero-brand"
-        >
+        <span class="hero-brand-name">
+            Burnside Attendance
+        </span>
 
-            <span class="hero-brand-name">
-                Burnside Attendance
-            </span>
+        <span class="hero-brand-school">
+            BURNSIDE HIGH SCHOOL
+        </span>
 
-            <span class="hero-brand-school">
-                BURNSIDE HIGH SCHOOL
-            </span>
+    </a>
 
+
+    <nav class="hero-nav-links">
+
+        <a href="{{ url_for('home') }}">
+            Home
         </a>
 
+        <a href="{{ url_for('checkin') }}">
+            Check In
+        </a>
 
-        <nav class="hero-nav-links">
+        <a href="{{ url_for('my_attendance') }}">
+            My Attendance
+        </a>
 
-            <a href="{{ url_for('home') }}">
-                Home
+        {% if session.get('is_admin') %}
+
+            <a
+                href="{{ url_for('admin') }}"
+                class="active"
+            >
+                Admin
             </a>
 
-            <a href="{{ url_for('checkin') }}">
-                Check In
-            </a>
+        {% endif %}
+
+        <a
+            href="{{ url_for('logout') }}"
+            class="hero-nav-logout"
+        >
+            Logout
+        </a>
+
+    </nav>
+
+</div>
 
 
-            {% if session.get('username') %}
+<div class="attendance-hero-inner">
 
-                <a href="{{ url_for('my_attendance') }}">
-                    My Attendance
-                </a>
+    <div class="attendance-hero-content">
 
+        <div class="hero-eyebrow">
 
-                {% if session.get('is_admin') %}
+            <span></span>
 
-                    <a
-                        href="{{ url_for('admin') }}"
-                        class="active"
-                    >
-                        Admin
-                    </a>
-
-                {% endif %}
-
-
-                <a
-                    href="{{ url_for('logout') }}"
-                    class="hero-nav-logout"
-                >
-                    Logout
-                </a>
-
-            {% else %}
-
-                <a
-                    href="{{ url_for('login') }}"
-                    class="hero-nav-login"
-                >
-                    Sign in
-                </a>
-
-            {% endif %}
-
-        </nav>
-
-    </div>
-
-
-
-    <!-- HERO CONTENT -->
-
-    <div class="attendance-hero-inner">
-
-        <div class="attendance-hero-content">
-
-            <div class="hero-eyebrow">
-
-                <span></span>
-
-                BURNSIDE HIGH SCHOOL
-
-            </div>
-
-
-            <h1>
-                Administration.
-            </h1>
-
-
-            <p>
-                Manage student accounts and monitor attendance
-                records from the administration dashboard.
-            </p>
+            BURNSIDE HIGH SCHOOL
 
         </div>
 
+
+        <h1>
+            Administration.
+        </h1>
+
+
+        <p>
+            Manage student accounts and monitor attendance
+            records from the administration dashboard.
+        </p>
+
     </div>
 
+</div>
+
+
 </section>
-
-
 
 <!-- =========================================================
      MAIN
@@ -148,540 +127,590 @@
 
 <main class="attendance-main admin-main">
 
+<!-- =========================================================
+     INTRO
+========================================================= -->
 
-    <!-- =====================================================
-         INTRO
-    ====================================================== -->
+<section class="attendance-intro">
 
-    <section class="attendance-intro">
 
-        <div>
+<div>
 
-            <span class="section-label">
-                ADMINISTRATION
-            </span>
+    <span class="section-label">
+        ADMINISTRATION
+    </span>
 
-            <h2>
-                Dashboard.
-            </h2>
+    <h2>
+        Dashboard.
+    </h2>
 
-            <p>
-                Manage registered students and review attendance
-                records for Burnside High School.
-            </p>
+    <p>
+        Manage registered students and review attendance
+        records for Burnside High School.
+    </p>
 
+</div>
+
+
+</section>
+
+<!-- =========================================================
+     SUMMARY
+========================================================= -->
+
+<section class="attendance-summary">
+
+
+<div class="summary-card">
+
+    <span class="summary-label">
+        REGISTERED STUDENTS
+    </span>
+
+    <strong>
+        {{ users|length }}
+    </strong>
+
+    <small>
+        Student accounts
+    </small>
+
+</div>
+
+
+<div class="summary-card">
+
+    <span class="summary-label">
+        CHECK-INS
+    </span>
+
+    <strong>
+        {{ attendance|length }}
+    </strong>
+
+    <small>
+        Recorded attendance
+    </small>
+
+</div>
+
+
+<div class="summary-card">
+
+    <span class="summary-label">
+        ADMIN ACCOUNT
+    </span>
+
+    <strong>
+        Active
+    </strong>
+
+    <small>
+        {{ admin_name }}
+    </small>
+
+</div>
+
+
+</section>
+
+<!-- =========================================================
+     STUDENTS
+========================================================= -->
+
+<section class="attendance-card admin-card">
+
+
+<div class="attendance-card-header">
+
+    <div>
+
+        <span class="section-label">
+            STUDENT ACCOUNTS
+        </span>
+
+        <h3>
+            Registered students
+        </h3>
+
+    </div>
+
+
+    <span class="record-count">
+
+        {{ users|length }}
+
+        student{% if users|length != 1 %}s{% endif %}
+
+    </span>
+
+</div>
+
+
+{% if users %}
+
+    <div class="attendance-table-wrapper">
+
+        <table class="attendance-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Email
+                    </th>
+
+                    <th>
+                        Student Code
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for user in users %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="attendance-student">
+
+                                <div class="attendance-avatar">
+
+                                    {{
+                                        (
+                                            user["username"]
+                                            or "S"
+                                        )[0] | upper
+                                    }}
+
+                                </div>
+
+
+                                <strong>
+                                    {{ user["username"] }}
+                                </strong>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            {{ user["email"] }}
+                        </td>
+
+
+                        <td>
+                            {{ user["code"] }}
+                        </td>
+
+
+                        <td>
+
+                            {% if user["is_verified"] %}
+
+                                <span
+                                    class="attendance-status present"
+                                >
+
+                                    <span class="status-dot"></span>
+
+                                    Verified
+
+                                </span>
+
+                            {% else %}
+
+                                <span class="attendance-status">
+
+                                    <span class="status-dot"></span>
+
+                                    Unverified
+
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+{% else %}
+
+    <div class="empty-attendance">
+
+        <div class="empty-icon">
+            ◷
         </div>
 
-    </section>
+        <h3>
+            No students registered.
+        </h3>
+
+        <p>
+            There are currently no student accounts
+            registered in the attendance system.
+        </p>
+
+    </div>
+
+{% endif %}
 
 
+</section>
 
-    <!-- =====================================================
-         SUMMARY
-    ====================================================== -->
+<!-- =========================================================
+     ATTENDANCE
+========================================================= -->
 
-    <section class="attendance-summary">
+<section class="attendance-card admin-card">
 
 
-        <div class="summary-card">
+<div class="attendance-card-header">
 
-            <span class="summary-label">
-                REGISTERED STUDENTS
-            </span>
+    <div>
 
-            <strong>
-                {{ users|length }}
-            </strong>
+        <span class="section-label">
+            ATTENDANCE RECORDS
+        </span>
 
-            <small>
-                Student accounts
-            </small>
+        <h3>
+            Student check-ins
+        </h3>
 
+    </div>
+
+
+    <span class="record-count">
+
+        {{ attendance|length }}
+
+        record{% if attendance|length != 1 %}s{% endif %}
+
+    </span>
+
+</div>
+
+
+{% if attendance %}
+
+    <div class="attendance-table-wrapper">
+
+        <table class="attendance-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Student
+                    </th>
+
+                    <th>
+                        Study Topic
+                    </th>
+
+                    <th>
+                        Study Activity
+                    </th>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for record in attendance %}
+
+                    <tr>
+
+                        <!-- STUDENT -->
+
+                        <td>
+
+                            <div class="attendance-student">
+
+                                <div class="attendance-avatar">
+
+                                    {{
+                                        (
+                                            record["username"]
+                                            or "S"
+                                        )[0] | upper
+                                    }}
+
+                                </div>
+
+
+                                <strong>
+                                    {{ record["username"] }}
+                                </strong>
+
+                            </div>
+
+                        </td>
+
+
+                        <!-- STUDY TOPIC -->
+
+                        <td>
+
+                            {% if record["topic_name"] %}
+
+                                <strong>
+                                    {{ record["topic_name"] }}
+                                </strong>
+
+                                {% if record["topic_subject"] %}
+
+                                    <br>
+
+                                    <small>
+                                        {{ record["topic_subject"] }}
+                                    </small>
+
+                                {% endif %}
+
+                            {% else %}
+
+                                <span>
+                                    No topic selected
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- STUDY ACTIVITY -->
+
+                        <td>
+
+                            {% if record["study_activity"] %}
+
+                                {{ record["study_activity"] }}
+
+                            {% else %}
+
+                                <span>
+                                    No activity provided
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- TIME -->
+
+                        <td>
+
+                            <span class="attendance-time">
+                                {{ record["time"] }}
+                            </span>
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            <span
+                                class="attendance-status present"
+                            >
+
+                                <span class="status-dot"></span>
+
+                                Present
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+{% else %}
+
+    <div class="empty-attendance">
+
+        <div class="empty-icon">
+            ◷
         </div>
 
+        <h3>
+            No check-ins yet.
+        </h3>
 
-        <div class="summary-card">
+        <p>
+            No students have recorded attendance yet.
+        </p>
 
-            <span class="summary-label">
-                CHECK-INS
-            </span>
+    </div>
 
-            <strong>
-                {{ attendance|length }}
-            </strong>
+{% endif %}
 
-            <small>
-                Recorded attendance
-            </small>
 
-        </div>
+</section>
 
+<!-- =========================================================
+     ADMIN ACTIONS
+========================================================= -->
 
-        <div class="summary-card">
+<section class="attendance-card admin-actions-card">
 
-            <span class="summary-label">
-                ADMIN ACCOUNT
-            </span>
 
-            <strong>
-                Active
-            </strong>
+<div class="attendance-card-header">
 
-            <small>
-                {{ admin_name }}
-            </small>
+    <div>
 
-        </div>
+        <span class="section-label">
+            ADMIN ACTIONS
+        </span>
 
-    </section>
+        <h3>
+            System management
+        </h3>
 
+    </div>
 
+</div>
 
-    <!-- =====================================================
-         STUDENTS
-    ====================================================== -->
 
-    <section class="attendance-card admin-card">
+<div class="admin-action-content">
 
+    <div>
 
-        <div class="attendance-card-header">
+        <strong>
+            Reset today's attendance
+        </strong>
 
-            <div>
+        <p>
+            Remove all current attendance records from
+            the attendance database. This action cannot
+            be undone.
+        </p>
 
-                <span class="section-label">
-                    STUDENT ACCOUNTS
-                </span>
+    </div>
 
-                <h3>
-                    Registered students
-                </h3>
 
-            </div>
+    <button
+        type="button"
+        class="danger-button"
+        onclick="resetAttendance()"
+    >
+        Reset attendance
+    </button>
 
+</div>
 
-            <span class="record-count">
 
-                {{ users|length }}
+<p
+    id="admin-status"
+    class="checkin-status"
+></p>
 
-                student{% if users|length != 1 %}s{% endif %}
 
-            </span>
+</section>
 
-        </div>
+<!-- =========================================================
+     ADMIN ACCOUNT
+========================================================= -->
 
+<section class="attendance-account-card">
 
 
-        {% if users %}
+<div class="attendance-account-avatar">
 
-            <div class="attendance-table-wrapper">
+    {% if session.get('picture') %}
 
-                <table class="attendance-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Student
-                            </th>
-
-                            <th>
-                                Email
-                            </th>
-
-                            <th>
-                                Student Code
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for user in users %}
-
-                            <tr>
-
-                                <td>
-
-                                    <div class="attendance-student">
-
-                                        <div class="attendance-avatar">
-
-                                            {{
-                                                (
-                                                    user["username"]
-                                                    or "S"
-                                                )[0] | upper
-                                            }}
-
-                                        </div>
-
-
-                                        <strong>
-                                            {{ user["username"] }}
-                                        </strong>
-
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-
-                                    {{ user["email"] }}
-
-                                </td>
-
-
-                                <td>
-
-                                    {{ user["code"] }}
-
-                                </td>
-
-
-                                <td>
-
-                                    {% if user["is_verified"] %}
-
-                                        <span
-                                            class="attendance-status present"
-                                        >
-
-                                            <span class="status-dot"></span>
-
-                                            Verified
-
-                                        </span>
-
-                                    {% else %}
-
-                                        <span class="attendance-status">
-
-                                            <span class="status-dot"></span>
-
-                                            Unverified
-
-                                        </span>
-
-                                    {% endif %}
-
-                                </td>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-        {% else %}
-
-            <div class="empty-attendance">
-
-                <div class="empty-icon">
-                    ◷
-                </div>
-
-                <h3>
-                    No students registered.
-                </h3>
-
-                <p>
-                    There are currently no student accounts
-                    registered in the attendance system.
-                </p>
-
-            </div>
-
-        {% endif %}
-
-    </section>
-
-
-
-    <!-- =====================================================
-         ATTENDANCE
-    ====================================================== -->
-
-    <section class="attendance-card admin-card">
-
-
-        <div class="attendance-card-header">
-
-            <div>
-
-                <span class="section-label">
-                    ATTENDANCE RECORDS
-                </span>
-
-                <h3>
-                    Student check-ins
-                </h3>
-
-            </div>
-
-
-            <span class="record-count">
-
-                {{ attendance|length }}
-
-                record{% if attendance|length != 1 %}s{% endif %}
-
-            </span>
-
-        </div>
-
-
-
-        {% if attendance %}
-
-            <div class="attendance-table-wrapper">
-
-                <table class="attendance-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Student
-                            </th>
-
-                            <th>
-                                Time
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for record in attendance %}
-
-                            <tr>
-
-                                <td>
-
-                                    <div class="attendance-student">
-
-                                        <div class="attendance-avatar">
-
-                                            {{
-                                                (
-                                                    record["name"]
-                                                    or "S"
-                                                )[0] | upper
-                                            }}
-
-                                        </div>
-
-
-                                        <strong>
-                                            {{ record["name"] }}
-                                        </strong>
-
-                                    </div>
-
-                                </td>
-
-
-                                <td>
-
-                                    <span class="attendance-time">
-                                        {{ record["time"] }}
-                                    </span>
-
-                                </td>
-
-
-                                <td>
-
-                                    <span
-                                        class="attendance-status present"
-                                    >
-
-                                        <span class="status-dot"></span>
-
-                                        Present
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-        {% else %}
-
-            <div class="empty-attendance">
-
-                <div class="empty-icon">
-                    ◷
-                </div>
-
-                <h3>
-                    No check-ins yet.
-                </h3>
-
-                <p>
-                    No students have recorded attendance yet.
-                </p>
-
-            </div>
-
-        {% endif %}
-
-    </section>
-
-
-
-    <!-- =====================================================
-         ADMIN ACTIONS
-    ====================================================== -->
-
-    <section class="attendance-card admin-actions-card">
-
-
-        <div class="attendance-card-header">
-
-            <div>
-
-                <span class="section-label">
-                    ADMIN ACTIONS
-                </span>
-
-                <h3>
-                    System management
-                </h3>
-
-            </div>
-
-        </div>
-
-
-        <div class="admin-action-content">
-
-            <div>
-
-                <strong>
-                    Reset today's attendance
-                </strong>
-
-                <p>
-                    Remove all current attendance records from
-                    the attendance database. This action cannot
-                    be undone.
-                </p>
-
-            </div>
-
-
-            <button
-                type="button"
-                class="danger-button"
-                onclick="resetAttendance()"
-            >
-                Reset attendance
-            </button>
-
-        </div>
-
-        <p
-            id="admin-status"
-            class="checkin-status"
-        ></p>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         ADMIN ACCOUNT
-    ====================================================== -->
-
-    <section class="attendance-account-card">
-
-
-        <div class="attendance-account-avatar">
-
-            {% if session.get('picture') %}
-
-                <img
-                    src="{{ session.get('picture') }}"
-                    alt="Profile picture"
-                >
-
-            {% else %}
-
-                {{
-                    (
-                        session.get('name')
-                        or session.get('username')
-                        or 'A'
-                    )[0] | upper
-                }}
-
-            {% endif %}
-
-        </div>
-
-
-        <div class="attendance-account-info">
-
-            <span>
-                ADMINISTRATOR
-            </span>
-
-            <h3>
-                {{ session.get('name') or session.get('username') }}
-            </h3>
-
-            <p>
-                {{ session.get('email') or session.get('username') }}
-            </p>
-
-        </div>
-
-
-        <a
-            href="{{ url_for('account') }}"
-            class="account-arrow"
+        <img
+            src="{{ session.get('picture') }}"
+            alt="Profile picture"
         >
-            Account →
-        </a>
 
-    </section>
+    {% else %}
 
+        {{
+            (
+                session.get('name')
+                or session.get('username')
+                or 'A'
+            )[0] | upper
+        }}
+
+    {% endif %}
+
+</div>
+
+
+<div class="attendance-account-info">
+
+    <span>
+        ADMINISTRATOR
+    </span>
+
+    <h3>
+        {{ session.get('name') or session.get('username') }}
+    </h3>
+
+    <p>
+        {{ session.get('email') or session.get('username') }}
+    </p>
+
+</div>
+
+
+<a
+    href="{{ url_for('account') }}"
+    class="account-arrow"
+>
+    Account →
+</a>
+
+
+</section>
 
 </main>
-
-
 
 <!-- =========================================================
      INFORMATION
@@ -689,40 +718,40 @@
 
 <section class="home-information">
 
-    <div class="home-information-inner">
 
-        <div>
+<div class="home-information-inner">
 
-            <p class="section-label">
-                ADMINISTRATION
-            </p>
+    <div>
 
-            <h2>
-                Attendance management.
-            </h2>
+        <p class="section-label">
+            ADMINISTRATION
+        </p>
 
-        </div>
-
-
-        <div>
-
-            <p>
-                This dashboard provides authorised staff with
-                access to student accounts and attendance records.
-            </p>
-
-            <p>
-                Please only use administrative functions for
-                legitimate school attendance management.
-            </p>
-
-        </div>
+        <h2>
+            Attendance management.
+        </h2>
 
     </div>
 
+
+    <div>
+
+        <p>
+            This dashboard provides authorised staff with
+            access to student accounts and attendance records.
+        </p>
+
+        <p>
+            Please only use administrative functions for
+            legitimate school attendance management.
+        </p>
+
+    </div>
+
+</div>
+
+
 </section>
-
-
 
 <!-- =========================================================
      FOOTER
@@ -730,59 +759,58 @@
 
 <footer class="site-footer">
 
-    <div class="footer-inner">
 
-        <div>
+<div class="footer-inner">
 
-            <strong>
-                Burnside Attendance
-            </strong>
+    <div>
 
-            <span>
-                Burnside High School
-            </span>
-
-    </div>
-
-
-        <div class="footer-links">
-
-            <a href="{{ url_for('home') }}">
-                Home
-            </a>
-
-            <a href="{{ url_for('checkin') }}">
-                Check In
-            </a>
-
-            <a href="{{ url_for('my_attendance') }}">
-                My Attendance
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <div class="footer-bottom">
+        <strong>
+            Burnside Attendance
+        </strong>
 
         <span>
-            Burnside Attendance System
+            Burnside High School
         </span>
 
-        <a
-            href="https://www.burnside.school.nz/"
-            target="_blank"
-            rel="noopener"
-        >
-            Burnside High School →
+    </div>
+
+
+    <div class="footer-links">
+
+        <a href="{{ url_for('home') }}">
+            Home
+        </a>
+
+        <a href="{{ url_for('checkin') }}">
+            Check In
+        </a>
+
+        <a href="{{ url_for('my_attendance') }}">
+            My Attendance
         </a>
 
     </div>
 
-</footer>
+</div>
 
+
+<div class="footer-bottom">
+
+    <span>
+        Burnside Attendance System
+    </span>
+
+    <a
+        href="https://www.burnside.school.nz/"
+        target="_blank"
+        rel="noopener"
+    >
+        Burnside High School →
+    </a>
+
+</div>
+
+</footer>
 
 </body>
 </html>
-```
