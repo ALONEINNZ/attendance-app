@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -33,7 +32,7 @@
      NAVIGATION
 ===================================================== -->
 
-<div class="hero-nav">
+<header class="hero-nav">
 
     <a
         href="{{ url_for('home') }}"
@@ -50,9 +49,7 @@
 
         {% endif %}
 
-        <span>
-            Burnside Attendance
-        </span>
+        <span>Burnside Attendance</span>
 
     </a>
 
@@ -65,7 +62,6 @@
         >
             Home
         </a>
-
 
         <a href="{{ url_for('checkin') }}">
             Check In
@@ -92,7 +88,6 @@
                 Logout
             </a>
 
-
         {% else %}
 
             <a href="{{ url_for('login') }}">
@@ -103,7 +98,7 @@
 
     </nav>
 
-</div>
+</header>
 
 
 
@@ -121,11 +116,9 @@
                 BURNSIDE HIGH SCHOOL
             </p>
 
-
             <h1>
                 Student Attendance
             </h1>
-
 
             <p>
                 Check in for Period 1 quickly and securely
@@ -153,126 +146,155 @@
 
 
 <!-- =====================================================
-     CHECK-IN
+     CHECK-IN SECTION
 ===================================================== -->
 
 <main class="home-content">
 
     <section class="checkin-panel">
 
-        <p class="section-label">
-            PERIOD 1
-        </p>
+        <div class="checkin-panel-header">
 
+            <p class="section-label">
+                PERIOD 1
+            </p>
 
-        <h2>
-            Check in for class
-        </h2>
+            <h2>
+                Check in for class
+            </h2>
 
+            <p>
+                Record what you will be working on during
+                this period.
+            </p>
 
-        <p>
-
-            {% if session.get('username') %}
-
-                You are ready to record your attendance.
-
-            {% else %}
-
-                Sign in with your Burnside Google account
-                to continue.
-
-            {% endif %}
-
-        </p>
+        </div>
 
 
         {% if session.get('username') %}
 
 
             <!-- =========================================
-                 SIGNED IN USER
+                 ACCOUNT
             ========================================== -->
 
             <div class="signed-in">
 
-                <span class="signed-in-label">
-                    Signed in as
-                </span>
+                <div class="signed-in-info">
 
+                    <span class="signed-in-label">
+                        Signed in as
+                    </span>
 
-                <strong>
-                    {{ session.get('username') }}
-                </strong>
+                    <strong>
+                        {{ session.get('username') }}
+                    </strong>
+
+                </div>
 
             </div>
 
 
 
             <!-- =========================================
-                 STUDY TOPIC
+                 CHECK-IN FORM
             ========================================== -->
 
-            <div class="study-activity">
-
-                <label for="study_topic">
-
-                    What are you studying this period?
-
-                </label>
+            <div class="checkin-form">
 
 
-                <select
-                    id="study_topic"
-                    name="study_topic"
-                >
+                <!-- SUBJECT -->
 
-                    <option value="">
-                        Select a study topic
-                    </option>
+                <div class="form-group">
 
+                    <label for="study_topic">
+                        What are you studying this period?
+                    </label>
 
-                    {% for topic in study_topics %}
+                    <select
+                        id="study_topic"
+                        name="study_topic"
+                    >
 
-                        <option value="{{ topic.id }}">
-
-                            {{ topic.subject }}
-                            —
-                            {{ topic.name }}
-
+                        <option value="">
+                            Select a study topic
                         </option>
 
-                    {% endfor %}
 
-                </select>
+                        {% for topic in study_topics %}
+
+                            <option value="{{ topic.id }}">
+
+                                {{ topic.subject }}
+                                —
+                                {{ topic.name }}
+
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group">
+
+                    <label for="study_description">
+                        What are you going to do?
+                    </label>
+
+                    <textarea
+                        id="study_description"
+                        name="study_description"
+                        rows="5"
+                        maxlength="500"
+                        placeholder="Briefly explain what you plan to work on during this period..."
+                    ></textarea>
+
+                    <div class="form-help">
+
+                        <span>
+                            Give a short explanation of your plan.
+                        </span>
+
+                        <span>
+                            500 characters max
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CHECK IN -->
+
+                <button
+                    type="button"
+                    class="checkin-button"
+                    onclick="checkIn()"
+                >
+
+                    <span>
+                        Check In
+                    </span>
+
+                </button>
+
+
+                <!-- STATUS -->
+
+                <p
+                    id="status"
+                    class="checkin-status"
+                    aria-live="polite"
+                ></p>
 
             </div>
-
-
-
-            <!-- =========================================
-                 CHECK-IN BUTTON
-            ========================================== -->
-
-            <button
-                type="button"
-                class="checkin-button"
-                onclick="checkIn()"
-            >
-
-                Check In
-
-            </button>
-
-
-
-            <!-- =========================================
-                 STATUS
-            ========================================== -->
-
-            <p
-                id="status"
-                class="checkin-status"
-            ></p>
 
 
         {% else %}
@@ -282,15 +304,29 @@
                  NOT SIGNED IN
             ========================================== -->
 
-            <a
-                href="{{ url_for('login') }}"
-                class="btn checkin-login"
-            >
+            <div class="checkin-locked">
 
-                Login with Google
+                <div class="checkin-locked-icon">
+                    🔒
+                </div>
 
-            </a>
+                <h3>
+                    Sign in to check in
+                </h3>
 
+                <p>
+                    Use your Burnside Google account to
+                    record your attendance.
+                </p>
+
+                <a
+                    href="{{ url_for('login') }}"
+                    class="btn checkin-login"
+                >
+                    Login with Google
+                </a>
+
+            </div>
 
         {% endif %}
 
@@ -309,12 +345,13 @@
     <div class="home-information-inner">
 
 
+        <!-- LEFT -->
+
         <div>
 
             <p class="section-label">
                 ATTENDANCE AT BURNSIDE
             </p>
-
 
             <h2>
                 Being at school matters.
@@ -323,27 +360,22 @@
         </div>
 
 
+        <!-- RIGHT -->
 
         <div>
 
             <p>
-
                 Regular attendance helps students stay
                 connected with their learning, teachers
                 and school community.
-
             </p>
 
-
             <p>
-
                 If you are unable to attend school, please
                 follow the normal Burnside absence process.
-
             </p>
 
         </div>
-
 
     </div>
 
@@ -367,24 +399,16 @@
         <div>
 
             <div class="footer-brand">
-
                 Burnside Attendance
-
             </div>
 
-
             <p class="footer-text">
-
                 Burnside High School
-
             </p>
 
-
             <p class="footer-text">
-
                 151 Greers Road<br>
                 Christchurch 8440
-
             </p>
 
         </div>
@@ -392,7 +416,7 @@
 
 
         <!-- =============================================
-             ATTENDANCE LINKS
+             ATTENDANCE
         ============================================== -->
 
         <div>
@@ -401,22 +425,17 @@
                 Attendance
             </p>
 
-
             <div class="footer-links">
 
                 <a href="{{ url_for('home') }}">
-
                     Student Check-in
-
                 </a>
 
 
                 {% if session.get('username') %}
 
                     <a href="{{ url_for('my_attendance') }}">
-
                         My Attendance
-
                     </a>
 
                 {% endif %}
@@ -428,7 +447,7 @@
 
 
         <!-- =============================================
-             ACCOUNT LINKS
+             ACCOUNT
         ============================================== -->
 
         <div>
@@ -437,23 +456,18 @@
                 Account
             </p>
 
-
             <div class="footer-links">
 
                 {% if session.get('username') %}
 
                     <a href="{{ url_for('logout') }}">
-
                         Logout
-
                     </a>
 
                 {% else %}
 
                     <a href="{{ url_for('login') }}">
-
                         Login
-
                     </a>
 
                 {% endif %}
@@ -473,10 +487,11 @@
 
     <div class="footer-bottom">
 
-        Burnside Attendance System
+        <span>
+            Burnside Attendance System
+        </span>
 
     </div>
-
 
 </footer>
 
@@ -484,4 +499,5 @@
 </body>
 
 </html>
+
 

@@ -1,7 +1,3 @@
-/* =========================================================
-   BURNSIDE ATTENDANCE
-   Unified stylesheet
-   ========================================================= */
 
 :root {
     --green: #005f02;
@@ -23,8 +19,11 @@
     --danger-dark: #7e1717;
     --danger-soft: #fae8e8;
 
-    --shadow: 0 18px 45px rgba(0, 30, 0, 0.10);
-    --shadow-soft: 0 10px 30px rgba(0, 30, 0, 0.07);
+    --shadow:
+        0 18px 45px rgba(0, 30, 0, 0.10);
+
+    --shadow-soft:
+        0 10px 30px rgba(0, 30, 0, 0.07);
 }
 
 
@@ -42,10 +41,15 @@ html {
 
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
     color: var(--text);
     background: var(--cream);
-    overflow-x: hidden;
 }
 
 a {
@@ -91,12 +95,14 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+
     margin: 0 0 18px;
 
     color: var(--green);
 
     font-size: 0.7rem;
     font-weight: 800;
+
     letter-spacing: 0.2em;
     text-transform: uppercase;
 }
@@ -112,13 +118,14 @@ main {
 
 
 /* =========================================================
-   FLOATING HERO NAVIGATION
+   HERO NAVIGATION
    ========================================================= */
 
 .hero-nav {
     position: absolute;
     top: 0;
     left: 0;
+
     z-index: 100;
 
     width: 100%;
@@ -136,7 +143,8 @@ main {
 
     background: transparent;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.12);
 }
 
 .hero-brand {
@@ -156,27 +164,6 @@ main {
 
 .hero-brand span {
     color: white;
-}
-
-.hero-brand-name {
-    display: block;
-
-    font-size: 0.98rem;
-    font-weight: 800;
-}
-
-.hero-brand-school {
-    display: block;
-
-    margin-top: 4px;
-
-    color: rgba(255, 255, 255, 0.55);
-
-    font-size: 0.62rem;
-    font-weight: 700;
-
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
 }
 
 .hero-logo {
@@ -200,7 +187,9 @@ main {
 
     border-radius: 5px;
 
-    color: rgba(255, 255, 255, 0.82);
+    color:
+        rgba(255, 255, 255, 0.82);
+
     text-decoration: none;
 
     font-size: 0.78rem;
@@ -214,28 +203,20 @@ main {
 
 .hero-links a:hover,
 .hero-nav-links a:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background:
+        rgba(255, 255, 255, 0.12);
+
     color: white;
 
     transform: translateY(-1px);
 }
 
+.hero-links a.active,
 .hero-nav-links a.active {
-    background: rgba(255, 255, 255, 0.14);
+    background:
+        rgba(255, 255, 255, 0.14);
+
     color: white;
-}
-
-.hero-nav-logout {
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.hero-nav-login {
-    background: white;
-    color: var(--green-dark) !important;
-}
-
-.hero-nav-login:hover {
-    background: #f0f5ef !important;
 }
 
 
@@ -277,7 +258,7 @@ main {
     background:
         linear-gradient(
             to bottom,
-            transparent 60%,
+            transparent 58%,
             var(--cream) 100%
         );
 
@@ -286,6 +267,7 @@ main {
 
 .hero-inner {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
@@ -293,7 +275,10 @@ main {
 
     margin: 0 auto;
 
-    padding: 170px 30px 190px;
+    padding:
+        170px
+        30px
+        190px;
 }
 
 .hero-content {
@@ -309,10 +294,13 @@ main {
 
     color: white;
 
-    font-size: clamp(3.8rem, 7vw, 7rem);
+    font-size:
+        clamp(3.8rem, 7vw, 7rem);
+
     line-height: 0.9;
 
     letter-spacing: -0.065em;
+
     font-weight: 800;
 }
 
@@ -325,7 +313,8 @@ main {
 
     margin: 28px 0;
 
-    color: rgba(255, 255, 255, 0.86);
+    color:
+        rgba(255, 255, 255, 0.86);
 
     font-size: 1rem;
     line-height: 1.7;
@@ -340,7 +329,6 @@ main {
 .primary-button,
 .secondary-button {
     display: inline-flex;
-
     align-items: center;
     justify-content: center;
 
@@ -419,33 +407,49 @@ main {
 
 
 /* =========================================================
-   HOMEPAGE CHECK-IN PANEL
+   HOMEPAGE CHECK-IN
    ========================================================= */
 
 .home-content {
     position: relative;
+
     z-index: 5;
 
     max-width: 1100px;
 
-    margin: -55px auto 0;
+    margin:
+        -55px
+        auto
+        0;
 
-    padding: 0 25px 90px;
+    padding:
+        0
+        25px
+        90px;
 }
 
 .checkin-panel {
     position: relative;
 
-    padding: 45px 50px;
+    padding:
+        48px
+        52px;
 
     background: white;
 
-    border: 1px solid var(--border);
-    border-left: 5px solid var(--green);
+    border:
+        1px solid var(--border);
+
+    border-left:
+        5px solid var(--green);
 
     border-radius: 8px;
 
     box-shadow: var(--shadow);
+}
+
+.checkin-panel-header {
+    max-width: 700px;
 }
 
 .checkin-panel .section-label {
@@ -456,104 +460,333 @@ main {
 .checkin-panel h2 {
     margin: 0;
 
-    max-width: 700px;
-
     color: var(--green-dark);
 
-    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-size:
+        clamp(2.4rem, 5vw, 4rem);
+
     line-height: 0.95;
 
     letter-spacing: -0.055em;
 }
 
-.checkin-panel > p {
+.checkin-panel-header > p:not(.section-label) {
     max-width: 600px;
 
-    margin: 18px 0 24px;
+    margin:
+        18px
+        0
+        30px;
 
     color: var(--muted);
 
     font-size: 0.95rem;
+
     line-height: 1.7;
 }
 
+
+/* =========================================================
+   SIGNED-IN USER
+   ========================================================= */
+
 .signed-in {
-    display: inline-flex;
-
+    display: flex;
     align-items: center;
-
-    gap: 8px;
 
     width: fit-content;
 
-    margin: 5px 0 18px;
+    margin:
+        0
+        0
+        30px;
 
-    padding: 9px 13px;
+    padding:
+        11px
+        15px;
 
     background: var(--green-soft);
 
-    border: 1px solid #d6e8d2;
+    border:
+        1px solid #d6e8d2;
 
-    border-radius: 5px;
+    border-radius: 6px;
+}
+
+.signed-in-info {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
 }
 
 .signed-in-label {
     color: var(--muted);
-    font-size: 0.75rem;
+
+    font-size: 0.74rem;
 }
 
 .signed-in strong {
     color: var(--green-dark);
+
     font-size: 0.8rem;
 }
 
-.checkin-button {
-    display: inline-flex;
 
+/* =========================================================
+   CHECK-IN FORM
+   ========================================================= */
+
+.checkin-form {
+    width: 100%;
+    max-width: 720px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--green-dark);
+
+    font-size: 0.78rem;
+
+    font-weight: 800;
+}
+
+.form-group select,
+.form-group textarea,
+.form-group input {
+    width: 100%;
+
+    padding:
+        14px
+        15px;
+
+    background: #ffffff;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 6px;
+
+    color: var(--text);
+
+    font-size: 0.86rem;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.form-group select {
+    min-height: 48px;
+
+    cursor: pointer;
+}
+
+.form-group textarea {
+    min-height: 130px;
+
+    resize: vertical;
+
+    line-height: 1.6;
+}
+
+.form-group select:hover,
+.form-group textarea:hover,
+.form-group input:hover {
+    border-color: #c6d5c5;
+}
+
+.form-group select:focus,
+.form-group textarea:focus,
+.form-group input:focus {
+    outline: none;
+
+    border-color: #82b97e;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(22, 133, 27, 0.08);
+}
+
+.form-group textarea::placeholder,
+.form-group input::placeholder {
+    color: #9aa39a;
+}
+
+
+/* =========================================================
+   FORM HELP
+   ========================================================= */
+
+.form-help {
+    display: flex;
     align-items: center;
     justify-content: space-between;
 
-    min-width: 190px;
+    gap: 20px;
 
-    padding: 15px 20px;
+    margin-top: 7px;
+
+    color: var(--muted);
+
+    font-size: 0.68rem;
+}
+
+.form-help span:last-child {
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   CHECK-IN BUTTON
+   ========================================================= */
+
+.checkin-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-width: 200px;
+
+    padding:
+        15px
+        20px;
 
     border: 0;
-    border-radius: 5px;
+
+    border-radius: 6px;
 
     background: var(--green);
+
     color: white;
 
     font-size: 0.88rem;
+
     font-weight: 800;
 
     cursor: pointer;
 
     transition:
         background 0.2s ease,
-        transform 0.2s ease;
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .checkin-button::after {
     content: "→";
-    margin-left: 25px;
+
+    margin-left: 30px;
+
+    font-size: 1rem;
 }
 
 .checkin-button:hover {
     background: var(--green-dark);
+
     transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 20px
+        rgba(0, 61, 1, 0.18);
 }
 
+.checkin-button:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   CHECK-IN STATUS
+   ========================================================= */
+
 .checkin-status {
-    margin: 14px 0 0;
+    min-height: 20px;
+
+    margin:
+        14px
+        0
+        0;
 
     color: var(--green);
 
+    font-size: 0.8rem;
+
     font-weight: 700;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   LOGGED-OUT CHECK-IN
+   ========================================================= */
+
+.checkin-locked {
+    max-width: 520px;
+
+    padding:
+        28px;
+
+    background: var(--green-pale);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 7px;
+
+    text-align: left;
+}
+
+.checkin-locked-icon {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 16px;
+
+    border-radius: 50%;
+
+    background: var(--green-soft);
+
+    font-size: 1.1rem;
+}
+
+.checkin-locked h3 {
+    margin:
+        0
+        0
+        8px;
+
+    color: var(--green-dark);
+
+    font-size: 1.15rem;
+}
+
+.checkin-locked p {
+    margin:
+        0
+        0
+        20px;
+
+    color: var(--muted);
+
+    font-size: 0.82rem;
+
+    line-height: 1.6;
 }
 
 .checkin-login {
-    margin-top: 8px;
-
     background: var(--green);
     color: white;
 }
@@ -590,11 +823,13 @@ main {
 
     background-size: cover;
     background-position: center;
+
     background-attachment: fixed;
 }
 
 .home-information-inner {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
@@ -602,10 +837,15 @@ main {
 
     margin: 0 auto;
 
-    padding: 90px 30px;
+    padding:
+        90px
+        30px;
 
     display: grid;
-    grid-template-columns: 1fr 1fr;
+
+    grid-template-columns:
+        1fr
+        1fr;
 
     gap: 80px;
 }
@@ -621,7 +861,9 @@ main {
 
     color: white;
 
-    font-size: clamp(3rem, 5vw, 5rem);
+    font-size:
+        clamp(3rem, 5vw, 5rem);
+
     line-height: 0.94;
 
     letter-spacing: -0.06em;
@@ -630,9 +872,11 @@ main {
 .home-information p:not(.section-label) {
     max-width: 550px;
 
-    color: rgba(255, 255, 255, 0.82);
+    color:
+        rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
+
     line-height: 1.8;
 }
 
@@ -641,6 +885,7 @@ main {
    FOOTER
    ========================================================= */
 
+footer,
 .site-footer {
     background: var(--green-deep);
     color: white;
@@ -652,57 +897,56 @@ main {
 
     margin: 0 auto;
 
-    padding: 55px 30px;
+    padding:
+        55px
+        30px;
 
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+
+    grid-template-columns:
+        2fr
+        1fr
+        1fr;
 
     gap: 50px;
-}
-
-.footer-inner strong {
-    display: block;
-
-    color: white;
-
-    font-size: 0.95rem;
-}
-
-.footer-inner span {
-    display: block;
-
-    margin-top: 6px;
-
-    color: rgba(255, 255, 255, 0.48);
-
-    font-size: 0.75rem;
 }
 
 .footer-brand {
     color: white;
 
     font-size: 0.95rem;
+
     font-weight: 800;
 }
 
 .footer-text {
-    margin: 8px 0 0;
+    margin:
+        8px
+        0
+        0;
 
-    color: rgba(255, 255, 255, 0.48);
+    color:
+        rgba(255, 255, 255, 0.48);
 
     font-size: 0.75rem;
+
     line-height: 1.7;
 }
 
 .footer-heading {
-    margin: 0 0 14px;
+    margin:
+        0
+        0
+        14px;
 
     color: white;
 
     font-size: 0.72rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
+
     text-transform: uppercase;
 }
 
@@ -715,13 +959,15 @@ main {
 }
 
 .footer-links a {
-    color: rgba(255, 255, 255, 0.55);
+    color:
+        rgba(255, 255, 255, 0.55);
 
     text-decoration: none;
 
     font-size: 0.75rem;
 
-    transition: color 0.2s ease;
+    transition:
+        color 0.2s ease;
 }
 
 .footer-links a:hover {
@@ -733,26 +979,25 @@ main {
 
     margin: 0 auto;
 
-    padding: 18px 30px 25px;
+    padding:
+        18px
+        30px
+        25px;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top:
+        1px solid
+        rgba(255, 255, 255, 0.08);
 
-    color: rgba(255, 255, 255, 0.3);
+    color:
+        rgba(255, 255, 255, 0.3);
 
     font-size: 0.65rem;
 
     display: flex;
+
     justify-content: space-between;
+
     gap: 20px;
-}
-
-.footer-bottom a {
-    color: rgba(255, 255, 255, 0.42);
-    text-decoration: none;
-}
-
-.footer-bottom a:hover {
-    color: white;
 }
 
 
@@ -803,6 +1048,7 @@ main {
 
 .attendance-hero-inner {
     position: relative;
+
     z-index: 2;
 
     width: 100%;
@@ -810,7 +1056,10 @@ main {
 
     margin: 0 auto;
 
-    padding: 145px 30px 125px;
+    padding:
+        145px
+        30px
+        125px;
 }
 
 .attendance-hero-content {
@@ -819,7 +1068,6 @@ main {
 
 .hero-eyebrow {
     display: inline-flex;
-
     align-items: center;
 
     gap: 10px;
@@ -829,9 +1077,11 @@ main {
     color: #bde2ba;
 
     font-size: 0.7rem;
+
     font-weight: 800;
 
     letter-spacing: 0.2em;
+
     text-transform: uppercase;
 }
 
@@ -847,10 +1097,13 @@ main {
 
     color: white;
 
-    font-size: clamp(3.8rem, 7vw, 6.8rem);
+    font-size:
+        clamp(3.8rem, 7vw, 6.8rem);
+
     line-height: 0.9;
 
     letter-spacing: -0.065em;
+
     font-weight: 800;
 }
 
@@ -861,11 +1114,16 @@ main {
 .attendance-hero p {
     max-width: 610px;
 
-    margin: 25px 0 0;
+    margin:
+        25px
+        0
+        0;
 
-    color: rgba(255, 255, 255, 0.82);
+    color:
+        rgba(255, 255, 255, 0.82);
 
     font-size: 1rem;
+
     line-height: 1.7;
 }
 
@@ -889,13 +1147,20 @@ main {
 
 .attendance-main {
     position: relative;
+
     z-index: 5;
 
     max-width: 1250px;
 
-    margin: -30px auto 0;
+    margin:
+        -30px
+        auto
+        0;
 
-    padding: 0 30px 90px;
+    padding:
+        0
+        30px
+        90px;
 }
 
 
@@ -905,8 +1170,8 @@ main {
 
 .attendance-intro {
     display: flex;
-
     align-items: flex-end;
+
     justify-content: space-between;
 
     gap: 30px;
@@ -916,6 +1181,7 @@ main {
 
 .attendance-intro .section-label {
     margin-bottom: 12px;
+
     color: var(--green);
 }
 
@@ -924,18 +1190,24 @@ main {
 
     color: var(--green-dark);
 
-    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    font-size:
+        clamp(2.2rem, 4vw, 3.5rem);
+
     line-height: 0.95;
 
     letter-spacing: -0.055em;
 }
 
 .attendance-intro p {
-    margin: 14px 0 0;
+    margin:
+        14px
+        0
+        0;
 
     color: var(--muted);
 
     font-size: 0.88rem;
+
     line-height: 1.6;
 }
 
@@ -947,7 +1219,8 @@ main {
 .attendance-summary {
     display: grid;
 
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns:
+        repeat(3, 1fr);
 
     gap: 16px;
 
@@ -965,7 +1238,9 @@ main {
 
     background: white;
 
-    border: 1px solid var(--border);
+    border:
+        1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1001,6 +1276,7 @@ main {
 
 .summary-label {
     position: relative;
+
     z-index: 1;
 
     display: block;
@@ -1010,14 +1286,17 @@ main {
     color: var(--muted);
 
     font-size: 0.68rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
+
     text-transform: uppercase;
 }
 
 .summary-card strong {
     position: relative;
+
     z-index: 1;
 
     display: block;
@@ -1025,6 +1304,7 @@ main {
     color: var(--green-dark);
 
     font-size: 2.35rem;
+
     line-height: 1;
 
     letter-spacing: -0.04em;
@@ -1032,6 +1312,7 @@ main {
 
 .summary-card small {
     position: relative;
+
     z-index: 1;
 
     display: block;
@@ -1053,7 +1334,9 @@ main {
 
     background: white;
 
-    border: 1px solid var(--border);
+    border:
+        1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1063,19 +1346,21 @@ main {
 
 .attendance-card-header {
     display: flex;
-
     align-items: center;
+
     justify-content: space-between;
 
     gap: 20px;
 
     padding: 25px;
 
-    border-bottom: 1px solid var(--border);
+    border-bottom:
+        1px solid var(--border);
 }
 
 .attendance-card-header .section-label {
     margin-bottom: 10px;
+
     color: var(--green);
 }
 
@@ -1093,9 +1378,12 @@ main {
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
-    padding: 7px 12px;
+    padding:
+        7px
+        12px;
 
     border-radius: 999px;
 
@@ -1104,6 +1392,7 @@ main {
     color: var(--green);
 
     font-size: 0.7rem;
+
     font-weight: 800;
 
     white-space: nowrap;
@@ -1127,7 +1416,9 @@ main {
 }
 
 .attendance-table th {
-    padding: 15px 20px;
+    padding:
+        15px
+        20px;
 
     background: var(--green-deep);
 
@@ -1136,16 +1427,21 @@ main {
     text-align: left;
 
     font-size: 0.7rem;
+
     font-weight: 800;
 
     letter-spacing: 0.08em;
+
     text-transform: uppercase;
 }
 
 .attendance-table td {
-    padding: 17px 20px;
+    padding:
+        17px
+        20px;
 
-    border-bottom: 1px solid var(--border);
+    border-bottom:
+        1px solid var(--border);
 
     color: var(--text);
 
@@ -1157,7 +1453,8 @@ main {
 }
 
 .attendance-table tbody tr {
-    transition: background 0.15s ease;
+    transition:
+        background 0.15s ease;
 }
 
 .attendance-table tbody tr:hover {
@@ -1195,6 +1492,7 @@ main {
     color: var(--green);
 
     font-size: 0.8rem;
+
     font-weight: 800;
 }
 
@@ -1216,6 +1514,7 @@ main {
     color: #176b18;
 
     font-size: 0.75rem;
+
     font-weight: 800;
 }
 
@@ -1236,7 +1535,9 @@ main {
    ========================================================= */
 
 .empty-attendance {
-    padding: 65px 25px;
+    padding:
+        65px
+        25px;
 
     text-align: center;
 }
@@ -1245,7 +1546,10 @@ main {
     width: 54px;
     height: 54px;
 
-    margin: 0 auto 18px;
+    margin:
+        0
+        auto
+        18px;
 
     display: flex;
 
@@ -1262,7 +1566,10 @@ main {
 }
 
 .empty-attendance h3 {
-    margin: 0 0 10px;
+    margin:
+        0
+        0
+        10px;
 
     color: var(--green-dark);
 
@@ -1272,11 +1579,15 @@ main {
 .empty-attendance p {
     max-width: 520px;
 
-    margin: 0 auto 22px;
+    margin:
+        0
+        auto
+        22px;
 
     color: var(--muted);
 
     font-size: 0.84rem;
+
     line-height: 1.7;
 }
 
@@ -1288,7 +1599,8 @@ main {
 .admin-actions-card {
     margin-top: 22px;
 
-    border-left: 4px solid var(--danger);
+    border-left:
+        4px solid var(--danger);
 }
 
 .admin-actions-card .attendance-card-header {
@@ -1307,6 +1619,7 @@ main {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     gap: 30px;
@@ -1329,11 +1642,15 @@ main {
 .admin-action-content p {
     max-width: 650px;
 
-    margin: 8px 0 0;
+    margin:
+        8px
+        0
+        0;
 
     color: var(--muted);
 
     font-size: 0.8rem;
+
     line-height: 1.65;
 }
 
@@ -1343,11 +1660,16 @@ main {
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
-    padding: 13px 18px;
+    padding:
+        13px
+        18px;
 
-    border: 1px solid #d8a4a4;
+    border:
+        1px solid #d8a4a4;
+
     border-radius: 5px;
 
     background: white;
@@ -1355,6 +1677,7 @@ main {
     color: var(--danger);
 
     font-size: 0.78rem;
+
     font-weight: 800;
 
     cursor: pointer;
@@ -1377,7 +1700,10 @@ main {
 }
 
 .admin-actions-card .checkin-status {
-    padding: 0 25px 22px;
+    padding:
+        0
+        25px
+        22px;
 
     margin: 0;
 }
@@ -1396,11 +1722,15 @@ main {
 
     margin-top: 22px;
 
-    padding: 22px 25px;
+    padding:
+        22px
+        25px;
 
     background: white;
 
-    border: 1px solid var(--border);
+    border:
+        1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1449,6 +1779,7 @@ main {
     color: var(--muted);
 
     font-size: 0.65rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
@@ -1463,7 +1794,10 @@ main {
 }
 
 .attendance-account-info p {
-    margin: 5px 0 0;
+    margin:
+        5px
+        0
+        0;
 
     color: var(--muted);
 
@@ -1471,13 +1805,16 @@ main {
 }
 
 .account-arrow {
-    padding: 10px 14px;
+    padding:
+        10px
+        14px;
 
     color: var(--green);
 
     text-decoration: none;
 
     font-size: 0.78rem;
+
     font-weight: 800;
 
     white-space: nowrap;
@@ -1506,11 +1843,14 @@ main {
     align-items: center;
     justify-content: center;
 
-    padding: 6px 10px;
+    padding:
+        6px
+        10px;
 
     border-radius: 999px;
 
     font-size: 0.68rem;
+
     font-weight: 800;
 }
 
@@ -1542,16 +1882,21 @@ main {
 .card {
     background: white;
 
-    border: 1px solid var(--border);
+    border:
+        1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
 }
 
 .card-header {
-    padding: 22px 25px;
+    padding:
+        22px
+        25px;
 
-    border-bottom: 1px solid var(--border);
+    border-bottom:
+        1px solid var(--border);
 }
 
 .card-header h2,
@@ -1569,64 +1914,6 @@ main {
 
 
 /* =========================================================
-   FORMS
-   ========================================================= */
-
-.form-group {
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    color: var(--green-dark);
-
-    font-size: 0.76rem;
-    font-weight: 800;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-
-    padding: 12px 13px;
-
-    background: white;
-
-    border: 1px solid var(--border);
-    border-radius: 5px;
-
-    color: var(--text);
-
-    font-size: 0.85rem;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: #82b97e;
-
-    box-shadow:
-        0 0 0 3px rgba(22, 133, 27, 0.08);
-
-    outline: none;
-}
-
-.form-group textarea {
-    min-height: 120px;
-
-    resize: vertical;
-}
-
-
-/* =========================================================
    FLASH / ALERTS
    ========================================================= */
 
@@ -1634,13 +1921,16 @@ main {
 .alert {
     width: 100%;
 
-    padding: 13px 16px;
+    padding:
+        13px
+        16px;
 
     margin-bottom: 18px;
 
     border-radius: 6px;
 
     font-size: 0.82rem;
+
     font-weight: 700;
 }
 
@@ -1648,7 +1938,8 @@ main {
 .alert-success {
     background: #e7f4e4;
 
-    border: 1px solid #cce5c8;
+    border:
+        1px solid #cce5c8;
 
     color: #176b18;
 }
@@ -1658,7 +1949,8 @@ main {
 .alert-danger {
     background: #fae8e8;
 
-    border: 1px solid #edcccc;
+    border:
+        1px solid #edcccc;
 
     color: #9b2424;
 }
@@ -1667,7 +1959,8 @@ main {
 .alert-warning {
     background: #fff3db;
 
-    border: 1px solid #f0ddb0;
+    border:
+        1px solid #f0ddb0;
 
     color: #8b5b00;
 }
@@ -1676,7 +1969,8 @@ main {
 .alert-info {
     background: #e8f0f8;
 
-    border: 1px solid #d0deeb;
+    border:
+        1px solid #d0deeb;
 
     color: #285a7a;
 }
@@ -1691,13 +1985,17 @@ main {
 
     margin: 0 auto;
 
-    padding: 55px 30px 90px;
+    padding:
+        55px
+        30px
+        90px;
 }
 
 .dashboard-header {
     display: flex;
 
     align-items: flex-end;
+
     justify-content: space-between;
 
     gap: 25px;
@@ -1710,25 +2008,32 @@ main {
 
     color: var(--green-dark);
 
-    font-size: clamp(2.4rem, 5vw, 4.2rem);
+    font-size:
+        clamp(2.4rem, 5vw, 4.2rem);
+
     line-height: 0.95;
 
     letter-spacing: -0.055em;
 }
 
 .dashboard-header p {
-    margin: 12px 0 0;
+    margin:
+        12px
+        0
+        0;
 
     color: var(--muted);
 
     font-size: 0.88rem;
+
     line-height: 1.6;
 }
 
 .stats-grid {
     display: grid;
 
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns:
+        repeat(4, 1fr);
 
     gap: 15px;
 
@@ -1740,7 +2045,9 @@ main {
 
     background: white;
 
-    border: 1px solid var(--border);
+    border:
+        1px solid var(--border);
+
     border-radius: 8px;
 
     box-shadow: var(--shadow-soft);
@@ -1754,6 +2061,7 @@ main {
     color: var(--muted);
 
     font-size: 0.67rem;
+
     font-weight: 800;
 
     letter-spacing: 0.1em;
@@ -1778,6 +2086,7 @@ main {
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     gap: 15px;
@@ -1807,11 +2116,15 @@ main {
 .search-box input {
     min-width: 240px;
 
-    padding: 11px 13px;
+    padding:
+        11px
+        13px;
 
     background: white;
 
-    border: 1px solid var(--border);
+    border:
+        1px solid var(--border);
+
     border-radius: 5px;
 
     color: var(--text);
@@ -1825,11 +2138,8 @@ main {
     border-color: #82b97e;
 
     box-shadow:
-        0 0 0 3px rgba(22, 133, 27, 0.08);
-}
-
-.study-activity {
-    padding: 11px 13px;
+        0 0 0 3px
+        rgba(22, 133, 27, 0.08);
 }
 
 
@@ -1841,11 +2151,13 @@ main {
 
     .home-information-inner {
         grid-template-columns: 1fr;
+
         gap: 35px;
     }
 
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns:
+            repeat(2, 1fr);
     }
 
     .account-details {
@@ -1861,23 +2173,30 @@ main {
 @media (max-width: 800px) {
 
     .hero-nav {
-        padding: 13px 20px;
+        padding:
+            13px
+            20px;
     }
 
-    .hero-nav-links,
-    .hero-links {
+    .hero-links,
+    .hero-nav-links {
         gap: 2px;
     }
 
-    .hero-nav-links a,
-    .hero-links a {
-        padding: 8px 9px;
+    .hero-links a,
+    .hero-nav-links a {
+        padding:
+            8px
+            9px;
 
         font-size: 0.72rem;
     }
 
     .hero-inner {
-        padding: 150px 25px 170px;
+        padding:
+            150px
+            25px
+            170px;
     }
 
     .home-content {
@@ -1888,7 +2207,9 @@ main {
     }
 
     .checkin-panel {
-        padding: 35px 30px;
+        padding:
+            35px
+            30px;
     }
 
     .attendance-hero-inner {
@@ -1930,7 +2251,9 @@ main {
     }
 
     .home-information-inner {
-        padding: 70px 20px;
+        padding:
+            70px
+            20px;
     }
 
     .footer-inner {
@@ -1938,7 +2261,9 @@ main {
 
         gap: 30px;
 
-        padding: 45px 20px;
+        padding:
+            45px
+            20px;
     }
 
     .footer-bottom {
@@ -1980,14 +2305,12 @@ main {
     .hero-nav {
         min-height: 68px;
 
-        padding: 10px 15px;
+        padding:
+            10px
+            15px;
     }
 
-    .hero-brand-school {
-        display: none;
-    }
-
-    .hero-brand-name {
+    .hero-brand span {
         font-size: 0.82rem;
     }
 
@@ -1996,19 +2319,23 @@ main {
         height: 38px;
     }
 
-    .hero-nav-links a,
-    .hero-links a {
+    .hero-links a,
+    .hero-nav-links a {
         padding: 7px;
 
         font-size: 0.66rem;
     }
 
     .hero-inner {
-        padding: 135px 20px 155px;
+        padding:
+            135px
+            20px
+            155px;
     }
 
     .hero-content h1 {
-        font-size: clamp(3.3rem, 17vw, 5rem);
+        font-size:
+            clamp(3.3rem, 17vw, 5rem);
     }
 
     .hero-content p:not(.section-label) {
@@ -2016,11 +2343,65 @@ main {
     }
 
     .checkin-panel {
-        padding: 30px 23px;
+        padding:
+            30px
+            23px;
     }
 
     .checkin-panel h2 {
         font-size: 2.5rem;
+    }
+
+    .checkin-panel-header > p:not(.section-label) {
+        margin-bottom: 25px;
+    }
+
+    .signed-in {
+        width: 100%;
+    }
+
+    .signed-in-info {
+        flex-wrap: wrap;
+    }
+
+    .checkin-form {
+        max-width: none;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group select,
+    .form-group textarea,
+    .form-group input {
+        padding:
+            13px
+            12px;
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+    }
+
+    .form-help {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+    .form-help span:last-child {
+        white-space: normal;
+    }
+
+    .checkin-button {
+        width: 100%;
+    }
+
+    .checkin-locked {
+        padding: 22px;
     }
 
     .home-information h2 {
@@ -2032,15 +2413,22 @@ main {
     }
 
     .attendance-hero-inner {
-        padding: 125px 20px 100px;
+        padding:
+            125px
+            20px
+            100px;
     }
 
     .attendance-hero h1 {
-        font-size: clamp(3.2rem, 16vw, 5rem);
+        font-size:
+            clamp(3.2rem, 16vw, 5rem);
     }
 
     .attendance-main {
-        padding: 0 15px 65px;
+        padding:
+            0
+            15px
+            65px;
     }
 
     .attendance-card-header {
@@ -2113,3 +2501,4 @@ main {
         background-attachment: scroll;
     }
 }
+
