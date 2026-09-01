@@ -1011,7 +1011,7 @@ def timetable():
             flush=True
         )
 
-        # =================================================
+                # =================================================
         # OPEN IMAGE
         # =================================================
 
@@ -1027,18 +1027,13 @@ def timetable():
         # CONVERT TO RGB
         # =================================================
 
-        if image.mode != "RGB":
-            image = image.convert("RGB")
+        image = image.convert("RGB")
 
         # =================================================
-        # RESIZE IMAGE BEFORE OCR
-        #
-        # This is VERY important on Render's Free instance.
-        # Large phone screenshots can make Tesseract use
-        # a huge amount of RAM/CPU.
+        # RESIZE FOR LOW-MEMORY OCR
         # =================================================
 
-        max_width = 1800
+        max_width = 1200
 
         if image.width > max_width:
 
@@ -1056,17 +1051,11 @@ def timetable():
                 Image.Resampling.LANCZOS
             )
 
-            print(
-                "IMAGE RESIZED TO:",
-                image.size,
-                flush=True
-            )
-
         # =================================================
-        # LIMIT HEIGHT TOO
+        # LIMIT HEIGHT
         # =================================================
 
-        max_height = 3000
+        max_height = 1600
 
         if image.height > max_height:
 
@@ -1084,11 +1073,11 @@ def timetable():
                 Image.Resampling.LANCZOS
             )
 
-            print(
-                "IMAGE HEIGHT LIMITED TO:",
-                image.size,
-                flush=True
-            )
+        print(
+            "OCR IMAGE SIZE:",
+            image.size,
+            flush=True
+        )
 
         # =================================================
         # OCR
@@ -1099,37 +1088,34 @@ def timetable():
             flush=True
         )
 
-        ocr_text = pytesseract.image_to_string(
-            image,
-            config="--psm 6",
-            timeout=30
-        )
+        try:
 
-        print(
-            "OCR FINISHED",
-            flush=True
-        )
+            ocr_text = pytesseract.image_to_string(
+                image,
+                lang="eng",
+                config="--psm 6",
+                timeout=20
+            )
 
-        print(
-            "=================================",
-            flush=True
-        )
+            print(
+                "OCR FINISHED",
+                flush=True
+            )
 
-        print(
-            "TIMETABLE OCR RESULT",
-            flush=True
-        )
+        except RuntimeError as e:
 
-        print(
-            ocr_text,
-            flush=True
-        )
+            print(
+                "OCR TIMEOUT:",
+                repr(e),
+                flush=True
+            )
 
-        print(
-            "=================================",
-            flush=True
-        )
+            return jsonify({
 
+                "message":
+                    "OCR took too long. Please try a clearer or smaller timetable image."
+
+            }), 408
         # =================================================
         # RETURN RESULT
         # =================================================
