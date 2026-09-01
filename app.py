@@ -1,4 +1,3 @@
-
 from PIL import Image
 import pytesseract
 
@@ -70,13 +69,9 @@ app.config["SECRET_KEY"] = os.getenv(
 )
 
 app.config.update(
-
     SESSION_COOKIE_SECURE=True,
-
     SESSION_COOKIE_HTTPONLY=True,
-
     SESSION_COOKIE_SAMESITE="Lax",
-
 )
 
 
@@ -92,7 +87,6 @@ DATABASE_URL = os.getenv(
 def get_db():
 
     if not DATABASE_URL:
-
         raise RuntimeError(
             "DATABASE_URL environment variable is not set."
         )
@@ -178,13 +172,9 @@ def get_real_ip():
     direct_ip = request.remote_addr
 
     return cf_ip or (
-
         forwarded.split(",")[0].strip()
-
         if forwarded
-
         else direct_ip
-
     )
 
 
@@ -575,7 +565,6 @@ def google_callback():
             "userinfo"
         )
 
-
         if not user:
 
             return render_template(
@@ -589,18 +578,15 @@ def google_callback():
 
             )
 
-
         email = user.get(
             "email",
             ""
         ).lower().strip()
 
-
         name = user.get(
             "name",
             ""
         ).strip()
-
 
         picture = user.get(
             "picture"
@@ -633,7 +619,6 @@ def google_callback():
 
         conn = get_db()
         cursor = conn.cursor()
-
 
         try:
 
@@ -715,13 +700,11 @@ def google_callback():
 
             username = name.strip()
 
-
             if not username:
 
                 username = (
                     email.split("@")[0]
                 )
-
 
             username = username.replace(
                 " ",
@@ -734,9 +717,7 @@ def google_callback():
             # =================================================
 
             original_username = username
-
             counter = 1
-
 
             while True:
 
@@ -754,11 +735,9 @@ def google_callback():
 
                 existing = cursor.fetchone()
 
-
                 if not existing:
 
                     break
-
 
                 username = (
                     f"{original_username}_{counter}"
@@ -779,9 +758,7 @@ def google_callback():
             # =================================================
 
             password = generate_password_hash(
-
                 secrets.token_urlsafe(32)
-
             )
 
 
@@ -838,11 +815,9 @@ def google_callback():
 
             ))
 
-
             new_user = cursor.fetchone()
 
             user_id = new_user["id"]
-
 
             conn.commit()
 
@@ -852,25 +827,17 @@ def google_callback():
             # =================================================
 
             session["user_id"] = user_id
-
             session["username"] = username
-
             session["code"] = code
-
             session["email"] = email
-
             session["name"] = name
-
             session["picture"] = picture
-
             session["pfp"] = picture
-
             session["signup_complete"] = True
 
             session["is_admin"] = (
                 email in ADMIN_EMAILS
             )
-
 
             print(
                 "NEW USER CREATED:",
@@ -878,7 +845,6 @@ def google_callback():
                 user_id,
                 flush=True
             )
-
 
             return redirect(
                 url_for("home")
@@ -894,7 +860,6 @@ def google_callback():
 
             cursor.close()
             conn.close()
-
 
     except Exception as e:
 
@@ -922,24 +887,15 @@ def google_callback():
 def login():
 
     redirect_uri = url_for(
-
         "google_callback",
-
         _external=True
-
     )
-
 
     print(
-
         "GOOGLE REDIRECT URI:",
-
         redirect_uri,
-
         flush=True
-
     )
-
 
     return google.authorize_redirect(
         redirect_uri
@@ -1043,11 +999,9 @@ def timetable():
 
 
         extension = (
-
             file.filename
             .rsplit(".", 1)[-1]
             .lower()
-
         )
 
 
@@ -1090,8 +1044,64 @@ def timetable():
         # OPEN IMAGE
         # =================================================
 
-        image = Image.open(
-            filepath
+        with Image.open(filepath) as original_image:
+
+            image = original_image.copy()
+
+
+        # =================================================
+        # RESIZE VERY LARGE IMAGES
+        # =================================================
+
+        max_width = 2500
+
+
+        if image.width > max_width:
+
+            ratio = (
+                max_width /
+                image.width
+            )
+
+            new_height = int(
+
+                image.height *
+                ratio
+
+            )
+
+            image = image.resize(
+
+                (
+                    max_width,
+                    new_height
+                ),
+
+                Image.Resampling.LANCZOS
+
+            )
+
+
+        # =================================================
+        # CONVERT IMAGE FOR OCR
+        # =================================================
+
+        if image.mode not in (
+            "RGB",
+            "L"
+        ):
+
+            image = image.convert(
+                "RGB"
+            )
+
+
+        print(
+            "OCR IMAGE SIZE:",
+            image.width,
+            "x",
+            image.height,
+            flush=True
         )
 
 
@@ -1099,10 +1109,43 @@ def timetable():
         # OCR
         # =================================================
 
-        ocr_text = pytesseract.image_to_string(
-            image
-        )
+        try:
 
+            ocr_text = pytesseract.image_to_string(
+
+                image,
+
+                timeout=60
+
+            )
+
+        except RuntimeError as e:
+
+            print(
+                "OCR TIMEOUT:",
+                repr(e),
+                flush=True
+            )
+
+            return jsonify({
+
+                "message":
+                    "OCR took too long to process this image. "
+                    "Please upload a smaller or clearer timetable."
+
+            }), 408
+
+
+        # =================================================
+        # CLEAN UP IMAGE
+        # =================================================
+
+        image.close()
+
+
+        # =================================================
+        # PRINT OCR RESULT
+        # =================================================
 
         print(
             "=================================",
@@ -1148,7 +1191,6 @@ def timetable():
             flush=True
         )
 
-
         return jsonify({
 
             "message":
@@ -1173,17 +1215,14 @@ def my_attendance():
             "user_id"
         )
 
-
         if not user_id:
 
             return redirect(
                 url_for("login")
             )
 
-
         conn = get_db()
         cursor = conn.cursor()
-
 
         try:
 
@@ -1205,9 +1244,7 @@ def my_attendance():
                 user_id,
             ))
 
-
             attendance = cursor.fetchall()
-
 
         finally:
 
@@ -1238,7 +1275,6 @@ def my_attendance():
 
         )
 
-
         return (
 
             f"My attendance error: {str(e)}",
@@ -1262,10 +1298,8 @@ def account():
         "user_id"
     )
 
-
     conn = get_db()
     cursor = conn.cursor()
-
 
     try:
 
@@ -1289,7 +1323,6 @@ def account():
         """, (
             user_id,
         ))
-
 
         user = cursor.fetchone()
 
@@ -1333,9 +1366,7 @@ def account():
             user_id,
         ))
 
-
         timetable_rows = cursor.fetchall()
-
 
     finally:
 
@@ -1382,7 +1413,6 @@ def get_student_study_topics(
     conn = get_db()
     cursor = conn.cursor()
 
-
     try:
 
         cursor.execute("""
@@ -1416,9 +1446,7 @@ def get_student_study_topics(
             student_id,
         ))
 
-
         return cursor.fetchall()
-
 
     finally:
 
@@ -1443,18 +1471,15 @@ def add_study_topic():
             "user_id"
         )
 
-
         name = request.form.get(
             "name",
             ""
         ).strip()
 
-
         subject = request.form.get(
             "subject",
             ""
         ).strip()
-
 
         description = request.form.get(
             "description",
@@ -1474,7 +1499,6 @@ def add_study_topic():
 
         conn = get_db()
         cursor = conn.cursor()
-
 
         try:
 
@@ -1498,7 +1522,6 @@ def add_study_topic():
                 subject
 
             ))
-
 
             topic = cursor.fetchone()
 
@@ -1541,7 +1564,6 @@ def add_study_topic():
 
                 ))
 
-
                 topic = cursor.fetchone()
 
                 topic_id = topic["id"]
@@ -1576,16 +1598,13 @@ def add_study_topic():
 
             ))
 
-
             conn.commit()
-
 
         except Exception:
 
             conn.rollback()
 
             raise
-
 
         finally:
 
@@ -1613,7 +1632,6 @@ def add_study_topic():
 
         )
 
-
         return jsonify({
 
             "message":
@@ -1638,11 +1656,9 @@ def study_topics():
             "user_id"
         )
 
-
         topics = get_student_study_topics(
             student_id
         )
-
 
         return jsonify({
 
@@ -1655,7 +1671,6 @@ def study_topics():
             ]
 
         })
-
 
     except Exception as e:
 
@@ -1675,7 +1690,6 @@ def load_attendance_rows():
 
     conn = get_db()
     cursor = conn.cursor()
-
 
     try:
 
@@ -1704,9 +1718,7 @@ def load_attendance_rows():
 
         """)
 
-
         return cursor.fetchall()
-
 
     finally:
 
@@ -1728,7 +1740,6 @@ def save_attendance(
 
     conn = get_db()
     cursor = conn.cursor()
-
 
     try:
 
@@ -1758,16 +1769,13 @@ def save_attendance(
 
         ))
 
-
         conn.commit()
-
 
     except Exception:
 
         conn.rollback()
 
         raise
-
 
     finally:
 
@@ -1792,11 +1800,9 @@ def checkin():
 
     client_ip = get_real_ip()
 
-
     allowed, network_name = is_school_ip(
         client_ip
     )
-
 
     if not allowed:
 
@@ -1815,7 +1821,6 @@ def checkin():
     if request.method == "GET":
 
         entries = load_attendance_rows()
-
 
         return render_template(
 
@@ -1838,11 +1843,9 @@ def checkin():
             "user_id"
         )
 
-
         username = session.get(
             "username"
         )
-
 
         print(
 
@@ -1889,7 +1892,6 @@ def checkin():
         conn = get_db()
         cursor = conn.cursor()
 
-
         try:
 
             cursor.execute("""
@@ -1909,9 +1911,7 @@ def checkin():
                 student_id,
             ))
 
-
             user = cursor.fetchone()
-
 
         finally:
 
@@ -1922,7 +1922,6 @@ def checkin():
         if not user:
 
             session.clear()
-
 
             return jsonify({
 
@@ -1938,7 +1937,6 @@ def checkin():
 
         conn = get_db()
         cursor = conn.cursor()
-
 
         try:
 
@@ -1959,9 +1957,7 @@ def checkin():
                 student_id,
             ))
 
-
             existing_attendance = cursor.fetchone()
-
 
         finally:
 
@@ -2044,7 +2040,6 @@ def checkin():
 
         )
 
-
         return jsonify({
 
             "message":
@@ -2064,7 +2059,6 @@ def checkin():
             flush=True
 
         )
-
 
         return jsonify({
 
@@ -2089,7 +2083,6 @@ def reset_users():
         ""
     ).lower().strip()
 
-
     if email not in ADMIN_EMAILS:
 
         return (
@@ -2101,7 +2094,6 @@ def reset_users():
     conn = get_db()
     cursor = conn.cursor()
 
-
     try:
 
         cursor.execute(
@@ -2110,13 +2102,11 @@ def reset_users():
 
         conn.commit()
 
-
     except Exception:
 
         conn.rollback()
 
         raise
-
 
     finally:
 
@@ -2125,7 +2115,6 @@ def reset_users():
 
 
     session.clear()
-
 
     return "All users deleted."
 
@@ -2162,7 +2151,6 @@ def reset_attendance():
         conn = get_db()
         cursor = conn.cursor()
 
-
         try:
 
             cursor.execute(
@@ -2171,13 +2159,11 @@ def reset_attendance():
 
             conn.commit()
 
-
         except Exception:
 
             conn.rollback()
 
             raise
-
 
         finally:
 
@@ -2235,7 +2221,6 @@ def admin():
         conn = get_db()
         cursor = conn.cursor()
 
-
         try:
 
             cursor.execute("""
@@ -2255,9 +2240,7 @@ def admin():
 
             """)
 
-
             users = cursor.fetchall()
-
 
         finally:
 
@@ -2271,7 +2254,6 @@ def admin():
 
         conn = get_db()
         cursor = conn.cursor()
-
 
         try:
 
@@ -2298,9 +2280,7 @@ def admin():
 
             """)
 
-
             attendance = cursor.fetchall()
-
 
         finally:
 
@@ -2338,7 +2318,6 @@ def admin():
             flush=True
 
         )
-
 
         return f"""
 
