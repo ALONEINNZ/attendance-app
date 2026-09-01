@@ -919,6 +919,9 @@ def logout():
 # =========================================================
 # TIMETABLE
 # =========================================================
+# =========================================================
+# TIMETABLE OCR
+# =========================================================
 
 @app.route(
     "/timetable",
@@ -927,10 +930,7 @@ def logout():
 @login_required
 def timetable():
 
-    student_id = session.get(
-        "user_id"
-    )
-
+    student_id = session.get("user_id")
 
     # =====================================================
     # GET
@@ -942,61 +942,40 @@ def timetable():
             "timetable.html"
         )
 
-
     # =====================================================
     # POST
     # =====================================================
 
     try:
 
-        file = request.files.get(
-            "timetable"
-        )
-
+        file = request.files.get("timetable")
 
         if not file:
-
             return jsonify({
-
-                "message":
-                    "Please select a timetable image."
-
+                "message": "Please select a timetable image."
             }), 400
-
 
         if not file.filename:
-
             return jsonify({
-
-                "message":
-                    "Please select a timetable image."
-
+                "message": "Please select a timetable image."
             }), 400
-
 
         # =================================================
         # FILE TYPE CHECK
         # =================================================
 
         allowed_extensions = {
-
             "png",
             "jpg",
             "jpeg",
             "webp"
-
         }
-
 
         if "." not in file.filename:
 
             return jsonify({
-
-                "message":
-                    "Invalid file type."
-
+                "message": "Invalid file type."
             }), 400
-
 
         extension = (
             file.filename
@@ -1004,148 +983,132 @@ def timetable():
             .lower()
         )
 
-
         if extension not in allowed_extensions:
 
             return jsonify({
-
                 "message":
                     "Please upload a PNG, JPG, JPEG or WEBP image."
-
             }), 400
-
 
         # =================================================
         # SAVE IMAGE
         # =================================================
 
         filename = secure_filename(
-
             f"{student_id}_timetable.{extension}"
-
         )
-
 
         filepath = os.path.join(
-
-            app.config[
-                "TIMETABLE_FOLDER"
-            ],
-
+            app.config["TIMETABLE_FOLDER"],
             filename
-
         )
-
 
         file.save(filepath)
 
+        print(
+            "TIMETABLE IMAGE SAVED:",
+            filepath,
+            flush=True
+        )
 
         # =================================================
         # OPEN IMAGE
         # =================================================
 
-        with Image.open(filepath) as original_image:
+        image = Image.open(filepath)
 
-            image = original_image.copy()
-
+        print(
+            "ORIGINAL IMAGE SIZE:",
+            image.size,
+            flush=True
+        )
 
         # =================================================
-        # RESIZE VERY LARGE IMAGES
+        # CONVERT TO RGB
         # =================================================
 
-        max_width = 2500
+        if image.mode != "RGB":
+            image = image.convert("RGB")
 
+        # =================================================
+        # RESIZE IMAGE BEFORE OCR
+        #
+        # This is VERY important on Render's Free instance.
+        # Large phone screenshots can make Tesseract use
+        # a huge amount of RAM/CPU.
+        # =================================================
+
+        max_width = 1800
 
         if image.width > max_width:
 
-            ratio = (
-                max_width /
-                image.width
-            )
+            ratio = max_width / image.width
 
             new_height = int(
-
-                image.height *
-                ratio
-
+                image.height * ratio
             )
 
             image = image.resize(
-
                 (
                     max_width,
                     new_height
                 ),
-
                 Image.Resampling.LANCZOS
-
             )
 
-
-        # =================================================
-        # CONVERT IMAGE FOR OCR
-        # =================================================
-
-        if image.mode not in (
-            "RGB",
-            "L"
-        ):
-
-            image = image.convert(
-                "RGB"
+            print(
+                "IMAGE RESIZED TO:",
+                image.size,
+                flush=True
             )
 
+        # =================================================
+        # LIMIT HEIGHT TOO
+        # =================================================
 
-        print(
-            "OCR IMAGE SIZE:",
-            image.width,
-            "x",
-            image.height,
-            flush=True
-        )
+        max_height = 3000
 
+        if image.height > max_height:
+
+            ratio = max_height / image.height
+
+            new_width = int(
+                image.width * ratio
+            )
+
+            image = image.resize(
+                (
+                    new_width,
+                    max_height
+                ),
+                Image.Resampling.LANCZOS
+            )
+
+            print(
+                "IMAGE HEIGHT LIMITED TO:",
+                image.size,
+                flush=True
+            )
 
         # =================================================
         # OCR
         # =================================================
 
-        try:
+        print(
+            "STARTING OCR...",
+            flush=True
+        )
 
-            ocr_text = pytesseract.image_to_string(
+        ocr_text = pytesseract.image_to_string(
+            image,
+            config="--psm 6",
+            timeout=30
+        )
 
-                image,
-
-                timeout=60
-
-            )
-
-        except RuntimeError as e:
-
-            print(
-                "OCR TIMEOUT:",
-                repr(e),
-                flush=True
-            )
-
-            return jsonify({
-
-                "message":
-                    "OCR took too long to process this image. "
-                    "Please upload a smaller or clearer timetable."
-
-            }), 408
-
-
-        # =================================================
-        # CLEAN UP IMAGE
-        # =================================================
-
-        image.close()
-
-
-        # =================================================
-        # PRINT OCR RESULT
-        # =================================================
+        print(
+            "OCR FINISHED",
+            flush=True
+        )
 
         print(
             "=================================",
@@ -1167,7 +1130,6 @@ def timetable():
             flush=True
         )
 
-
         # =================================================
         # RETURN RESULT
         # =================================================
@@ -1182,6 +1144,29 @@ def timetable():
 
         })
 
+    # =====================================================
+    # OCR TIMEOUT
+    # =====================================================
+
+    except RuntimeError as e:
+
+        print(
+            "TIMETABLE OCR TIMEOUT/ERROR:",
+            repr(e),
+            flush=True
+        )
+
+        return jsonify({
+
+            "message":
+                "The timetable took too long to process. "
+                "Try uploading a smaller or clearer image."
+
+        }), 408
+
+    # =====================================================
+    # OTHER ERRORS
+    # =====================================================
 
     except Exception as e:
 
@@ -1197,7 +1182,6 @@ def timetable():
                 f"Could not read timetable: {str(e)}"
 
         }), 500
-
 
 # =========================================================
 # MY ATTENDANCE
