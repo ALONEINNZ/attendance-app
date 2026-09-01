@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Timetable | Burnside Attendance</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='app.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <a
+        href="{{ url_for('home') }}"
+        class="brand"
+    >
+
+        <div class="brand-mark">
+            B
+        </div>
+
+        <div class="brand-text">
+
+            <span>
+                Burnside
+            </span>
+
+            <small>
+                Attendance
+            </small>
+
+        </div>
+
+    </a>
+
+
+    <nav class="nav-links">
+
+        <a href="{{ url_for('home') }}">
+            Home
+        </a>
+
+        <a href="{{ url_for('checkin') }}">
+            Check In
+        </a>
+
+        <a href="{{ url_for('my_attendance') }}">
+            My Attendance
+        </a>
+
+    </nav>
+
+
+    <div class="nav-account">
+
+        <a
+            href="{{ url_for('account') }}"
+            class="account-pill active"
+        >
+
+            {% if session.get('pfp') %}
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/' + session.get('pfp')
+                    ) }}"
+                    alt="Profile"
+                    class="account-pfp"
+                >
+
+            {% else %}
+
+                <div class="account-pfp fallback-pfp">
+
+                    {{
+                        (
+                            session.get('name')
+                            or session.get('username')
+                            or 'S'
+                        )[0] | upper
+                    }}
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="account-details">
+
+                <strong>
+                    {{
+                        session.get('name')
+                        or session.get('username')
+                    }}
+                </strong>
+
+                <span>
+                    {{ session.get('email') }}
+                </span>
+
+            </div>
+
+        </a>
+
+    </div>
+
+</header>
+
+
+<main>
+
+<section class="section">
+
+
+    <div class="section-heading">
+
+        <div>
+
+            <span class="section-label">
+                STUDENT TIMETABLE
+            </span>
+
+            <h1>
+                Set up your timetable
+            </h1>
+
+            <p>
+                Upload a screenshot or image of your timetable
+                and we'll read it for you.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="account-details-card">
+
+        <div class="account-card-header">
+
+            <div>
+
+                <span class="section-label">
+                    UPLOAD
+                </span>
+
+                <h2>
+                    Your timetable
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <form
+            id="timetable-form"
+            enctype="multipart/form-data"
+        >
+
+            <div class="timetable-upload-area">
+
+                <input
+                    type="file"
+                    id="timetable"
+                    name="timetable"
+                    accept=".png,.jpg,.jpeg,.webp"
+                    required
+                >
+
+                <p>
+                    PNG, JPG, JPEG or WEBP
+                </p>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-button"
+            >
+
+                <span>
+                    Read timetable
+                </span>
+
+                <span class="button-arrow">
+                    →
+                </span>
+
+            </button>
+
+        </form>
+
+
+        <div
+            id="result"
+            style="display:none;"
+        >
+
+            <div class="account-info-row">
+
+                <div class="account-info-icon">
+                    OCR
+                </div>
+
+                <div>
+
+                    <span>
+                        Text detected from your timetable
+                    </span>
+
+                    <pre
+                        id="ocr-output"
+                        style="
+                            white-space: pre-wrap;
+                            margin-top: 10px;
+                        "
+                    ></pre>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="footer-brand">
+
+        <div class="brand-mark small-mark">
+            B
+        </div>
+
+        <div>
+
+            <strong>
+                Burnside Attendance
+            </strong>
+
+            <span>
+                Student check-in portal
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-right">
+
+        <span>
+            Built for Burnside High School
+        </span>
+
+    </div>
+
+</footer>
+
+
+<script>
+
+const form =
+    document.getElementById(
+        "timetable-form"
+    );
+
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const formData =
+            new FormData(form);
+
+
+        const result =
+            document.getElementById(
+                "result"
+            );
+
+
+        const output =
+            document.getElementById(
+                "ocr-output"
+            );
+
+
+        output.textContent =
+            "Reading timetable...";
+
+
+        result.style.display =
+            "block";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "{{ url_for('timetable') }}",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                output.textContent =
+                    data.message ||
+                    "Something went wrong.";
+
+                return;
+
+            }
+
+
+            output.textContent =
+                data.ocr_text ||
+                "No text was detected.";
+
+
+        } catch (error) {
+
+            output.textContent =
+                "Could not upload timetable.";
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

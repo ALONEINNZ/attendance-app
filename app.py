@@ -1,3 +1,10 @@
+
+from PIL import Image
+import pytesseract
+
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash
+
 from flask import (
     Flask,
     render_template,
@@ -17,8 +24,6 @@ import secrets
 
 from datetime import datetime
 from functools import wraps
-
-from werkzeug.security import generate_password_hash
 from dotenv import load_dotenv
 
 from flask_mail import Mail
@@ -64,7 +69,6 @@ app.config["SECRET_KEY"] = os.getenv(
     "dev-secret-key"
 )
 
-
 app.config.update(
 
     SESSION_COOKIE_SECURE=True,
@@ -100,6 +104,26 @@ def get_db():
 
 
 # =========================================================
+# LOGIN REQUIRED
+# =========================================================
+
+def login_required(f):
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        if "username" not in session:
+
+            return redirect(
+                url_for("login")
+            )
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+# =========================================================
 # SCHOOL NETWORKS
 # =========================================================
 
@@ -108,14 +132,11 @@ SCHOOL_NETWORKS = {
     "Burnside WiFi": [
 
         "202.150.123.193/32",
-
         "122.63.129.201/32",
-
         "202.36.179.108/32",
-
         "122.58.103.94/32"
 
-    ],
+    ]
 
 }
 
@@ -157,14 +178,18 @@ def get_real_ip():
     direct_ip = request.remote_addr
 
     return cf_ip or (
+
         forwarded.split(",")[0].strip()
+
         if forwarded
+
         else direct_ip
+
     )
 
 
 # =========================================================
-# UPLOADS
+# UPLOAD CONFIGURATION
 # =========================================================
 
 app.config["UPLOAD_FOLDER"] = os.path.join(
@@ -173,9 +198,18 @@ app.config["UPLOAD_FOLDER"] = os.path.join(
     "uploads"
 )
 
+app.config["TIMETABLE_FOLDER"] = os.path.join(
+    app.config["UPLOAD_FOLDER"],
+    "timetables"
+)
 
 os.makedirs(
     app.config["UPLOAD_FOLDER"],
+    exist_ok=True
+)
+
+os.makedirs(
+    app.config["TIMETABLE_FOLDER"],
     exist_ok=True
 )
 
@@ -200,7 +234,7 @@ app.config.update(
 
     MAIL_USE_TLS=True,
 
-    MAIL_USE_SSL=False,
+    MAIL_USE_SSL=False
 
 )
 
@@ -244,7 +278,7 @@ google = oauth.register(
         "scope":
             "openid email profile"
 
-    },
+    }
 
 )
 
@@ -318,154 +352,165 @@ def log_visitor_ip():
 def init_db():
 
     conn = get_db()
-
     cursor = conn.cursor()
 
+    try:
 
-    # =====================================================
-    # USERS
-    # =====================================================
+        # =================================================
+        # USERS
+        # =================================================
 
-    cursor.execute("""
+        cursor.execute("""
 
-        CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE IF NOT EXISTS users (
 
-            id SERIAL PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
 
-            username TEXT UNIQUE NOT NULL,
+                username TEXT UNIQUE NOT NULL,
 
-            password TEXT NOT NULL,
+                password TEXT NOT NULL,
 
-            code TEXT UNIQUE NOT NULL,
+                code TEXT UNIQUE NOT NULL,
 
-            email TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
 
-            verify_key TEXT UNIQUE NOT NULL,
+                verify_key TEXT UNIQUE NOT NULL,
 
-            is_verified INTEGER DEFAULT 0,
+                is_verified INTEGER DEFAULT 0,
 
-            pfp TEXT DEFAULT NULL
+                pfp TEXT DEFAULT NULL
 
-        )
-
-    """)
-
-
-    # =====================================================
-    # STUDY TOPICS
-    #
-    # A student can have many study topics.
-    # A study topic can belong to many students.
-    #
-    # This creates the MANY-TO-MANY relationship.
-    # =====================================================
-
-    cursor.execute("""
-
-        CREATE TABLE IF NOT EXISTS study_topics (
-
-            id SERIAL PRIMARY KEY,
-
-            name TEXT NOT NULL,
-
-            subject TEXT NOT NULL,
-
-            description TEXT
-
-        )
-
-    """)
-
-
-    # =====================================================
-    # STUDENT <-> STUDY TOPIC
-    #
-    # MANY-TO-MANY JUNCTION TABLE
-    # =====================================================
-
-    cursor.execute("""
-
-        CREATE TABLE IF NOT EXISTS student_study_topics (
-
-            student_id INTEGER NOT NULL,
-
-            topic_id INTEGER NOT NULL,
-
-            PRIMARY KEY (
-                student_id,
-                topic_id
-            ),
-
-            FOREIGN KEY (student_id)
-                REFERENCES users(id)
-                ON DELETE CASCADE,
-
-            FOREIGN KEY (topic_id)
-                REFERENCES study_topics(id)
-                ON DELETE CASCADE
-
-        )
-
-    """)
-
-
-    # =====================================================
-    # ATTENDANCE
-    # =====================================================
-
-    cursor.execute("""
-
-        CREATE TABLE IF NOT EXISTS attendance (
-
-            id SERIAL PRIMARY KEY,
-
-            student_id INTEGER NOT NULL,
-
-            time TEXT NOT NULL,
-
-            study_activity TEXT,
-
-            FOREIGN KEY (student_id)
-                REFERENCES users(id)
-                ON DELETE CASCADE
-
-        )
-
-    """)
-
-
-    conn.commit()
-
-    cursor.close()
-
-    conn.close()
-
-
-    print(
-        "DATABASE INITIALISED SUCCESSFULLY",
-        flush=True
-    )
-
-
-# =========================================================
-# LOGIN REQUIRED
-# =========================================================
-
-def login_required(f):
-
-    @wraps(f)
-
-    def decorated(*args, **kwargs):
-
-        if "username" not in session:
-
-            return redirect(
-                url_for("login")
             )
 
-        return f(*args, **kwargs)
+        """)
 
-    return decorated
+
+        # =================================================
+        # STUDY TOPICS
+        # =================================================
+
+        cursor.execute("""
+
+            CREATE TABLE IF NOT EXISTS study_topics (
+
+                id SERIAL PRIMARY KEY,
+
+                name TEXT NOT NULL,
+
+                subject TEXT NOT NULL,
+
+                description TEXT
+
+            )
+
+        """)
+
+
+        # =================================================
+        # STUDENT <-> STUDY TOPICS
+        # =================================================
+
+        cursor.execute("""
+
+            CREATE TABLE IF NOT EXISTS student_study_topics (
+
+                student_id INTEGER NOT NULL,
+
+                topic_id INTEGER NOT NULL,
+
+                PRIMARY KEY (
+                    student_id,
+                    topic_id
+                ),
+
+                FOREIGN KEY (student_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE,
+
+                FOREIGN KEY (topic_id)
+                    REFERENCES study_topics(id)
+                    ON DELETE CASCADE
+
+            )
+
+        """)
+
+
+        # =================================================
+        # ATTENDANCE
+        # =================================================
+
+        cursor.execute("""
+
+            CREATE TABLE IF NOT EXISTS attendance (
+
+                id SERIAL PRIMARY KEY,
+
+                student_id INTEGER NOT NULL,
+
+                time TEXT NOT NULL,
+
+                study_activity TEXT,
+
+                FOREIGN KEY (student_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE
+
+            )
+
+        """)
+
+
+        # =================================================
+        # TIMETABLE
+        # =================================================
+
+        cursor.execute("""
+
+            CREATE TABLE IF NOT EXISTS timetable (
+
+                id SERIAL PRIMARY KEY,
+
+                student_id INTEGER NOT NULL,
+
+                week TEXT NOT NULL,
+
+                day TEXT NOT NULL,
+
+                period INTEGER NOT NULL,
+
+                subject TEXT NOT NULL,
+
+                start_time TEXT,
+
+                end_time TEXT,
+
+                FOREIGN KEY (student_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE
+
+            )
+
+        """)
+
+
+        conn.commit()
+
+        print(
+            "DATABASE INITIALISED SUCCESSFULLY",
+            flush=True
+        )
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+    finally:
+
+        cursor.close()
+        conn.close()
 
 
 # =========================================================
@@ -482,25 +527,36 @@ def home():
         conn = get_db()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT
-                id,
-                name,
-                subject,
-                description
-            FROM study_topics
-            ORDER BY subject, name
-        """)
+        try:
 
-        study_topics = cursor.fetchall()
+            cursor.execute("""
 
-        cursor.close()
-        conn.close()
+                SELECT
+                    id,
+                    name,
+                    subject,
+                    description
+
+                FROM study_topics
+
+                ORDER BY
+                    subject,
+                    name
+
+            """)
+
+            study_topics = cursor.fetchall()
+
+        finally:
+
+            cursor.close()
+            conn.close()
 
     return render_template(
         "Home.html",
         study_topics=study_topics
     )
+
 
 # =========================================================
 # GOOGLE CALLBACK
@@ -576,106 +632,251 @@ def google_callback():
         # =================================================
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        # =================================================
-        # FIND EXISTING USER
-        # =================================================
+        try:
 
-        cursor.execute("""
+            # =================================================
+            # FIND EXISTING USER
+            # =================================================
 
-            SELECT
+            cursor.execute("""
 
-                id,
+                SELECT
+
+                    id,
+                    username,
+                    code,
+                    email,
+                    pfp
+
+                FROM users
+
+                WHERE email = %s
+
+            """, (
+                email,
+            ))
+
+            student = cursor.fetchone()
+
+
+            # =================================================
+            # EXISTING USER
+            # =================================================
+
+            if student:
+
+                session.clear()
+
+                session["user_id"] = student["id"]
+
+                session["username"] = (
+                    student["username"]
+                )
+
+                session["code"] = (
+                    student["code"]
+                )
+
+                session["email"] = (
+                    student["email"]
+                )
+
+                session["name"] = name
+
+                session["picture"] = picture
+
+                session["pfp"] = (
+                    student["pfp"]
+                )
+
+                session["signup_complete"] = True
+
+                session["is_admin"] = (
+                    email in ADMIN_EMAILS
+                )
+
+                print(
+                    "GOOGLE LOGIN SUCCESS:",
+                    email,
+                    flush=True
+                )
+
+                return redirect(
+                    url_for("home")
+                )
+
+
+            # =================================================
+            # NEW USER
+            # =================================================
+
+            username = name.strip()
+
+
+            if not username:
+
+                username = (
+                    email.split("@")[0]
+                )
+
+
+            username = username.replace(
+                " ",
+                "_"
+            )
+
+
+            # =================================================
+            # UNIQUE USERNAME
+            # =================================================
+
+            original_username = username
+
+            counter = 1
+
+
+            while True:
+
+                cursor.execute("""
+
+                    SELECT id
+
+                    FROM users
+
+                    WHERE username = %s
+
+                """, (
+                    username,
+                ))
+
+                existing = cursor.fetchone()
+
+
+                if not existing:
+
+                    break
+
+
+                username = (
+                    f"{original_username}_{counter}"
+                )
+
+                counter += 1
+
+
+            # =================================================
+            # GENERATE USER CODE
+            # =================================================
+
+            code = secrets.token_hex(3)
+
+
+            # =================================================
+            # PASSWORD
+            # =================================================
+
+            password = generate_password_hash(
+
+                secrets.token_urlsafe(32)
+
+            )
+
+
+            # =================================================
+            # VERIFICATION KEY
+            # =================================================
+
+            verify_key = secrets.token_urlsafe(
+                32
+            )
+
+
+            # =================================================
+            # CREATE USER
+            # =================================================
+
+            cursor.execute("""
+
+                INSERT INTO users
+
+                (
+                    username,
+                    password,
+                    code,
+                    email,
+                    verify_key,
+                    is_verified,
+                    pfp
+                )
+
+                VALUES
+
+                (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+
+                RETURNING id
+
+            """, (
+
                 username,
+                password,
                 code,
                 email,
-                pfp
+                verify_key,
+                1,
+                picture
 
-            FROM users
-
-            WHERE email = %s
-
-        """, (
-
-            email,
-
-        ))
+            ))
 
 
-        student = cursor.fetchone()
+            new_user = cursor.fetchone()
+
+            user_id = new_user["id"]
 
 
-        # =================================================
-        # EXISTING USER
-        # =================================================
-
-        if student:
-
-            session.clear()
+            conn.commit()
 
 
-            session["user_id"] = (
-                student["id"]
-            )
+            # =================================================
+            # SESSION
+            # =================================================
 
-            session["username"] = (
-                student["username"]
-            )
+            session["user_id"] = user_id
 
-            session["code"] = (
-                student["code"]
-            )
+            session["username"] = username
 
-            session["email"] = (
-                student["email"]
-            )
+            session["code"] = code
+
+            session["email"] = email
 
             session["name"] = name
 
             session["picture"] = picture
 
-            session["pfp"] = (
-                student["pfp"]
-            )
+            session["pfp"] = picture
 
             session["signup_complete"] = True
-
 
             session["is_admin"] = (
                 email in ADMIN_EMAILS
             )
 
 
-            cursor.close()
-
-            conn.close()
-
-
             print(
-
-                "GOOGLE LOGIN SUCCESS:",
-
-                {
-
-                    "user_id":
-                        student["id"],
-
-                    "username":
-                        student["username"],
-
-                    "email":
-                        student["email"],
-
-                    "is_admin":
-                        session["is_admin"]
-
-                },
-
+                "NEW USER CREATED:",
+                username,
+                user_id,
                 flush=True
-
             )
 
 
@@ -683,207 +884,16 @@ def google_callback():
                 url_for("home")
             )
 
+        except Exception:
 
-        # =================================================
-        # NEW USER
-        # =================================================
+            conn.rollback()
 
-        username = name.strip()
+            raise
 
+        finally:
 
-        if not username:
-
-            username = (
-                email.split("@")[0]
-            )
-
-
-        username = username.replace(
-            " ",
-            "_"
-        )
-
-
-        # =================================================
-        # UNIQUE USERNAME
-        # =================================================
-
-        original_username = username
-
-        counter = 1
-
-
-        while True:
-
-            cursor.execute("""
-
-                SELECT id
-
-                FROM users
-
-                WHERE username = %s
-
-            """, (
-
-                username,
-
-            ))
-
-
-            existing = cursor.fetchone()
-
-
-            if not existing:
-
-                break
-
-
-            username = (
-                f"{original_username}_{counter}"
-            )
-
-            counter += 1
-
-
-        # =================================================
-        # GENERATE CODE
-        # =================================================
-
-        code = secrets.token_hex(3)
-
-
-        # =================================================
-        # PASSWORD
-        # =================================================
-
-        password = generate_password_hash(
-
-            secrets.token_urlsafe(32)
-
-        )
-
-
-        # =================================================
-        # VERIFICATION KEY
-        # =================================================
-
-        verify_key = secrets.token_urlsafe(
-            32
-        )
-
-
-        # =================================================
-        # CREATE USER
-        # =================================================
-
-        cursor.execute("""
-
-            INSERT INTO users
-
-            (
-
-                username,
-
-                password,
-
-                code,
-
-                email,
-
-                verify_key,
-
-                is_verified,
-
-                pfp
-
-            )
-
-            VALUES (
-
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s
-
-            )
-
-            RETURNING id
-
-        """, (
-
-            username,
-
-            password,
-
-            code,
-
-            email,
-
-            verify_key,
-
-            1,
-
-            picture
-
-        ))
-
-
-        new_user = cursor.fetchone()
-
-        user_id = new_user["id"]
-
-
-        conn.commit()
-
-        cursor.close()
-
-        conn.close()
-
-
-        # =================================================
-        # SESSION
-        # =================================================
-
-        session["user_id"] = user_id
-
-        session["username"] = username
-
-        session["code"] = code
-
-        session["email"] = email
-
-        session["name"] = name
-
-        session["picture"] = picture
-
-        session["pfp"] = picture
-
-        session["signup_complete"] = True
-
-        session["is_admin"] = (
-            email in ADMIN_EMAILS
-        )
-
-
-        print(
-
-            "NEW USER CREATED:",
-
-            username,
-
-            user_id,
-
-            flush=True
-
-        )
-
-
-        return redirect(
-            url_for("home")
-        )
+            cursor.close()
+            conn.close()
 
 
     except Exception as e:
@@ -895,12 +905,9 @@ def google_callback():
         )
 
         return (
-
             "Google login error: "
             + str(e),
-
             500
-
         )
 
 
@@ -954,6 +961,203 @@ def logout():
 
 
 # =========================================================
+# TIMETABLE
+# =========================================================
+
+@app.route(
+    "/timetable",
+    methods=["GET", "POST"]
+)
+@login_required
+def timetable():
+
+    student_id = session.get(
+        "user_id"
+    )
+
+
+    # =====================================================
+    # GET
+    # =====================================================
+
+    if request.method == "GET":
+
+        return render_template(
+            "timetable.html"
+        )
+
+
+    # =====================================================
+    # POST
+    # =====================================================
+
+    try:
+
+        file = request.files.get(
+            "timetable"
+        )
+
+
+        if not file:
+
+            return jsonify({
+
+                "message":
+                    "Please select a timetable image."
+
+            }), 400
+
+
+        if not file.filename:
+
+            return jsonify({
+
+                "message":
+                    "Please select a timetable image."
+
+            }), 400
+
+
+        # =================================================
+        # FILE TYPE CHECK
+        # =================================================
+
+        allowed_extensions = {
+
+            "png",
+            "jpg",
+            "jpeg",
+            "webp"
+
+        }
+
+
+        if "." not in file.filename:
+
+            return jsonify({
+
+                "message":
+                    "Invalid file type."
+
+            }), 400
+
+
+        extension = (
+
+            file.filename
+            .rsplit(".", 1)[-1]
+            .lower()
+
+        )
+
+
+        if extension not in allowed_extensions:
+
+            return jsonify({
+
+                "message":
+                    "Please upload a PNG, JPG, JPEG or WEBP image."
+
+            }), 400
+
+
+        # =================================================
+        # SAVE IMAGE
+        # =================================================
+
+        filename = secure_filename(
+
+            f"{student_id}_timetable.{extension}"
+
+        )
+
+
+        filepath = os.path.join(
+
+            app.config[
+                "TIMETABLE_FOLDER"
+            ],
+
+            filename
+
+        )
+
+
+        file.save(filepath)
+
+
+        # =================================================
+        # OPEN IMAGE
+        # =================================================
+
+        image = Image.open(
+            filepath
+        )
+
+
+        # =================================================
+        # OCR
+        # =================================================
+
+        ocr_text = pytesseract.image_to_string(
+            image
+        )
+
+
+        print(
+            "=================================",
+            flush=True
+        )
+
+        print(
+            "TIMETABLE OCR RESULT",
+            flush=True
+        )
+
+        print(
+            ocr_text,
+            flush=True
+        )
+
+        print(
+            "=================================",
+            flush=True
+        )
+
+
+        # =================================================
+        # RETURN RESULT
+        # =================================================
+
+        return jsonify({
+
+            "message":
+                "Timetable uploaded successfully.",
+
+            "ocr_text":
+                ocr_text
+
+        })
+
+
+    except Exception as e:
+
+        print(
+            "TIMETABLE OCR ERROR:",
+            repr(e),
+            flush=True
+        )
+
+
+        return jsonify({
+
+            "message":
+                f"Could not read timetable: {str(e)}"
+
+        }), 500
+
+
+# =========================================================
 # MY ATTENDANCE
 # =========================================================
 
@@ -978,37 +1182,37 @@ def my_attendance():
 
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        cursor.execute("""
+        try:
 
-            SELECT
+            cursor.execute("""
 
-                attendance.time,
+                SELECT
 
-                attendance.study_activity
+                    attendance.time,
 
-            FROM attendance
+                    attendance.study_activity
 
-            WHERE attendance.student_id = %s
+                FROM attendance
 
-            ORDER BY attendance.time DESC
+                WHERE attendance.student_id = %s
 
-        """, (
+                ORDER BY attendance.time DESC
 
-            user_id,
-
-        ))
-
-
-        attendance = cursor.fetchall()
+            """, (
+                user_id,
+            ))
 
 
-        cursor.close()
+            attendance = cursor.fetchall()
 
-        conn.close()
+
+        finally:
+
+            cursor.close()
+            conn.close()
 
 
         return render_template(
@@ -1048,7 +1252,9 @@ def my_attendance():
 # ACCOUNT
 # =========================================================
 
-@app.route("/account")
+@app.route(
+    "/account"
+)
 @login_required
 def account():
 
@@ -1058,39 +1264,83 @@ def account():
 
 
     conn = get_db()
-
     cursor = conn.cursor()
 
 
-    cursor.execute("""
+    try:
 
-        SELECT
+        # =================================================
+        # USER
+        # =================================================
 
-            username,
+        cursor.execute("""
 
-            code,
+            SELECT
 
-            email,
+                username,
+                code,
+                email,
+                pfp
 
-            pfp
+            FROM users
 
-        FROM users
+            WHERE id = %s
 
-        WHERE id = %s
-
-    """, (
-
-        user_id,
-
-    ))
-
-
-    user = cursor.fetchone()
+        """, (
+            user_id,
+        ))
 
 
-    cursor.close()
+        user = cursor.fetchone()
 
-    conn.close()
+
+        # =================================================
+        # TIMETABLE
+        # =================================================
+
+        cursor.execute("""
+
+            SELECT
+
+                week,
+                day,
+                period,
+                subject,
+                start_time,
+                end_time
+
+            FROM timetable
+
+            WHERE student_id = %s
+
+            ORDER BY
+
+                CASE day
+
+                    WHEN 'Monday' THEN 1
+                    WHEN 'Tuesday' THEN 2
+                    WHEN 'Wednesday' THEN 3
+                    WHEN 'Thursday' THEN 4
+                    WHEN 'Friday' THEN 5
+
+                    ELSE 6
+
+                END,
+
+                period ASC
+
+        """, (
+            user_id,
+        ))
+
+
+        timetable_rows = cursor.fetchall()
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
 
 
     return render_template(
@@ -1099,7 +1349,9 @@ def account():
 
         header="Account",
 
-        user=user
+        user=user,
+
+        timetable=timetable_rows
 
     )
 
@@ -1108,7 +1360,9 @@ def account():
 # TEACHER
 # =========================================================
 
-@app.route("/teacher")
+@app.route(
+    "/teacher"
+)
 @login_required
 def teacher():
 
@@ -1126,50 +1380,50 @@ def get_student_study_topics(
 ):
 
     conn = get_db()
-
     cursor = conn.cursor()
 
 
-    cursor.execute("""
+    try:
 
-        SELECT
+        cursor.execute("""
 
-            study_topics.id,
+            SELECT
 
-            study_topics.name,
+                study_topics.id,
 
-            study_topics.subject,
+                study_topics.name,
 
-            study_topics.description
+                study_topics.subject,
 
-        FROM study_topics
+                study_topics.description
 
-        INNER JOIN student_study_topics
+            FROM study_topics
 
-            ON study_topics.id =
-               student_study_topics.topic_id
+            INNER JOIN student_study_topics
 
-        WHERE student_study_topics.student_id = %s
+                ON study_topics.id =
+                   student_study_topics.topic_id
 
-        ORDER BY study_topics.subject,
-                 study_topics.name
+            WHERE student_study_topics.student_id = %s
 
-    """, (
+            ORDER BY
 
-        student_id,
+                study_topics.subject,
 
-    ))
+                study_topics.name
 
-
-    topics = cursor.fetchall()
-
-
-    cursor.close()
-
-    conn.close()
+        """, (
+            student_id,
+        ))
 
 
-    return topics
+        return cursor.fetchall()
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
 
 
 # =========================================================
@@ -1219,124 +1473,124 @@ def add_study_topic():
 
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        # =================================================
-        # FIND / CREATE TOPIC
-        # =================================================
+        try:
 
-        cursor.execute("""
-
-            SELECT id
-
-            FROM study_topics
-
-            WHERE name = %s
-
-            AND subject = %s
-
-        """, (
-
-            name,
-
-            subject
-
-        ))
-
-
-        topic = cursor.fetchone()
-
-
-        if topic:
-
-            topic_id = topic["id"]
-
-        else:
+            # =================================================
+            # FIND TOPIC
+            # =================================================
 
             cursor.execute("""
 
-                INSERT INTO study_topics
+                SELECT id
 
-                (
+                FROM study_topics
 
-                    name,
+                WHERE name = %s
 
-                    subject,
-
-                    description
-
-                )
-
-                VALUES (
-
-                    %s,
-                    %s,
-                    %s
-
-                )
-
-                RETURNING id
+                AND subject = %s
 
             """, (
 
                 name,
-
-                subject,
-
-                description
+                subject
 
             ))
 
 
             topic = cursor.fetchone()
 
-            topic_id = topic["id"]
+
+            # =================================================
+            # CREATE TOPIC
+            # =================================================
+
+            if topic:
+
+                topic_id = topic["id"]
+
+            else:
+
+                cursor.execute("""
+
+                    INSERT INTO study_topics
+
+                    (
+                        name,
+                        subject,
+                        description
+                    )
+
+                    VALUES
+
+                    (
+                        %s,
+                        %s,
+                        %s
+                    )
+
+                    RETURNING id
+
+                """, (
+
+                    name,
+                    subject,
+                    description
+
+                ))
 
 
-        # =================================================
-        # CONNECT STUDENT TO TOPIC
-        #
-        # THIS IS THE MANY-TO-MANY RELATIONSHIP
-        # =================================================
+                topic = cursor.fetchone()
 
-        cursor.execute("""
+                topic_id = topic["id"]
 
-            INSERT INTO student_study_topics
 
-            (
+            # =================================================
+            # CONNECT STUDENT
+            # =================================================
+
+            cursor.execute("""
+
+                INSERT INTO student_study_topics
+
+                (
+                    student_id,
+                    topic_id
+                )
+
+                VALUES
+
+                (
+                    %s,
+                    %s
+                )
+
+                ON CONFLICT DO NOTHING
+
+            """, (
 
                 student_id,
-
                 topic_id
 
-            )
-
-            VALUES (
-
-                %s,
-
-                %s
-
-            )
-
-            ON CONFLICT DO NOTHING
-
-        """, (
-
-            student_id,
-
-            topic_id
-
-        ))
+            ))
 
 
-        conn.commit()
+            conn.commit()
 
-        cursor.close()
 
-        conn.close()
+        except Exception:
+
+            conn.rollback()
+
+            raise
+
+
+        finally:
+
+            cursor.close()
+            conn.close()
 
 
         return jsonify({
@@ -1420,107 +1674,44 @@ def study_topics():
 def load_attendance_rows():
 
     conn = get_db()
-
     cursor = conn.cursor()
 
 
-    cursor.execute("""
+    try:
 
-        SELECT
+        cursor.execute("""
 
-            users.username,
+            SELECT
 
-            attendance.time,
+                users.username,
 
-            attendance.study_activity
+                attendance.time,
 
-        FROM attendance
+                attendance.study_activity
 
-        INNER JOIN users
+            FROM attendance
 
-            ON users.id =
-               attendance.student_id
+            INNER JOIN users
 
-        ORDER BY
+                ON users.id =
+                   attendance.student_id
 
-            attendance.time ASC,
+            ORDER BY
 
-            users.username ASC
+                attendance.time ASC,
 
-    """)
+                users.username ASC
 
-
-    rows = cursor.fetchall()
-
-
-    cursor.close()
-
-    conn.close()
+        """)
 
 
-    return rows
+        return cursor.fetchall()
 
 
-def load_attendance():
+    finally:
 
-    rows = load_attendance_rows()
-
-
-    return {
-
-        row["username"]:
-            row["time"]
-
-        for row in rows
-
-    }
-
-
-# =========================================================
-# RESET USERS
-# =========================================================
-
-@app.route(
-    "/reset-users"
-)
-@login_required
-def reset_users():
-
-    email = session.get(
-        "email",
-        ""
-    ).lower().strip()
-
-
-    if email not in ADMIN_EMAILS:
-
-        return (
-            "Unauthorized",
-            403
-        )
-
-
-    conn = get_db()
-
-    cursor = conn.cursor()
-
-
-    cursor.execute(
-        "DELETE FROM users"
-    )
-
-
-    conn.commit()
-
-    cursor.close()
-
-    conn.close()
-
-
-    session.clear()
-
-
-    return "All users deleted."
+        cursor.close()
+        conn.close()
 
 
 # =========================================================
@@ -1530,56 +1721,58 @@ def reset_users():
 def save_attendance(
 
     student_id,
-
     time,
-
     study_activity
 
 ):
 
     conn = get_db()
-
     cursor = conn.cursor()
 
 
-    cursor.execute("""
+    try:
 
-        INSERT INTO attendance
+        cursor.execute("""
 
-        (
+            INSERT INTO attendance
+
+            (
+                student_id,
+                time,
+                study_activity
+            )
+
+            VALUES
+
+            (
+                %s,
+                %s,
+                %s
+            )
+
+        """, (
 
             student_id,
-
             time,
-
             study_activity
 
-        )
-
-        VALUES (
-
-            %s,
-            %s,
-            %s
-
-        )
-
-    """, (
-
-        student_id,
-
-        time,
-
-        study_activity
-
-    ))
+        ))
 
 
-    conn.commit()
+        conn.commit()
 
-    cursor.close()
 
-    conn.close()
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
 
 
 # =========================================================
@@ -1690,56 +1883,40 @@ def checkin():
 
 
         # =================================================
-        # VERIFY USER STILL EXISTS
+        # VERIFY USER
         # =================================================
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        cursor.execute("""
+        try:
 
-            SELECT
+            cursor.execute("""
 
-                id,
+                SELECT
 
-                username,
+                    id,
+                    username,
+                    email,
+                    pfp
 
-                email,
+                FROM users
 
-                pfp
+                WHERE id = %s
 
-            FROM users
-
-            WHERE id = %s
-
-        """, (
-
-            student_id,
-
-        ))
+            """, (
+                student_id,
+            ))
 
 
-        user = cursor.fetchone()
+            user = cursor.fetchone()
 
 
-        cursor.close()
+        finally:
 
-        conn.close()
-
-
-        print(
-
-            "CHECKIN USER FROM DATABASE:",
-
-            dict(user)
-            if user
-            else None,
-
-            flush=True
-
-        )
+            cursor.close()
+            conn.close()
 
 
         if not user:
@@ -1760,41 +1937,36 @@ def checkin():
         # =================================================
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        cursor.execute("""
+        try:
 
-            SELECT
+            cursor.execute("""
 
-                id,
+                SELECT
 
+                    id,
+                    student_id,
+                    time,
+                    study_activity
+
+                FROM attendance
+
+                WHERE student_id = %s
+
+            """, (
                 student_id,
-
-                time,
-
-                study_activity
-
-            FROM attendance
-
-            WHERE student_id = %s
-
-        """, (
-
-            student_id,
-
-        ))
+            ))
 
 
-        existing_attendance = (
-            cursor.fetchone()
-        )
+            existing_attendance = cursor.fetchone()
 
 
-        cursor.close()
+        finally:
 
-        conn.close()
+            cursor.close()
+            conn.close()
 
 
         if existing_attendance:
@@ -1903,6 +2075,62 @@ def checkin():
 
 
 # =========================================================
+# RESET USERS
+# =========================================================
+
+@app.route(
+    "/reset-users"
+)
+@login_required
+def reset_users():
+
+    email = session.get(
+        "email",
+        ""
+    ).lower().strip()
+
+
+    if email not in ADMIN_EMAILS:
+
+        return (
+            "Unauthorized",
+            403
+        )
+
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+
+    try:
+
+        cursor.execute(
+            "DELETE FROM users"
+        )
+
+        conn.commit()
+
+
+    except Exception:
+
+        conn.rollback()
+
+        raise
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
+
+
+    session.clear()
+
+
+    return "All users deleted."
+
+
+# =========================================================
 # ADMIN RESET ATTENDANCE
 # =========================================================
 
@@ -1932,20 +2160,29 @@ def reset_attendance():
     try:
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        cursor.execute(
-            "DELETE FROM attendance"
-        )
+        try:
+
+            cursor.execute(
+                "DELETE FROM attendance"
+            )
+
+            conn.commit()
 
 
-        conn.commit()
+        except Exception:
 
-        cursor.close()
+            conn.rollback()
 
-        conn.close()
+            raise
+
+
+        finally:
+
+            cursor.close()
+            conn.close()
 
 
         return jsonify({
@@ -1970,7 +2207,9 @@ def reset_attendance():
 # ADMIN DASHBOARD
 # =========================================================
 
-@app.route("/admin")
+@app.route(
+    "/admin"
+)
 @login_required
 def admin():
 
@@ -1982,55 +2221,11 @@ def admin():
         ).lower().strip()
 
 
-        print(
-            "=================================",
-            flush=True
-        )
-
-        print(
-            "ADMIN PAGE REQUEST",
-            flush=True
-        )
-
-        print(
-            "SESSION:",
-            dict(session),
-            flush=True
-        )
-
-        print(
-            "ADMIN EMAIL:",
-            repr(email),
-            flush=True
-        )
-
-        print(
-            "=================================",
-            flush=True
-        )
-
-
-        # =================================================
-        # ADMIN CHECK
-        # =================================================
-
         if email not in ADMIN_EMAILS:
-
-            print(
-                "ADMIN ACCESS DENIED",
-                flush=True
-            )
-
 
             return redirect(
                 url_for("home")
             )
-
-
-        print(
-            "ADMIN ACCESS GRANTED",
-            flush=True
-        )
 
 
         # =================================================
@@ -2038,50 +2233,36 @@ def admin():
         # =================================================
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        cursor.execute("""
+        try:
 
-            SELECT
+            cursor.execute("""
 
-                id,
+                SELECT
 
-                username,
+                    id,
+                    username,
+                    code,
+                    email,
+                    is_verified,
+                    pfp
 
-                code,
+                FROM users
 
-                email,
+                ORDER BY username ASC
 
-                is_verified,
-
-                pfp
-
-            FROM users
-
-            ORDER BY username ASC
-
-        """)
+            """)
 
 
-        users = cursor.fetchall()
+            users = cursor.fetchall()
 
 
-        cursor.close()
+        finally:
 
-        conn.close()
-
-
-        print(
-
-            "USERS LOADED:",
-
-            len(users),
-
-            flush=True
-
-        )
+            cursor.close()
+            conn.close()
 
 
         # =================================================
@@ -2089,51 +2270,42 @@ def admin():
         # =================================================
 
         conn = get_db()
-
         cursor = conn.cursor()
 
 
-        cursor.execute("""
+        try:
 
-            SELECT
+            cursor.execute("""
 
-                users.username,
+                SELECT
 
-                users.email,
+                    users.username,
 
-                attendance.time,
+                    users.email,
 
-                attendance.study_activity
+                    attendance.time,
 
-            FROM attendance
+                    attendance.study_activity
 
-            INNER JOIN users
+                FROM attendance
 
-                ON users.id =
-                   attendance.student_id
+                INNER JOIN users
 
-            ORDER BY attendance.time DESC
+                    ON users.id =
+                       attendance.student_id
 
-        """)
+                ORDER BY attendance.time DESC
 
-
-        attendance = cursor.fetchall()
-
-
-        cursor.close()
-
-        conn.close()
+            """)
 
 
-        print(
+            attendance = cursor.fetchall()
 
-            "ATTENDANCE LOADED:",
 
-            len(attendance),
+        finally:
 
-            flush=True
-
-        )
+            cursor.close()
+            conn.close()
 
 
         # =================================================
@@ -2158,19 +2330,13 @@ def admin():
     except Exception as e:
 
         print(
-            "=================================",
-            flush=True
-        )
 
-        print(
             "ADMIN PAGE ERROR:",
-            repr(e),
-            flush=True
-        )
 
-        print(
-            "=================================",
+            repr(e),
+
             flush=True
+
         )
 
 
@@ -2203,10 +2369,12 @@ if __name__ == "__main__":
         host="0.0.0.0",
 
         port=int(
+
             os.getenv(
                 "PORT",
                 5000
             )
+
         )
 
     )
