@@ -1011,8 +1011,9 @@ def timetable():
             filepath,
             flush=True
         )
+
         # =================================================
-        # OPEN IMAGE FOR OCR
+        # OPEN IMAGE
         # =================================================
 
         image = Image.open(filepath)
@@ -1024,21 +1025,29 @@ def timetable():
         )
 
         # =================================================
-        # MAKE OCR IMAGE SMALLER
+        # PREPARE IMAGE FOR OCR
         # =================================================
 
         image = image.convert("L")
 
-        # Keep OCR processing lightweight
         max_dimension = 900
 
         if max(image.size) > max_dimension:
 
-            ratio = max_dimension / max(image.size)
+            ratio = (
+                max_dimension /
+                max(image.size)
+            )
 
             new_size = (
-                max(1, int(image.width * ratio)),
-                max(1, int(image.height * ratio))
+                max(
+                    1,
+                    int(image.width * ratio)
+                ),
+                max(
+                    1,
+                    int(image.height * ratio)
+                )
             )
 
             image = image.resize(
@@ -1056,11 +1065,45 @@ def timetable():
         # IMPROVE CONTRAST
         # =================================================
 
-        
-
         image = ImageEnhance.Contrast(
             image
         ).enhance(2.0)
+
+        # =================================================
+        # CHECK TESSERACT
+        # =================================================
+
+        print(
+            "TESSERACT VERSION:",
+            flush=True
+        )
+
+        try:
+
+            tesseract_version = (
+                pytesseract
+                .get_tesseract_version()
+            )
+
+            print(
+                tesseract_version,
+                flush=True
+            )
+
+        except Exception as e:
+
+            print(
+                "TESSERACT NOT AVAILABLE:",
+                repr(e),
+                flush=True
+            )
+
+            return jsonify({
+
+                "message":
+                    "OCR is not available on the server."
+
+            }), 500
 
         # =================================================
         # OCR
@@ -1073,11 +1116,19 @@ def timetable():
 
         try:
 
+            # IMPORTANT:
+            # No timeout here.
+            # We are testing whether Tesseract
+            # can actually finish on Render.
+
             ocr_text = pytesseract.image_to_string(
+
                 image,
+
                 lang="eng",
-                config="--psm 6",
-                timeout=8
+
+                config="--psm 6"
+
             )
 
             print(
@@ -1085,10 +1136,10 @@ def timetable():
                 flush=True
             )
 
-        except RuntimeError as e:
+        except Exception as e:
 
             print(
-                "OCR TIMEOUT:",
+                "OCR ERROR:",
                 repr(e),
                 flush=True
             )
@@ -1096,9 +1147,10 @@ def timetable():
             return jsonify({
 
                 "message":
-                    "OCR took too long. Please try a smaller or clearer timetable image."
+                    f"OCR failed: {str(e)}"
 
-            }), 408
+            }), 500
+
         # =================================================
         # RETURN RESULT
         # =================================================
@@ -1112,26 +1164,6 @@ def timetable():
                 ocr_text
 
         })
-
-    # =====================================================
-    # OCR TIMEOUT
-    # =====================================================
-
-    except RuntimeError as e:
-
-        print(
-            "TIMETABLE OCR TIMEOUT/ERROR:",
-            repr(e),
-            flush=True
-        )
-
-        return jsonify({
-
-            "message":
-                "The timetable took too long to process. "
-                "Try uploading a smaller or clearer image."
-
-        }), 408
 
     # =====================================================
     # OTHER ERRORS
