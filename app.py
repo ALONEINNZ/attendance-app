@@ -1,6 +1,5 @@
-from PIL import Image
+from PIL import Image, ImageEnhance
 import pytesseract
-from PIL import ImageEnhance
 
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
@@ -21,6 +20,7 @@ from psycopg2.extras import RealDictCursor
 import os
 import ipaddress
 import secrets
+import re
 
 from datetime import datetime
 from functools import wraps
@@ -88,6 +88,7 @@ DATABASE_URL = os.getenv(
 def get_db():
 
     if not DATABASE_URL:
+
         raise RuntimeError(
             "DATABASE_URL environment variable is not set."
         )
@@ -228,7 +229,6 @@ app.config.update(
     MAIL_USE_SSL=False
 
 )
-
 
 mail = Mail(app)
 
@@ -398,7 +398,7 @@ def init_db():
 
 
         # =================================================
-        # STUDENT <-> STUDY TOPICS
+        # STUDENT STUDY TOPICS
         # =================================================
 
         cursor.execute("""
@@ -578,6 +578,7 @@ def google_callback():
                     "Could not get your Google account information."
 
             )
+
 
         email = user.get(
             "email",
@@ -918,10 +919,245 @@ def logout():
 
 
 # =========================================================
+# TIMETABLE OCR HELPERS
+# =========================================================
+
+DAYS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday"
+]
+
+
+def clean_subject(subject):
+
+    subject = subject.strip()
+
+    subject = re.sub(
+        r"[^A-Za-z0-9]",
+        "",
+        subject
+    )
+
+    subject = subject.upper()
+
+
+    # ---------------------------------------------------------
+    # Common OCR mistakes
+    # ---------------------------------------------------------
+
+    corrections = {
+
+        "138TY": "13STY",
+
+        "13C1S": "13CLS",
+
+        "13CIS": "13CLS",
+
+        "13¢LS": "13CLS",
+
+        "130TG": "13DTG",
+
+    }
+
+
+    if subject in corrections:
+
+        return corrections[subject]
+
+
+    return subject
+
+
+def is_subject_code(value):
+
+    value = clean_subject(
+        value
+    )
+
+    # Normal timetable subject code:
+    #
+    # 13XXX
+    #
+    # Example:
+    # 13PHY
+    # 13CLS
+    # 13MAS
+    # 13STY
+    # 13DTP
+    # 13DTG
+
+    return bool(
+        re.fullmatch(
+            r"13[A-Z]{2,4}",
+            value
+        )
+    )
+
+
+def extract_subjects_from_line(line):
+
+    words = line.split()
+
+    subjects = []
+
+    for word in words:
+
+        cleaned = clean_subject(
+            word
+        )
+
+        if is_subject_code(
+            cleaned
+        ):
+
+            subjects.append(
+                cleaned
+            )
+
+    return subjects
+
+
+def parse_timetable_ocr(ocr_text):
+
+    """
+    Parse the flattened Tesseract output.
+
+    The timetable normally has:
+
+        Monday
+        Tuesday
+        Wednesday
+        Thursday
+        Friday
+
+    and five numbered periods.
+
+    The parser looks for each period and then searches
+    the following OCR lines for subject codes.
+    """
+
+    lines = [
+
+        line.strip()
+
+        for line in ocr_text.splitlines()
+
+        if line.strip()
+
+    ]
+
+
+    timetable_rows = []
+
+    used_periods = set()
+
+
+    for index, line in enumerate(lines):
+
+        # -----------------------------------------------------
+        # Find period
+        # -----------------------------------------------------
+
+        match = re.match(
+            r"^([1-5])\s+",
+            line
+        )
+
+        if not match:
+
+            continue
+
+
+        period = int(
+            match.group(1)
+        )
+
+
+        # Prevent accidental duplicate period parsing
+
+        if period in used_periods:
+
+            continue
+
+
+        used_periods.add(
+            period
+        )
+
+
+        # -----------------------------------------------------
+        # Search following lines
+        # -----------------------------------------------------
+
+        best_subjects = []
+
+
+        for next_line in lines[
+            index + 1:index + 5
+        ]:
+
+            subjects = extract_subjects_from_line(
+                next_line
+            )
+
+
+            if len(subjects) > len(
+                best_subjects
+            ):
+
+                best_subjects = subjects
+
+
+            if len(
+                subjects
+            ) >= 5:
+
+                break
+
+
+        # -----------------------------------------------------
+        # Add subjects
+        # -----------------------------------------------------
+
+        for day_index, subject in enumerate(
+            best_subjects[:5]
+        ):
+
+            if day_index >= len(
+                DAYS
+            ):
+
+                break
+
+
+            timetable_rows.append({
+
+                "day":
+                    DAYS[day_index],
+
+                "period":
+                    period,
+
+                "subject":
+                    subject,
+
+                "start_time":
+                    None,
+
+                "end_time":
+                    None
+
+            })
+
+
+    return timetable_rows
+
+
+# =========================================================
 # TIMETABLE
-# =========================================================
-# =========================================================
-# TIMETABLE OCR
 # =========================================================
 
 @app.route(
@@ -931,7 +1167,10 @@ def logout():
 @login_required
 def timetable():
 
-    student_id = session.get("user_id")
+    student_id = session.get(
+        "user_id"
+    )
+
 
     # =====================================================
     # GET
@@ -943,68 +1182,134 @@ def timetable():
             "timetable.html"
         )
 
+
     # =====================================================
     # POST
     # =====================================================
 
     try:
 
-        file = request.files.get("timetable")
+        # -------------------------------------------------
+        # WEEK
+        # -------------------------------------------------
+
+        week = request.form.get(
+            "week",
+            "A"
+        ).upper().strip()
+
+
+        if week not in (
+            "A",
+            "B"
+        ):
+
+            return jsonify({
+
+                "message":
+                    "Invalid timetable week."
+
+            }), 400
+
+
+        # -------------------------------------------------
+        # FILE
+        # -------------------------------------------------
+
+        file = request.files.get(
+            "timetable"
+        )
+
 
         if not file:
+
             return jsonify({
-                "message": "Please select a timetable image."
+
+                "message":
+                    "Please select a timetable image."
+
             }), 400
+
 
         if not file.filename:
+
             return jsonify({
-                "message": "Please select a timetable image."
+
+                "message":
+                    "Please select a timetable image."
+
             }), 400
 
-        # =================================================
-        # FILE TYPE CHECK
-        # =================================================
+
+        # -------------------------------------------------
+        # FILE TYPE
+        # -------------------------------------------------
 
         allowed_extensions = {
+
             "png",
             "jpg",
             "jpeg",
             "webp"
+
         }
+
 
         if "." not in file.filename:
 
             return jsonify({
-                "message": "Invalid file type."
+
+                "message":
+                    "Invalid file type."
+
             }), 400
 
+
         extension = (
+
             file.filename
             .rsplit(".", 1)[-1]
             .lower()
+
         )
+
 
         if extension not in allowed_extensions:
 
             return jsonify({
+
                 "message":
                     "Please upload a PNG, JPG, JPEG or WEBP image."
+
             }), 400
 
-        # =================================================
+
+        # -------------------------------------------------
         # SAVE IMAGE
-        # =================================================
+        # -------------------------------------------------
 
         filename = secure_filename(
-            f"{student_id}_timetable.{extension}"
+
+            f"{student_id}_week_{week}.{extension}"
+
         )
+
 
         filepath = os.path.join(
-            app.config["TIMETABLE_FOLDER"],
+
+            app.config[
+                "TIMETABLE_FOLDER"
+            ],
+
             filename
+
         )
 
-        file.save(filepath)
+
+        file.save(
+            filepath
+        )
+
 
         print(
             "TIMETABLE IMAGE SAVED:",
@@ -1012,11 +1317,15 @@ def timetable():
             flush=True
         )
 
-        # =================================================
-        # OPEN IMAGE
-        # =================================================
 
-        image = Image.open(filepath)
+        # -------------------------------------------------
+        # OPEN IMAGE
+        # -------------------------------------------------
+
+        image = Image.open(
+            filepath
+        )
+
 
         print(
             "ORIGINAL IMAGE SIZE:",
@@ -1024,36 +1333,56 @@ def timetable():
             flush=True
         )
 
-        # =================================================
-        # PREPARE IMAGE FOR OCR
-        # =================================================
 
-        image = image.convert("L")
+        # -------------------------------------------------
+        # PREPARE IMAGE
+        # -------------------------------------------------
+
+        image = image.convert(
+            "L"
+        )
+
 
         max_dimension = 900
+
 
         if max(image.size) > max_dimension:
 
             ratio = (
+
                 max_dimension /
                 max(image.size)
+
             )
+
 
             new_size = (
+
                 max(
                     1,
-                    int(image.width * ratio)
+                    int(
+                        image.width * ratio
+                    )
                 ),
+
                 max(
                     1,
-                    int(image.height * ratio)
+                    int(
+                        image.height * ratio
+                    )
                 )
+
             )
 
+
             image = image.resize(
+
                 new_size,
+
                 Image.Resampling.LANCZOS
+
             )
+
 
         print(
             "OCR IMAGE SIZE:",
@@ -1061,34 +1390,36 @@ def timetable():
             flush=True
         )
 
-        # =================================================
-        # IMPROVE CONTRAST
-        # =================================================
+
+        # -------------------------------------------------
+        # CONTRAST
+        # -------------------------------------------------
 
         image = ImageEnhance.Contrast(
             image
         ).enhance(2.0)
 
-        # =================================================
-        # CHECK TESSERACT
-        # =================================================
 
-        print(
-            "TESSERACT VERSION:",
-            flush=True
-        )
+        # -------------------------------------------------
+        # CHECK TESSERACT
+        # -------------------------------------------------
 
         try:
 
             tesseract_version = (
+
                 pytesseract
                 .get_tesseract_version()
+
             )
 
+
             print(
+                "TESSERACT VERSION:",
                 tesseract_version,
                 flush=True
             )
+
 
         except Exception as e:
 
@@ -1098,6 +1429,7 @@ def timetable():
                 flush=True
             )
 
+
             return jsonify({
 
                 "message":
@@ -1105,21 +1437,18 @@ def timetable():
 
             }), 500
 
-        # =================================================
+
+        # -------------------------------------------------
         # OCR
-        # =================================================
+        # -------------------------------------------------
 
         print(
-            "STARTING OCR...",
+            f"STARTING OCR FOR WEEK {week}...",
             flush=True
         )
 
-        try:
 
-            # IMPORTANT:
-            # No timeout here.
-            # We are testing whether Tesseract
-            # can actually finish on Render.
+        try:
 
             ocr_text = pytesseract.image_to_string(
 
@@ -1131,10 +1460,12 @@ def timetable():
 
             )
 
+
             print(
                 "OCR FINISHED",
                 flush=True
             )
+
 
         except Exception as e:
 
@@ -1144,6 +1475,7 @@ def timetable():
                 flush=True
             )
 
+
             return jsonify({
 
                 "message":
@@ -1151,23 +1483,43 @@ def timetable():
 
             }), 500
 
-        # =================================================
-        # RETURN RESULT
-        # =================================================
+
+        # -------------------------------------------------
+        # PARSE
+        # -------------------------------------------------
+
+        parsed_rows = parse_timetable_ocr(
+            ocr_text
+        )
+
+
+        print(
+            "PARSED TIMETABLE:",
+            parsed_rows,
+            flush=True
+        )
+
+
+        # -------------------------------------------------
+        # RETURN
+        # -------------------------------------------------
 
         return jsonify({
 
             "message":
-                "Timetable uploaded successfully.",
+                f"Week {week} timetable read successfully.",
+
+            "week":
+                week,
 
             "ocr_text":
-                ocr_text
+                ocr_text,
+
+            "parsed":
+                parsed_rows
 
         })
 
-    # =====================================================
-    # OTHER ERRORS
-    # =====================================================
 
     except Exception as e:
 
@@ -1177,12 +1529,252 @@ def timetable():
             flush=True
         )
 
+
         return jsonify({
 
             "message":
                 f"Could not read timetable: {str(e)}"
 
         }), 500
+
+
+# =========================================================
+# SAVE TIMETABLE
+# =========================================================
+
+@app.route(
+    "/save-timetable",
+    methods=["POST"]
+)
+@login_required
+def save_timetable():
+
+    try:
+
+        student_id = session.get(
+            "user_id"
+        )
+
+
+        data = request.get_json(
+            silent=True
+        ) or {}
+
+
+        week = str(
+            data.get(
+                "week",
+                ""
+            )
+        ).upper().strip()
+
+
+        ocr_text = data.get(
+            "ocr_text",
+            ""
+        )
+
+
+        # -------------------------------------------------
+        # VALIDATE WEEK
+        # -------------------------------------------------
+
+        if week not in (
+            "A",
+            "B"
+        ):
+
+            return jsonify({
+
+                "message":
+                    "Invalid timetable week."
+
+            }), 400
+
+
+        # -------------------------------------------------
+        # VALIDATE OCR
+        # -------------------------------------------------
+
+        if not isinstance(
+            ocr_text,
+            str
+        ) or not ocr_text.strip():
+
+            return jsonify({
+
+                "message":
+                    "No timetable data was detected."
+
+            }), 400
+
+
+        # -------------------------------------------------
+        # PARSE
+        # -------------------------------------------------
+
+        rows = parse_timetable_ocr(
+            ocr_text
+        )
+
+
+        if not rows:
+
+            return jsonify({
+
+                "message":
+                    "I couldn't find timetable subjects in the image. Try uploading a clearer timetable image."
+
+            }), 400
+
+
+        # -------------------------------------------------
+        # DATABASE
+        # -------------------------------------------------
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+
+        try:
+
+            # -------------------------------------------------
+            # DELETE EXISTING WEEK
+            # -------------------------------------------------
+
+            cursor.execute("""
+
+                DELETE FROM timetable
+
+                WHERE student_id = %s
+
+                AND week = %s
+
+            """, (
+
+                student_id,
+                week
+
+            ))
+
+
+            # -------------------------------------------------
+            # INSERT NEW ROWS
+            # -------------------------------------------------
+
+            for row in rows:
+
+                cursor.execute("""
+
+                    INSERT INTO timetable
+
+                    (
+                        student_id,
+                        week,
+                        day,
+                        period,
+                        subject,
+                        start_time,
+                        end_time
+                    )
+
+                    VALUES
+
+                    (
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s
+                    )
+
+                """, (
+
+                    student_id,
+
+                    week,
+
+                    row["day"],
+
+                    row["period"],
+
+                    row["subject"],
+
+                    row.get(
+                        "start_time"
+                    ),
+
+                    row.get(
+                        "end_time"
+                    )
+
+                ))
+
+
+            conn.commit()
+
+
+        except Exception:
+
+            conn.rollback()
+
+            raise
+
+
+        finally:
+
+            cursor.close()
+            conn.close()
+
+
+        print(
+
+            "TIMETABLE SAVED:",
+
+            "student=",
+            student_id,
+
+            "week=",
+            week,
+
+            "rows=",
+            len(rows),
+
+            flush=True
+
+        )
+
+
+        return jsonify({
+
+            "message":
+                f"Week {week} timetable saved successfully."
+
+        })
+
+
+    except Exception as e:
+
+        print(
+
+            "SAVE TIMETABLE ERROR:",
+
+            repr(e),
+
+            flush=True
+
+        )
+
+
+        return jsonify({
+
+            "message":
+                f"Could not save timetable: {str(e)}"
+
+        }), 500
+
 
 # =========================================================
 # MY ATTENDANCE
@@ -1200,14 +1792,17 @@ def my_attendance():
             "user_id"
         )
 
+
         if not user_id:
 
             return redirect(
                 url_for("login")
             )
 
+
         conn = get_db()
         cursor = conn.cursor()
+
 
         try:
 
@@ -1229,7 +1824,9 @@ def my_attendance():
                 user_id,
             ))
 
+
             attendance = cursor.fetchall()
+
 
         finally:
 
@@ -1260,6 +1857,7 @@ def my_attendance():
 
         )
 
+
         return (
 
             f"My attendance error: {str(e)}",
@@ -1273,65 +1871,110 @@ def my_attendance():
 # ACCOUNT
 # =========================================================
 
-
-
-@app.route("/account", methods=["GET", "POST"])
+@app.route(
+    "/account",
+    methods=["GET", "POST"]
+)
 @login_required
 def account():
 
-    student_id = session.get("user_id")
+    student_id = session.get(
+        "user_id"
+    )
+
 
     conn = get_db()
     cursor = conn.cursor()
 
-    # ---------------------------------------------------------
-    # Get the logged-in user's information
-    # ---------------------------------------------------------
 
-    cursor.execute("""
-        SELECT *
-        FROM users
-        WHERE id = %s
-    """, (student_id,))
+    try:
 
-    user = cursor.fetchone()
+        # -------------------------------------------------
+        # USER
+        # -------------------------------------------------
 
-    # ---------------------------------------------------------
-    # Get timetable
-    # ---------------------------------------------------------
+        cursor.execute("""
 
-    cursor.execute("""
-        SELECT
-            id,
-            week,
-            day,
-            period,
-            subject,
-            start_time,
-            end_time
-        FROM timetable
-        WHERE student_id = %s
-        ORDER BY
-            CASE day
-                WHEN 'Monday' THEN 1
-                WHEN 'Tuesday' THEN 2
-                WHEN 'Wednesday' THEN 3
-                WHEN 'Thursday' THEN 4
-                WHEN 'Friday' THEN 5
-                ELSE 6
-            END,
-            period
-    """, (student_id,))
+            SELECT *
 
-    timetable_rows = cursor.fetchall()
+            FROM users
 
-    conn.close()
+            WHERE id = %s
+
+        """, (
+            student_id,
+        ))
+
+
+        user = cursor.fetchone()
+
+
+        # -------------------------------------------------
+        # TIMETABLE
+        # -------------------------------------------------
+
+        cursor.execute("""
+
+            SELECT
+
+                id,
+                week,
+                day,
+                period,
+                subject,
+                start_time,
+                end_time
+
+            FROM timetable
+
+            WHERE student_id = %s
+
+            ORDER BY
+
+                week,
+
+                CASE day
+
+                    WHEN 'Monday' THEN 1
+
+                    WHEN 'Tuesday' THEN 2
+
+                    WHEN 'Wednesday' THEN 3
+
+                    WHEN 'Thursday' THEN 4
+
+                    WHEN 'Friday' THEN 5
+
+                    ELSE 6
+
+                END,
+
+                period
+
+        """, (
+            student_id,
+        ))
+
+
+        timetable_rows = cursor.fetchall()
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
+
 
     return render_template(
+
         "account.html",
+
         header="account",
+
         user=user,
+
         timetable=timetable_rows
+
     )
 
 
@@ -1360,6 +2003,7 @@ def get_student_study_topics(
 
     conn = get_db()
     cursor = conn.cursor()
+
 
     try:
 
@@ -1394,7 +2038,9 @@ def get_student_study_topics(
             student_id,
         ))
 
+
         return cursor.fetchall()
+
 
     finally:
 
@@ -1419,15 +2065,18 @@ def add_study_topic():
             "user_id"
         )
 
+
         name = request.form.get(
             "name",
             ""
         ).strip()
 
+
         subject = request.form.get(
             "subject",
             ""
         ).strip()
+
 
         description = request.form.get(
             "description",
@@ -1447,6 +2096,7 @@ def add_study_topic():
 
         conn = get_db()
         cursor = conn.cursor()
+
 
         try:
 
@@ -1471,6 +2121,7 @@ def add_study_topic():
 
             ))
 
+
             topic = cursor.fetchone()
 
 
@@ -1481,6 +2132,7 @@ def add_study_topic():
             if topic:
 
                 topic_id = topic["id"]
+
 
             else:
 
@@ -1511,6 +2163,7 @@ def add_study_topic():
                     description
 
                 ))
+
 
                 topic = cursor.fetchone()
 
@@ -1546,13 +2199,16 @@ def add_study_topic():
 
             ))
 
+
             conn.commit()
+
 
         except Exception:
 
             conn.rollback()
 
             raise
+
 
         finally:
 
@@ -1580,6 +2236,7 @@ def add_study_topic():
 
         )
 
+
         return jsonify({
 
             "message":
@@ -1604,9 +2261,11 @@ def study_topics():
             "user_id"
         )
 
+
         topics = get_student_study_topics(
             student_id
         )
+
 
         return jsonify({
 
@@ -1619,6 +2278,7 @@ def study_topics():
             ]
 
         })
+
 
     except Exception as e:
 
@@ -1638,6 +2298,7 @@ def load_attendance_rows():
 
     conn = get_db()
     cursor = conn.cursor()
+
 
     try:
 
@@ -1666,7 +2327,9 @@ def load_attendance_rows():
 
         """)
 
+
         return cursor.fetchall()
+
 
     finally:
 
@@ -1688,6 +2351,7 @@ def save_attendance(
 
     conn = get_db()
     cursor = conn.cursor()
+
 
     try:
 
@@ -1717,13 +2381,16 @@ def save_attendance(
 
         ))
 
+
         conn.commit()
+
 
     except Exception:
 
         conn.rollback()
 
         raise
+
 
     finally:
 
@@ -1748,9 +2415,11 @@ def checkin():
 
     client_ip = get_real_ip()
 
+
     allowed, network_name = is_school_ip(
         client_ip
     )
+
 
     if not allowed:
 
@@ -1769,6 +2438,7 @@ def checkin():
     if request.method == "GET":
 
         entries = load_attendance_rows()
+
 
         return render_template(
 
@@ -1791,9 +2461,11 @@ def checkin():
             "user_id"
         )
 
+
         username = session.get(
             "username"
         )
+
 
         print(
 
@@ -1840,6 +2512,7 @@ def checkin():
         conn = get_db()
         cursor = conn.cursor()
 
+
         try:
 
             cursor.execute("""
@@ -1859,7 +2532,9 @@ def checkin():
                 student_id,
             ))
 
+
             user = cursor.fetchone()
+
 
         finally:
 
@@ -1870,6 +2545,7 @@ def checkin():
         if not user:
 
             session.clear()
+
 
             return jsonify({
 
@@ -1885,6 +2561,7 @@ def checkin():
 
         conn = get_db()
         cursor = conn.cursor()
+
 
         try:
 
@@ -1905,7 +2582,9 @@ def checkin():
                 student_id,
             ))
 
+
             existing_attendance = cursor.fetchone()
+
 
         finally:
 
@@ -1988,6 +2667,7 @@ def checkin():
 
         )
 
+
         return jsonify({
 
             "message":
@@ -2007,6 +2687,7 @@ def checkin():
             flush=True
 
         )
+
 
         return jsonify({
 
@@ -2031,6 +2712,7 @@ def reset_users():
         ""
     ).lower().strip()
 
+
     if email not in ADMIN_EMAILS:
 
         return (
@@ -2042,19 +2724,23 @@ def reset_users():
     conn = get_db()
     cursor = conn.cursor()
 
+
     try:
 
         cursor.execute(
             "DELETE FROM users"
         )
 
+
         conn.commit()
+
 
     except Exception:
 
         conn.rollback()
 
         raise
+
 
     finally:
 
@@ -2063,6 +2749,7 @@ def reset_users():
 
 
     session.clear()
+
 
     return "All users deleted."
 
@@ -2099,19 +2786,23 @@ def reset_attendance():
         conn = get_db()
         cursor = conn.cursor()
 
+
         try:
 
             cursor.execute(
                 "DELETE FROM attendance"
             )
 
+
             conn.commit()
+
 
         except Exception:
 
             conn.rollback()
 
             raise
+
 
         finally:
 
@@ -2169,6 +2860,7 @@ def admin():
         conn = get_db()
         cursor = conn.cursor()
 
+
         try:
 
             cursor.execute("""
@@ -2188,7 +2880,9 @@ def admin():
 
             """)
 
+
             users = cursor.fetchall()
+
 
         finally:
 
@@ -2202,6 +2896,7 @@ def admin():
 
         conn = get_db()
         cursor = conn.cursor()
+
 
         try:
 
@@ -2228,7 +2923,9 @@ def admin():
 
             """)
 
+
             attendance = cursor.fetchall()
+
 
         finally:
 
@@ -2266,6 +2963,7 @@ def admin():
             flush=True
 
         )
+
 
         return f"""
 
