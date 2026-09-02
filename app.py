@@ -1021,9 +1021,30 @@ def extract_subjects_from_line(line):
 
 
 def parse_timetable_ocr(ocr_text):
+    """
+    Parse timetable OCR text.
+
+    Handles OCR where periods and times are on the same line, e.g.
+
+        3 10:50am
+        13CLS
+
+    as well as OCR where they are separated:
+
+        3
+        10:50am
+        13CLS
+
+    The parser keeps each subject tied to the period immediately
+    before it and does not search past the next period.
+    """
 
     if not ocr_text:
         return []
+
+    # -------------------------------------------------
+    # CLEAN OCR LINES
+    # -------------------------------------------------
 
     lines = [
         line.strip()
@@ -1034,175 +1055,249 @@ def parse_timetable_ocr(ocr_text):
     results = []
 
     current_day = None
+    current_period = None
+    current_time = None
 
-    for i, line in enumerate(lines):
+    # Valid days
+    valid_days = {
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+    }
+
+    # -------------------------------------------------
+    # PROCESS OCR LINE BY LINE
+    # -------------------------------------------------
+
+    for line in lines:
 
         # ---------------------------------------------
         # FIND DAY
         # ---------------------------------------------
 
-        for day in DAYS:
+        found_day = None
 
+        for day in valid_days:
             if re.search(
                 rf"\b{day}\b",
                 line,
                 re.IGNORECASE
             ):
-                current_day = day
+                found_day = day
                 break
 
-        if not current_day:
+        if found_day:
+
+            current_day = found_day
+
+            # Reset period information when moving
+            # to a new day.
+            current_period = None
+            current_time = None
+
             continue
 
         # ---------------------------------------------
-        # FIND PERIOD
+        # IGNORE DATE / HEADER INFORMATION
         # ---------------------------------------------
 
-        period_match = re.search(
-            r"(?<!\d)([1-5])(?:\s+(\d{1,2}:\d{2}\s*(?:am|pm)))?\b",
+        # Examples:
+        # Monday - Day 6
+        # 07 Sep 2026
+        if re.search(
+            r"\bDay\s+\d+\b",
+            line,
+            re.IGNORECASE
+        ):
+            continue
+
+        if re.search(
+            r"\b\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\b",
+            line
+        ):
+            continue
+
+        # ---------------------------------------------
+        # FIND PERIOD + OPTIONAL TIME
+        # ---------------------------------------------
+
+        period_match = re.match(
+            r"^([1-5])(?:\s+(\d{1,2}:\d{2}\s*(?:am|pm)))?\s*$",
             line,
             re.IGNORECASE
         )
 
-        if not period_match:
-            continue
+        if period_match:
 
-        # Don't mistake Day 1 / Day 2 etc.
-        if (
-            not period_match.group(2)
-            and re.search(
-                r"\bDay\s+[1-5]\b",
-                line,
-                re.IGNORECASE
+            current_period = int(
+                period_match.group(1)
             )
-        ):
+
+            current_time = period_match.group(2)
+
             continue
 
-        period = int(
-            period_match.group(1)
+        # ---------------------------------------------
+        # FIND TIME ON ITS OWN LINE
+        # ---------------------------------------------
+
+        time_match = re.fullmatch(
+            r"(\d{1,2}:\d{2}\s*(?:am|pm))",
+            line,
+            re.IGNORECASE
         )
 
-        time_value = period_match.group(2)
+        if time_match:
 
-        # ---------------------------------------------
-        # FIND TIME
-        # ---------------------------------------------
+            # Only use the time if we already know
+            # which period it belongs to.
+            if current_period is not None:
 
-        if time_value is None:
-
-            for j in range(
-                i + 1,
-                min(i + 3, len(lines))
-            ):
-
-                time_match = re.search(
-                    r"\d{1,2}:\d{2}\s*(?:am|pm)",
-                    lines[j],
-                    re.IGNORECASE
+                current_time = (
+                    time_match.group(1)
                 )
 
-                if time_match:
-
-                    time_value = (
-                        time_match.group(0)
-                    )
-
-                    break
+            continue
 
         # ---------------------------------------------
-        # FIND SUBJECT
+        # DON'T PARSE BREAKS AS SUBJECTS
         # ---------------------------------------------
+
+        if line.upper() in {
+            "FORM",
+            "INT",
+            "LUNCH",
+            "AS"
+        }:
+
+            # FORM is a real timetable entry only when
+            # it occurs after a period.
+            #
+            # For example:
+            #
+            # 1 9:10am
+            # FORM
+            #
+            # should become:
+            # P1 = FORM
+            #
+            if (
+                line.upper() == "FORM"
+                and current_day is not None
+                and current_period is not None
+            ):
+
+                results.append({
+                    "day": current_day,
+                    "period": current_period,
+                    "subject": "FORM",
+                    "start_time": current_time
+                })
+
+            # INT / LUNCH / AS are breaks, so ignore them.
+            continue
+
+        # ---------------------------------------------
+        # FIND SUBJECT CODE
+        # ---------------------------------------------
+
+        if (
+            current_day is None
+            or current_period is None
+        ):
+            continue
 
         subject = None
 
-        for j in range(
-            i + 1,
-            min(i + 7, len(lines))
-        ):
+        # Split OCR line into possible words
+        words = re.findall(
+            r"[A-Za-z0-9]+",
+            line
+        )
 
-            possible_subject = lines[j]
+        for word in words:
 
-            # FORM
-            if re.search(
-                r"\bFORM\b",
-                possible_subject,
-                re.IGNORECASE
+            cleaned = clean_subject(word)
+
+            # Burnside Year 13 subject format
+            #
+            # Examples:
+            # 13STY
+            # 13CLS
+            # 13PHY
+            # 13DTG
+            # 13DTP
+            # 13MAS
+            if re.fullmatch(
+                r"13[A-Z0-9]{3}",
+                cleaned
             ):
 
-                subject = "FORM"
-
+                subject = cleaned
                 break
-
-            # Subject code
-            for word in re.findall(
-                r"[A-Za-z0-9¢]+",
-                possible_subject
-            ):
-
-                cleaned = clean_subject(
-                    word
-                )
-
-                if re.fullmatch(
-                    r"13[A-Z0-9]{3}",
-                    cleaned
-                ):
-
-                    subject = cleaned
-
-                    break
-
-            if subject:
-                break
-
-            # Don't cross into another period
-            if re.match(
-                r"^[1-5]\b",
-                possible_subject
-            ):
-                break
-
-        # ---------------------------------------------
-        # SAVE
-        # ---------------------------------------------
 
         if subject:
 
             results.append({
-
-                "day":
-                    current_day,
-
-                "period":
-                    period,
-
-                "subject":
-                    subject,
-
-                "start_time":
-                    time_value
-
+                "day": current_day,
+                "period": current_period,
+                "subject": subject,
+                "start_time": current_time
             })
 
-    # ---------------------------------------------
-    # REMOVE DUPLICATES
-    # ---------------------------------------------
+            # Clear the current period after successfully
+            # assigning its subject.
+            #
+            # This prevents later text such as a teacher
+            # name or room from accidentally being assigned
+            # to the same period.
+            current_period = None
+            current_time = None
 
-    unique = {}
+    # -------------------------------------------------
+    # REMOVE DUPLICATE DAY/PERIOD ENTRIES
+    # -------------------------------------------------
 
-    for row in results:
+    unique_results = {}
+
+    for entry in results:
 
         key = (
-            row["day"],
-            row["period"]
+            entry["day"],
+            entry["period"]
         )
 
-        unique[key] = row
+        unique_results[key] = entry
 
-    return list(
-        unique.values()
+    # -------------------------------------------------
+    # SORT MONDAY -> FRIDAY, PERIOD 1 -> 5
+    # -------------------------------------------------
+
+    day_order = {
+        "Monday": 1,
+        "Tuesday": 2,
+        "Wednesday": 3,
+        "Thursday": 4,
+        "Friday": 5
+    }
+
+    results = list(
+        unique_results.values()
     )
 
+    results.sort(
+        key=lambda x: (
+            day_order.get(
+                x["day"],
+                99
+            ),
+            x["period"]
+        )
+    )
+
+    return results
 
 # =========================================================
 # TIMETABLE
