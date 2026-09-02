@@ -1,5 +1,6 @@
 from PIL import Image
 import pytesseract
+from PIL import ImageEnhance
 
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
@@ -1010,9 +1011,8 @@ def timetable():
             filepath,
             flush=True
         )
-
-                # =================================================
-        # OPEN IMAGE
+        # =================================================
+        # OPEN IMAGE FOR OCR
         # =================================================
 
         image = Image.open(filepath)
@@ -1024,52 +1024,25 @@ def timetable():
         )
 
         # =================================================
-        # CONVERT TO RGB
+        # MAKE OCR IMAGE SMALLER
         # =================================================
 
-        image = image.convert("RGB")
+        image = image.convert("L")
 
-        # =================================================
-        # RESIZE FOR LOW-MEMORY OCR
-        # =================================================
+        # Keep OCR processing lightweight
+        max_dimension = 900
 
-        max_width = 1200
+        if max(image.size) > max_dimension:
 
-        if image.width > max_width:
+            ratio = max_dimension / max(image.size)
 
-            ratio = max_width / image.width
-
-            new_height = int(
-                image.height * ratio
+            new_size = (
+                max(1, int(image.width * ratio)),
+                max(1, int(image.height * ratio))
             )
 
             image = image.resize(
-                (
-                    max_width,
-                    new_height
-                ),
-                Image.Resampling.LANCZOS
-            )
-
-        # =================================================
-        # LIMIT HEIGHT
-        # =================================================
-
-        max_height = 1600
-
-        if image.height > max_height:
-
-            ratio = max_height / image.height
-
-            new_width = int(
-                image.width * ratio
-            )
-
-            image = image.resize(
-                (
-                    new_width,
-                    max_height
-                ),
+                new_size,
                 Image.Resampling.LANCZOS
             )
 
@@ -1078,6 +1051,16 @@ def timetable():
             image.size,
             flush=True
         )
+
+        # =================================================
+        # IMPROVE CONTRAST
+        # =================================================
+
+        
+
+        image = ImageEnhance.Contrast(
+            image
+        ).enhance(2.0)
 
         # =================================================
         # OCR
@@ -1094,7 +1077,7 @@ def timetable():
                 image,
                 lang="eng",
                 config="--psm 6",
-                timeout=20
+                timeout=8
             )
 
             print(
@@ -1113,7 +1096,7 @@ def timetable():
             return jsonify({
 
                 "message":
-                    "OCR took too long. Please try a clearer or smaller timetable image."
+                    "OCR took too long. Please try a smaller or clearer timetable image."
 
             }), 408
         # =================================================
