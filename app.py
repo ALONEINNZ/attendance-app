@@ -1,6 +1,6 @@
 from PIL import Image, ImageEnhance
 import pytesseract
-
+import re
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash
 
@@ -1021,139 +1021,215 @@ def extract_subjects_from_line(line):
 
 
 def parse_timetable_ocr(ocr_text):
-
     """
-    Parse the flattened Tesseract output.
+    Parses the Burnside High School timetable format.
 
-    The timetable normally has:
+    Expected structure:
 
-        Monday
-        Tuesday
-        Wednesday
-        Thursday
-        Friday
+        Monday - Day 1
+        31 Aug 2026
 
-    and five numbered periods.
+        Form
+        8:15am
 
-    The parser looks for each period and then searches
-    the following OCR lines for subject codes.
+        1
+        9:00am
+        13DTG
+
+        2
+        10:00am
+        13MAS
+
+        Int
+        10:50am
+
+        3
+        11:15am
+        13STY
+
+        ...
+
+    Only periods 1-5 are saved.
+    Form, Int, Lunch and AS are ignored.
     """
+
+    if not ocr_text:
+        return []
 
     lines = [
-
         line.strip()
-
         for line in ocr_text.splitlines()
-
         if line.strip()
-
     ]
 
+    days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday"
+    ]
 
-    timetable_rows = []
+    results = []
 
-    used_periods = set()
+    current_day = None
 
+    i = 0
 
-    for index, line in enumerate(lines):
+    while i < len(lines):
 
-        # -----------------------------------------------------
-        # Find period
-        # -----------------------------------------------------
+        line = lines[i]
 
-        match = re.match(
-            r"^([1-5])\s+",
-            line
-        )
+        # -------------------------------------------------
+        # FIND DAY
+        # -------------------------------------------------
 
-        if not match:
+        for day in days:
 
-            continue
+            if re.search(
+                rf"\b{day}\b",
+                line,
+                re.IGNORECASE
+            ):
 
+                current_day = day
 
-        period = int(
-            match.group(1)
-        )
+                break
 
+        # -------------------------------------------------
+        # FIND PERIOD 1-5
+        # -------------------------------------------------
 
-        # Prevent accidental duplicate period parsing
+        if current_day:
 
-        if period in used_periods:
-
-            continue
-
-
-        used_periods.add(
-            period
-        )
-
-
-        # -----------------------------------------------------
-        # Search following lines
-        # -----------------------------------------------------
-
-        best_subjects = []
-
-
-        for next_line in lines[
-            index + 1:index + 5
-        ]:
-
-            subjects = extract_subjects_from_line(
-                next_line
+            period_match = re.fullmatch(
+                r"([1-5])",
+                line
             )
 
+            if period_match:
 
-            if len(subjects) > len(
-                best_subjects
-            ):
+                period = int(
+                    period_match.group(1)
+                )
 
-                best_subjects = subjects
+                time_value = None
+                subject = None
 
+                # -----------------------------------------
+                # Next line should normally be time
+                # -----------------------------------------
 
-            if len(
-                subjects
-            ) >= 5:
+                if i + 1 < len(lines):
 
-                break
+                    possible_time = lines[i + 1]
 
+                    if re.search(
+                        r"\d{1,2}:\d{2}\s*(?:am|pm)",
+                        possible_time,
+                        re.IGNORECASE
+                    ):
 
-        # -----------------------------------------------------
-        # Add subjects
-        # -----------------------------------------------------
+                        time_value = possible_time
 
-        for day_index, subject in enumerate(
-            best_subjects[:5]
-        ):
+                # -----------------------------------------
+                # Subject is normally the line after time
+                # -----------------------------------------
 
-            if day_index >= len(
-                DAYS
-            ):
+                search_start = i + 1
 
-                break
+                if time_value:
 
+                    search_start = i + 2
 
-            timetable_rows.append({
+                for j in range(
+                    search_start,
+                    min(
+                        i + 5,
+                        len(lines)
+                    )
+                ):
 
-                "day":
-                    DAYS[day_index],
+                    possible_subject = (
+                        lines[j]
+                        .upper()
+                        .strip()
+                    )
 
-                "period":
-                    period,
+                    # FORM
+                    if possible_subject == "FORM":
 
-                "subject":
-                    subject,
+                        subject = "FORM"
 
-                "start_time":
-                    None,
+                        break
 
-                "end_time":
-                    None
+                    # Normal subject code
+                    #
+                    # Examples:
+                    # 13DTG
+                    # 13MAS
+                    # 13STY
+                    # 13DTP
+                    # 13CLS
+                    # 13PHY
 
-            })
+                    cleaned = re.sub(
+                        r"[^A-Z0-9]",
+                        "",
+                        possible_subject
+                    )
 
+                    if re.fullmatch(
+                        r"13[A-Z0-9]{3}",
+                        cleaned
+                    ):
 
-    return timetable_rows
+                        subject = cleaned
+
+                        break
+
+                # -----------------------------------------
+                # Save valid period
+                # -----------------------------------------
+
+                if subject:
+
+                    results.append({
+
+                        "day":
+                            current_day,
+
+                        "period":
+                            period,
+
+                        "subject":
+                            subject,
+
+                        "start_time":
+                            time_value
+
+                    })
+
+        i += 1
+
+    # -----------------------------------------------------
+    # Remove duplicates
+    # -----------------------------------------------------
+
+    unique = {}
+
+    for row in results:
+
+        key = (
+            row["day"],
+            row["period"]
+        )
+
+        unique[key] = row
+
+    return list(
+        unique.values()
+    )
 
 
 # =========================================================
@@ -1555,119 +1631,84 @@ def save_timetable():
             "user_id"
         )
 
-
         data = request.get_json(
             silent=True
         ) or {}
 
-
         week = str(
-            data.get(
-                "week",
-                ""
-            )
+            data.get("week", "")
         ).upper().strip()
-
 
         ocr_text = data.get(
             "ocr_text",
             ""
         )
 
-
-        # -------------------------------------------------
-        # VALIDATE WEEK
-        # -------------------------------------------------
-
-        if week not in (
-            "A",
-            "B"
-        ):
+        if week not in ["A", "B"]:
 
             return jsonify({
-
                 "message":
                     "Invalid timetable week."
-
             }), 400
 
-
-        # -------------------------------------------------
-        # VALIDATE OCR
-        # -------------------------------------------------
-
-        if not isinstance(
-            ocr_text,
-            str
-        ) or not ocr_text.strip():
+        if not ocr_text:
 
             return jsonify({
-
                 "message":
-                    "No timetable data was detected."
-
+                    "No timetable data found."
             }), 400
 
-
-        # -------------------------------------------------
+        # ================================================
         # PARSE
-        # -------------------------------------------------
+        # ================================================
 
-        rows = parse_timetable_ocr(
+        entries = parse_timetable_ocr(
             ocr_text
         )
 
-
-        if not rows:
+        if not entries:
 
             return jsonify({
-
                 "message":
-                    "I couldn't find timetable subjects in the image. Try uploading a clearer timetable image."
-
+                    "Could not find any timetable periods."
             }), 400
 
-
-        # -------------------------------------------------
+        # ================================================
         # DATABASE
-        # -------------------------------------------------
+        # ================================================
 
         conn = get_db()
         cursor = conn.cursor()
 
-
         try:
 
-            # -------------------------------------------------
-            # DELETE EXISTING WEEK
-            # -------------------------------------------------
+            # --------------------------------------------
+            # COMPLETELY REPLACE THIS WEEK
+            # --------------------------------------------
 
-            cursor.execute("""
-
+            cursor.execute(
+                """
                 DELETE FROM timetable
-
                 WHERE student_id = %s
+                  AND week = %s
+                """,
+                (
+                    student_id,
+                    week
+                )
+            )
 
-                AND week = %s
+            # --------------------------------------------
+            # INSERT NEW TIMETABLE
+            # --------------------------------------------
 
-            """, (
+            inserted = 0
 
-                student_id,
-                week
+            for entry in entries:
 
-            ))
-
-
-            # -------------------------------------------------
-            # INSERT NEW ROWS
-            # -------------------------------------------------
-
-            for row in rows:
-
-                cursor.execute("""
-
+                cursor.execute(
+                    """
                     INSERT INTO timetable
-
                     (
                         student_id,
                         week,
@@ -1677,9 +1718,7 @@ def save_timetable():
                         start_time,
                         end_time
                     )
-
                     VALUES
-
                     (
                         %s,
                         %s,
@@ -1689,32 +1728,23 @@ def save_timetable():
                         %s,
                         %s
                     )
-
-                """, (
-
-                    student_id,
-
-                    week,
-
-                    row["day"],
-
-                    row["period"],
-
-                    row["subject"],
-
-                    row.get(
-                        "start_time"
-                    ),
-
-                    row.get(
-                        "end_time"
+                    """,
+                    (
+                        student_id,
+                        week,
+                        entry["day"],
+                        entry["period"],
+                        entry["subject"],
+                        entry.get(
+                            "start_time"
+                        ),
+                        None
                     )
+                )
 
-                ))
-
+                inserted += 1
 
             conn.commit()
-
 
         except Exception:
 
@@ -1722,51 +1752,28 @@ def save_timetable():
 
             raise
 
-
         finally:
 
             cursor.close()
             conn.close()
 
-
-        print(
-
-            "TIMETABLE SAVED:",
-
-            "student=",
-            student_id,
-
-            "week=",
-            week,
-
-            "rows=",
-            len(rows),
-
-            flush=True
-
-        )
-
-
         return jsonify({
 
             "message":
-                f"Week {week} timetable saved successfully."
+                f"Week {week} timetable saved successfully.",
+
+            "entries":
+                inserted
 
         })
-
 
     except Exception as e:
 
         print(
-
             "SAVE TIMETABLE ERROR:",
-
             repr(e),
-
             flush=True
-
         )
-
 
         return jsonify({
 
@@ -1774,7 +1781,6 @@ def save_timetable():
                 f"Could not save timetable: {str(e)}"
 
         }), 500
-
 
 # =========================================================
 # MY ATTENDANCE
