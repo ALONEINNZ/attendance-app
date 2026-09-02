@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -141,8 +142,9 @@
             </h1>
 
             <p>
-                Upload a screenshot or image of your timetable
-                and we'll read it for you.
+                Upload your Week A and Week B timetables.
+                We'll read them automatically and save them
+                to your profile.
             </p>
 
         </div>
@@ -157,11 +159,11 @@
             <div>
 
                 <span class="section-label">
-                    UPLOAD
+                    TIMETABLE
                 </span>
 
                 <h2>
-                    Your timetable
+                    Choose a week
                 </h2>
 
             </div>
@@ -169,10 +171,57 @@
         </div>
 
 
+        <!-- =================================================
+             WEEK SELECTOR
+        ================================================== -->
+
+        <div class="week-switcher">
+
+            <button
+                type="button"
+                class="week-button active"
+                id="week-a-button"
+                onclick="selectWeek('A')"
+            >
+                Week A
+            </button>
+
+            <button
+                type="button"
+                class="week-button"
+                id="week-b-button"
+                onclick="selectWeek('B')"
+            >
+                Week B
+            </button>
+
+        </div>
+
+
+        <p
+            id="selected-week-text"
+            style="margin-bottom: 20px;"
+        >
+            Uploading <strong>Week A</strong>
+        </p>
+
+
+        <!-- =================================================
+             UPLOAD FORM
+        ================================================== -->
+
         <form
             id="timetable-form"
             enctype="multipart/form-data"
         >
+
+            <input
+                type="hidden"
+                id="week"
+                name="week"
+                value="A"
+            >
+
 
             <div class="timetable-upload-area">
 
@@ -194,10 +243,11 @@
             <button
                 type="submit"
                 class="primary-button"
+                id="submit-button"
             >
 
                 <span>
-                    Read timetable
+                    Read Week A timetable
                 </span>
 
                 <span class="button-arrow">
@@ -209,9 +259,13 @@
         </form>
 
 
+        <!-- =================================================
+             RESULT
+        ================================================== -->
+
         <div
             id="result"
-            style="display:none;"
+            style="display:none; margin-top:30px;"
         >
 
             <div class="account-info-row">
@@ -220,10 +274,10 @@
                     OCR
                 </div>
 
-                <div>
+                <div style="width:100%;">
 
                     <span>
-                        Text detected from your timetable
+                        Timetable detected
                     </span>
 
                     <pre
@@ -231,6 +285,8 @@
                         style="
                             white-space: pre-wrap;
                             margin-top: 10px;
+                            max-height: 350px;
+                            overflow-y: auto;
                         "
                     ></pre>
 
@@ -238,7 +294,28 @@
 
             </div>
 
+
+            <!-- SAVE BUTTON -->
+
+            <button
+                type="button"
+                id="save-button"
+                class="primary-button"
+                style="margin-top:20px;"
+            >
+
+                <span>
+                    Save timetable
+                </span>
+
+                <span class="button-arrow">
+                    ✓
+                </span>
+
+            </button>
+
         </div>
+
 
     </div>
 
@@ -284,88 +361,271 @@
 
 <script>
 
-const form =
-    document.getElementById(
-        "timetable-form"
-    );
+let selectedWeek = "A";
+
+let detectedOCR = "";
 
 
-form.addEventListener(
-    "submit",
-    async function(event) {
+/* =========================================================
+   SELECT WEEK
+========================================================= */
 
-        event.preventDefault();
+function selectWeek(week) {
 
+    selectedWeek = week;
 
-        const formData =
-            new FormData(form);
-
-
-        const result =
-            document.getElementById(
-                "result"
-            );
+    document
+        .getElementById("week")
+        .value = week;
 
 
-        const output =
-            document.getElementById(
-                "ocr-output"
-            );
+    const buttonA =
+        document.getElementById("week-a-button");
+
+    const buttonB =
+        document.getElementById("week-b-button");
 
 
-        output.textContent =
-            "Reading timetable...";
+    buttonA.classList.remove("active");
+    buttonB.classList.remove("active");
 
 
-        result.style.display =
-            "block";
+    if (week === "A") {
+
+        buttonA.classList.add("active");
+
+    } else {
+
+        buttonB.classList.add("active");
+
+    }
 
 
-        try {
+    document
+        .getElementById("selected-week-text")
+        .innerHTML =
+            "Uploading <strong>Week " +
+            week +
+            "</strong>";
 
-            const response =
-                await fetch(
-                    "{{ url_for('timetable') }}",
-                    {
-                        method: "POST",
-                        body: formData
-                    }
+
+    document
+        .getElementById("submit-button")
+        .querySelector("span")
+        .textContent =
+            "Read Week " +
+            week +
+            " timetable";
+
+}
+
+
+/* =========================================================
+   UPLOAD / OCR
+========================================================= */
+
+document
+    .getElementById("timetable-form")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const form =
+                document.getElementById(
+                    "timetable-form"
                 );
 
 
-            const data =
-                await response.json();
+            const formData =
+                new FormData(form);
 
 
-            if (!response.ok) {
+            const result =
+                document.getElementById(
+                    "result"
+                );
+
+
+            const output =
+                document.getElementById(
+                    "ocr-output"
+                );
+
+
+            const submitButton =
+                document.getElementById(
+                    "submit-button"
+                );
+
+
+            result.style.display = "block";
+
+
+            output.textContent =
+                "Reading timetable...";
+
+
+            submitButton.disabled = true;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "{{ url_for('timetable') }}",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    output.textContent =
+                        data.message ||
+                        "Something went wrong.";
+
+                    submitButton.disabled = false;
+
+                    return;
+
+                }
+
+
+                detectedOCR =
+                    data.ocr_text || "";
+
 
                 output.textContent =
-                    data.message ||
-                    "Something went wrong.";
+                    detectedOCR ||
+                    "No text was detected.";
 
-                return;
+
+                submitButton.disabled = false;
+
+
+            } catch (error) {
+
+                output.textContent =
+                    "Could not upload timetable.";
+
+                submitButton.disabled = false;
 
             }
 
+        }
+    );
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+document
+    .getElementById("save-button")
+    .addEventListener(
+        "click",
+        async function() {
+
+            const saveButton =
+                document.getElementById(
+                    "save-button"
+                );
+
+
+            const output =
+                document.getElementById(
+                    "ocr-output"
+                );
+
+
+            saveButton.disabled = true;
+
 
             output.textContent =
-                data.ocr_text ||
-                "No text was detected.";
+                "Saving timetable...";
 
 
-        } catch (error) {
+            try {
 
-            output.textContent =
-                "Could not upload timetable.";
+                const response =
+                    await fetch(
+                        "{{ url_for('save_timetable') }}",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body: JSON.stringify({
+
+                                week:
+                                    selectedWeek,
+
+                                ocr_text:
+                                    detectedOCR
+
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    output.textContent =
+                        data.message ||
+                        "Could not save timetable.";
+
+                    saveButton.disabled = false;
+
+                    return;
+
+                }
+
+
+                output.textContent =
+                    "✓ " +
+                    data.message;
+
+
+                setTimeout(
+                    function() {
+
+                        window.location.href =
+                            "{{ url_for('account') }}";
+
+                    },
+                    800
+                );
+
+
+            } catch (error) {
+
+                output.textContent =
+                    "Could not save timetable.";
+
+                saveButton.disabled = false;
+
+            }
 
         }
-
-    }
-);
+    );
 
 </script>
 
 
 </body>
-
 </html>
+

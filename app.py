@@ -1273,102 +1273,65 @@ def my_attendance():
 # ACCOUNT
 # =========================================================
 
-@app.route(
-    "/account"
-)
+
+
+@app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
 
-    user_id = session.get(
-        "user_id"
-    )
+    student_id = session.get("user_id")
 
     conn = get_db()
     cursor = conn.cursor()
 
-    try:
+    # ---------------------------------------------------------
+    # Get the logged-in user's information
+    # ---------------------------------------------------------
 
-        # =================================================
-        # USER
-        # =================================================
+    cursor.execute("""
+        SELECT *
+        FROM users
+        WHERE id = %s
+    """, (student_id,))
 
-        cursor.execute("""
+    user = cursor.fetchone()
 
-            SELECT
+    # ---------------------------------------------------------
+    # Get timetable
+    # ---------------------------------------------------------
 
-                username,
-                code,
-                email,
-                pfp
+    cursor.execute("""
+        SELECT
+            id,
+            week,
+            day,
+            period,
+            subject,
+            start_time,
+            end_time
+        FROM timetable
+        WHERE student_id = %s
+        ORDER BY
+            CASE day
+                WHEN 'Monday' THEN 1
+                WHEN 'Tuesday' THEN 2
+                WHEN 'Wednesday' THEN 3
+                WHEN 'Thursday' THEN 4
+                WHEN 'Friday' THEN 5
+                ELSE 6
+            END,
+            period
+    """, (student_id,))
 
-            FROM users
+    timetable_rows = cursor.fetchall()
 
-            WHERE id = %s
-
-        """, (
-            user_id,
-        ))
-
-        user = cursor.fetchone()
-
-
-        # =================================================
-        # TIMETABLE
-        # =================================================
-
-        cursor.execute("""
-
-            SELECT
-
-                week,
-                day,
-                period,
-                subject,
-                start_time,
-                end_time
-
-            FROM timetable
-
-            WHERE student_id = %s
-
-            ORDER BY
-
-                CASE day
-
-                    WHEN 'Monday' THEN 1
-                    WHEN 'Tuesday' THEN 2
-                    WHEN 'Wednesday' THEN 3
-                    WHEN 'Thursday' THEN 4
-                    WHEN 'Friday' THEN 5
-
-                    ELSE 6
-
-                END,
-
-                period ASC
-
-        """, (
-            user_id,
-        ))
-
-        timetable_rows = cursor.fetchall()
-
-    finally:
-
-        cursor.close()
-        conn.close()
-
+    conn.close()
 
     return render_template(
-
         "account.html",
-
-        header="Account",
-
+        header="account",
         user=user,
-
         timetable=timetable_rows
-
     )
 
 
