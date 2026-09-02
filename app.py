@@ -1021,37 +1021,6 @@ def extract_subjects_from_line(line):
 
 
 def parse_timetable_ocr(ocr_text):
-    """
-    Parses the Burnside High School timetable format.
-
-    Expected structure:
-
-        Monday - Day 1
-        31 Aug 2026
-
-        Form
-        8:15am
-
-        1
-        9:00am
-        13DTG
-
-        2
-        10:00am
-        13MAS
-
-        Int
-        10:50am
-
-        3
-        11:15am
-        13STY
-
-        ...
-
-    Only periods 1-5 are saved.
-    Form, Int, Lunch and AS are ignored.
-    """
 
     if not ocr_text:
         return []
@@ -1062,159 +1031,162 @@ def parse_timetable_ocr(ocr_text):
         if line.strip()
     ]
 
-    days = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday"
-    ]
-
     results = []
 
     current_day = None
 
-    i = 0
+    for i, line in enumerate(lines):
 
-    while i < len(lines):
-
-        line = lines[i]
-
-        # -------------------------------------------------
+        # ---------------------------------------------
         # FIND DAY
-        # -------------------------------------------------
+        # ---------------------------------------------
 
-        for day in days:
+        for day in DAYS:
 
             if re.search(
                 rf"\b{day}\b",
                 line,
                 re.IGNORECASE
             ):
-
                 current_day = day
+                break
+
+        if not current_day:
+            continue
+
+        # ---------------------------------------------
+        # FIND PERIOD
+        # ---------------------------------------------
+
+        period_match = re.search(
+            r"(?<!\d)([1-5])(?:\s+(\d{1,2}:\d{2}\s*(?:am|pm)))?\b",
+            line,
+            re.IGNORECASE
+        )
+
+        if not period_match:
+            continue
+
+        # Don't mistake Day 1 / Day 2 etc.
+        if (
+            not period_match.group(2)
+            and re.search(
+                r"\bDay\s+[1-5]\b",
+                line,
+                re.IGNORECASE
+            )
+        ):
+            continue
+
+        period = int(
+            period_match.group(1)
+        )
+
+        time_value = period_match.group(2)
+
+        # ---------------------------------------------
+        # FIND TIME
+        # ---------------------------------------------
+
+        if time_value is None:
+
+            for j in range(
+                i + 1,
+                min(i + 3, len(lines))
+            ):
+
+                time_match = re.search(
+                    r"\d{1,2}:\d{2}\s*(?:am|pm)",
+                    lines[j],
+                    re.IGNORECASE
+                )
+
+                if time_match:
+
+                    time_value = (
+                        time_match.group(0)
+                    )
+
+                    break
+
+        # ---------------------------------------------
+        # FIND SUBJECT
+        # ---------------------------------------------
+
+        subject = None
+
+        for j in range(
+            i + 1,
+            min(i + 7, len(lines))
+        ):
+
+            possible_subject = lines[j]
+
+            # FORM
+            if re.search(
+                r"\bFORM\b",
+                possible_subject,
+                re.IGNORECASE
+            ):
+
+                subject = "FORM"
 
                 break
 
-        # -------------------------------------------------
-        # FIND PERIOD 1-5
-        # -------------------------------------------------
+            # Subject code
+            for word in re.findall(
+                r"[A-Za-z0-9¢]+",
+                possible_subject
+            ):
 
-        if current_day:
-
-            period_match = re.fullmatch(
-                r"([1-5])",
-                line
-            )
-
-            if period_match:
-
-                period = int(
-                    period_match.group(1)
+                cleaned = clean_subject(
+                    word
                 )
 
-                time_value = None
-                subject = None
-
-                # -----------------------------------------
-                # Next line should normally be time
-                # -----------------------------------------
-
-                if i + 1 < len(lines):
-
-                    possible_time = lines[i + 1]
-
-                    if re.search(
-                        r"\d{1,2}:\d{2}\s*(?:am|pm)",
-                        possible_time,
-                        re.IGNORECASE
-                    ):
-
-                        time_value = possible_time
-
-                # -----------------------------------------
-                # Subject is normally the line after time
-                # -----------------------------------------
-
-                search_start = i + 1
-
-                if time_value:
-
-                    search_start = i + 2
-
-                for j in range(
-                    search_start,
-                    min(
-                        i + 5,
-                        len(lines)
-                    )
+                if re.fullmatch(
+                    r"13[A-Z0-9]{3}",
+                    cleaned
                 ):
 
-                    possible_subject = (
-                        lines[j]
-                        .upper()
-                        .strip()
-                    )
+                    subject = cleaned
 
-                    # FORM
-                    if possible_subject == "FORM":
+                    break
 
-                        subject = "FORM"
+            if subject:
+                break
 
-                        break
+            # Don't cross into another period
+            if re.match(
+                r"^[1-5]\b",
+                possible_subject
+            ):
+                break
 
-                    # Normal subject code
-                    #
-                    # Examples:
-                    # 13DTG
-                    # 13MAS
-                    # 13STY
-                    # 13DTP
-                    # 13CLS
-                    # 13PHY
+        # ---------------------------------------------
+        # SAVE
+        # ---------------------------------------------
 
-                    cleaned = re.sub(
-                        r"[^A-Z0-9]",
-                        "",
-                        possible_subject
-                    )
+        if subject:
 
-                    if re.fullmatch(
-                        r"13[A-Z0-9]{3}",
-                        cleaned
-                    ):
+            results.append({
 
-                        subject = cleaned
+                "day":
+                    current_day,
 
-                        break
+                "period":
+                    period,
 
-                # -----------------------------------------
-                # Save valid period
-                # -----------------------------------------
+                "subject":
+                    subject,
 
-                if subject:
+                "start_time":
+                    time_value
 
-                    results.append({
+            })
 
-                        "day":
-                            current_day,
-
-                        "period":
-                            period,
-
-                        "subject":
-                            subject,
-
-                        "start_time":
-                            time_value
-
-                    })
-
-        i += 1
-
-    # -----------------------------------------------------
-    # Remove duplicates
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # REMOVE DUPLICATES
+    # ---------------------------------------------
 
     unique = {}
 
@@ -1515,7 +1487,7 @@ def timetable():
 
 
         # -------------------------------------------------
-        # OCR
+        # OCR EACH DAY COLUMN SEPARATELY
         # -------------------------------------------------
 
         print(
@@ -1523,25 +1495,77 @@ def timetable():
             flush=True
         )
 
+        days = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday"
+        ]
+
+        ocr_parts = []
 
         try:
+            original_image = Image.open(filepath).convert("L")
 
-            ocr_text = pytesseract.image_to_string(
+            image_width, image_height = original_image.size
 
-                image,
+            column_width = image_width / 5
 
-                lang="eng",
+            for index, day in enumerate(days):
 
-                config="--psm 6"
+                left = int(index * column_width)
+                right = int((index + 1) * column_width)
 
+                padding = 4
+
+                left += padding
+                right -= padding
+
+                column = original_image.crop(
+                    (
+                        left,
+                        0,
+                        right,
+                        image_height
+                    )
+                )
+
+                column = column.resize(
+                    (
+                        column.width * 2,
+                        column.height * 2
+                    ),
+                    Image.Resampling.LANCZOS
+                )
+
+                column = ImageEnhance.Contrast(
+                    column
+                ).enhance(1.5)
+
+                print(
+                    f"OCR {day} column...",
+                    flush=True
+                )
+
+                column_text = pytesseract.image_to_string(
+                    column,
+                    lang="eng",
+                    config="--psm 6"
+                )
+
+                ocr_parts.append(
+                    f"{day}\n{column_text}"
+                )
+
+            ocr_text = "\n\n".join(
+                ocr_parts
             )
-
 
             print(
                 "OCR FINISHED",
                 flush=True
             )
-
 
         except Exception as e:
 
@@ -1551,12 +1575,9 @@ def timetable():
                 flush=True
             )
 
-
             return jsonify({
-
                 "message":
                     f"OCR failed: {str(e)}"
-
             }), 500
 
 
