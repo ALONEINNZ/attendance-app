@@ -1302,6 +1302,9 @@ def parse_timetable_ocr(ocr_text):
 # =========================================================
 # TIMETABLE
 # =========================================================
+# =========================================================
+# TIMETABLE
+# =========================================================
 
 @app.route(
     "/timetable",
@@ -1310,10 +1313,7 @@ def parse_timetable_ocr(ocr_text):
 @login_required
 def timetable():
 
-    student_id = session.get(
-        "user_id"
-    )
-
+    student_id = session.get("user_id")
 
     # =====================================================
     # GET
@@ -1324,7 +1324,6 @@ def timetable():
         return render_template(
             "timetable.html"
         )
-
 
     # =====================================================
     # POST
@@ -1341,19 +1340,12 @@ def timetable():
             "A"
         ).upper().strip()
 
-
-        if week not in (
-            "A",
-            "B"
-        ):
+        if week not in ("A", "B"):
 
             return jsonify({
-
                 "message":
                     "Invalid timetable week."
-
             }), 400
-
 
         # -------------------------------------------------
         # FILE
@@ -1363,185 +1355,64 @@ def timetable():
             "timetable"
         )
 
-
-        if not file:
-
-            return jsonify({
-
-                "message":
-                    "Please select a timetable image."
-
-            }), 400
-
-
-        if not file.filename:
+        if not file or not file.filename:
 
             return jsonify({
-
                 "message":
                     "Please select a timetable image."
-
             }), 400
-
 
         # -------------------------------------------------
         # FILE TYPE
         # -------------------------------------------------
 
         allowed_extensions = {
-
             "png",
             "jpg",
             "jpeg",
             "webp"
-
         }
-
 
         if "." not in file.filename:
 
             return jsonify({
-
                 "message":
                     "Invalid file type."
-
             }), 400
 
-
         extension = (
-
             file.filename
             .rsplit(".", 1)[-1]
             .lower()
-
         )
-
 
         if extension not in allowed_extensions:
 
             return jsonify({
-
                 "message":
                     "Please upload a PNG, JPG, JPEG or WEBP image."
-
             }), 400
-
 
         # -------------------------------------------------
         # SAVE IMAGE
         # -------------------------------------------------
 
         filename = secure_filename(
-
             f"{student_id}_week_{week}.{extension}"
-
         )
-
 
         filepath = os.path.join(
-
-            app.config[
-                "TIMETABLE_FOLDER"
-            ],
-
+            app.config["TIMETABLE_FOLDER"],
             filename
-
         )
 
-
-        file.save(
-            filepath
-        )
-
+        file.save(filepath)
 
         print(
             "TIMETABLE IMAGE SAVED:",
             filepath,
             flush=True
         )
-
-
-        # -------------------------------------------------
-        # OPEN IMAGE
-        # -------------------------------------------------
-
-        image = Image.open(
-            filepath
-        )
-
-
-        print(
-            "ORIGINAL IMAGE SIZE:",
-            image.size,
-            flush=True
-        )
-
-
-        # -------------------------------------------------
-        # PREPARE IMAGE
-        # -------------------------------------------------
-
-        image = image.convert(
-            "L"
-        )
-
-
-        max_dimension = 900
-
-
-        if max(image.size) > max_dimension:
-
-            ratio = (
-
-                max_dimension /
-                max(image.size)
-
-            )
-
-
-            new_size = (
-
-                max(
-                    1,
-                    int(
-                        image.width * ratio
-                    )
-                ),
-
-                max(
-                    1,
-                    int(
-                        image.height * ratio
-                    )
-                )
-
-            )
-
-
-            image = image.resize(
-
-                new_size,
-
-                Image.Resampling.LANCZOS
-
-            )
-
-
-        print(
-            "OCR IMAGE SIZE:",
-            image.size,
-            flush=True
-        )
-
-
-        # -------------------------------------------------
-        # CONTRAST
-        # -------------------------------------------------
-
-        image = ImageEnhance.Contrast(
-            image
-        ).enhance(2.0)
-
 
         # -------------------------------------------------
         # CHECK TESSERACT
@@ -1550,19 +1421,15 @@ def timetable():
         try:
 
             tesseract_version = (
-
                 pytesseract
                 .get_tesseract_version()
-
             )
-
 
             print(
                 "TESSERACT VERSION:",
                 tesseract_version,
                 flush=True
             )
-
 
         except Exception as e:
 
@@ -1572,17 +1439,95 @@ def timetable():
                 flush=True
             )
 
-
             return jsonify({
-
                 "message":
                     "OCR is not available on the server."
-
             }), 500
 
+        # -------------------------------------------------
+        # OPEN ORIGINAL IMAGE
+        # -------------------------------------------------
+
+        try:
+
+            original_image = Image.open(
+                filepath
+            )
+
+            print(
+                "ORIGINAL IMAGE SIZE:",
+                original_image.size,
+                flush=True
+            )
+
+            # Convert once.
+            original_image = original_image.convert(
+                "L"
+            )
+
+        except Exception as e:
+
+            print(
+                "IMAGE OPEN ERROR:",
+                repr(e),
+                flush=True
+            )
+
+            return jsonify({
+                "message":
+                    "Could not open the timetable image."
+            }), 400
 
         # -------------------------------------------------
-        # OCR EACH DAY COLUMN SEPARATELY
+        # LIMIT IMAGE SIZE
+        # -------------------------------------------------
+        #
+        # We don't need a huge image for timetable OCR.
+        #
+        # Keeping the largest dimension around 1000 pixels
+        # prevents Tesseract from doing unnecessary work.
+
+        max_dimension = 1000
+
+        if max(original_image.size) > max_dimension:
+
+            ratio = (
+                max_dimension /
+                max(original_image.size)
+            )
+
+            new_size = (
+                max(
+                    1,
+                    int(original_image.width * ratio)
+                ),
+                max(
+                    1,
+                    int(original_image.height * ratio)
+                )
+            )
+
+            original_image = original_image.resize(
+                new_size,
+                Image.Resampling.LANCZOS
+            )
+
+        print(
+            "OCR BASE IMAGE SIZE:",
+            original_image.size,
+            flush=True
+        )
+
+        # -------------------------------------------------
+        # CONTRAST
+        # -------------------------------------------------
+
+        original_image = ImageEnhance.Contrast(
+            original_image
+        ).enhance(1.6)
+
+        # -------------------------------------------------
+        # OCR EACH DAY COLUMN
         # -------------------------------------------------
 
         print(
@@ -1600,22 +1545,57 @@ def timetable():
 
         ocr_parts = []
 
+        image_width, image_height = (
+            original_image.size
+        )
+
+        column_width = (
+            image_width / len(days)
+        )
+
         try:
-            original_image = Image.open(filepath).convert("L")
-
-            image_width, image_height = original_image.size
-
-            column_width = image_width / 5
 
             for index, day in enumerate(days):
 
-                left = int(index * column_width)
-                right = int((index + 1) * column_width)
+                # -----------------------------------------
+                # CALCULATE COLUMN
+                # -----------------------------------------
 
-                padding = 4
+                left = int(
+                    index * column_width
+                )
 
-                left += padding
-                right -= padding
+                right = int(
+                    (index + 1) * column_width
+                )
+
+                # Small padding prevents grid lines
+                # directly touching the OCR area.
+
+                padding = 3
+
+                left = max(
+                    0,
+                    left + padding
+                )
+
+                right = min(
+                    image_width,
+                    right - padding
+                )
+
+                if right <= left:
+
+                    print(
+                        f"SKIPPING {day}: invalid crop",
+                        flush=True
+                    )
+
+                    continue
+
+                # -----------------------------------------
+                # CROP
+                # -----------------------------------------
 
                 column = original_image.crop(
                     (
@@ -1626,55 +1606,125 @@ def timetable():
                     )
                 )
 
+                print(
+                    f"OCR {day} column:",
+                    column.size,
+                    flush=True
+                )
+
+                # -----------------------------------------
+                # MODERATE UPSCALE
+                # -----------------------------------------
+                #
+                # Previous code doubled the image.
+                # That was expensive on Render.
+                #
+                # 1.25x gives Tesseract slightly more
+                # resolution without making the image
+                # enormous.
+
+                upscale = 1.25
+
+                new_width = max(
+                    1,
+                    int(column.width * upscale)
+                )
+
+                new_height = max(
+                    1,
+                    int(column.height * upscale)
+                )
+
                 column = column.resize(
                     (
-                        column.width * 2,
-                        column.height * 2
+                        new_width,
+                        new_height
                     ),
                     Image.Resampling.LANCZOS
                 )
+
+                # -----------------------------------------
+                # CONTRAST
+                # -----------------------------------------
 
                 column = ImageEnhance.Contrast(
                     column
                 ).enhance(1.5)
 
-                print(
-                    f"OCR {day} column...",
-                    flush=True
-                )
+                # -----------------------------------------
+                # OCR
+                # -----------------------------------------
+                #
+                # PSM 6 works well for a timetable column
+                # because it treats the image as a block
+                # of text.
+                #
+                # timeout prevents one bad OCR operation
+                # from hanging forever.
 
-                column_text = pytesseract.image_to_string(
-                    column,
-                    lang="eng",
-                    config="--psm 6"
-                )
+                try:
+
+                    column_text = (
+                        pytesseract.image_to_string(
+                            column,
+                            lang="eng",
+                            config="--psm 6",
+                            timeout=5
+                        )
+                    )
+
+                except RuntimeError as e:
+
+                    print(
+                        f"OCR TIMEOUT/ERROR FOR {day}:",
+                        repr(e),
+                        flush=True
+                    )
+
+                    column_text = ""
+
+                # -----------------------------------------
+                # SAVE RESULT
+                # -----------------------------------------
 
                 ocr_parts.append(
                     f"{day}\n{column_text}"
                 )
 
-            ocr_text = "\n\n".join(
-                ocr_parts
-            )
+                print(
+                    f"OCR {day} COMPLETE",
+                    flush=True
+                )
 
-            print(
-                "OCR FINISHED",
-                flush=True
-            )
+                # Explicitly release the crop before
+                # processing the next column.
 
-        except Exception as e:
+                del column
 
-            print(
-                "OCR ERROR:",
-                repr(e),
-                flush=True
-            )
+        finally:
 
-            return jsonify({
-                "message":
-                    f"OCR failed: {str(e)}"
-            }), 500
+            # Release the large image before parsing.
 
+            del original_image
+
+        # -------------------------------------------------
+        # COMBINE OCR
+        # -------------------------------------------------
+
+        ocr_text = "\n\n".join(
+            ocr_parts
+        )
+
+        print(
+            "OCR FINISHED",
+            flush=True
+        )
+
+        print(
+            "OCR TEXT:",
+            repr(ocr_text),
+            flush=True
+        )
 
         # -------------------------------------------------
         # PARSE
@@ -1684,13 +1734,11 @@ def timetable():
             ocr_text
         )
 
-
         print(
             "PARSED TIMETABLE:",
             parsed_rows,
             flush=True
         )
-
 
         # -------------------------------------------------
         # RETURN
@@ -1712,7 +1760,6 @@ def timetable():
 
         })
 
-
     except Exception as e:
 
         print(
@@ -1720,7 +1767,6 @@ def timetable():
             repr(e),
             flush=True
         )
-
 
         return jsonify({
 
