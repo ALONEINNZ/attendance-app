@@ -289,7 +289,8 @@ SCHOOL_EMAIL_DOMAIN = (
 
 ADMIN_EMAILS = {
 
-    "22298@burnside.school.nz"
+    "22298@burnside.school.nz",
+    "22531@burnside.school.nz"
 
 }
 
