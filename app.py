@@ -1362,117 +1362,64 @@ def _timetable_line_centers(image, axis):
 
 
 def _find_timetable_grid(image):
-    """Return 5 day columns and 9 timetable rows.
+    """Return the fixed 5-column / 9-row Burnside timetable grid.
 
-    The timetable has this fixed row structure:
-        Form, 1, 2, Int, 3, 4, Lunch, 5, AS
+    The timetable layout is consistent:
+        Form, Period 1, Period 2, Interval, Period 3,
+        Period 4, Lunch, Period 5, AS.
+
+    We deliberately do NOT try to detect every horizontal line with
+    image processing. Text and grid lines can confuse line detection,
+    which was causing whole periods to disappear. The timetable body
+    is evenly divided into these nine rows, so proportional cropping
+    is much more reliable for screenshots and normal photos.
     """
     width, height = image.size
 
-    # ---------------------------------------------------------
-    # DAY COLUMNS
-    # ---------------------------------------------------------
-    vertical_lines = _timetable_line_centers(
-        image,
-        "vertical"
-    )
-
-    # The normal timetable has five visible internal/right
-    # boundaries. If the image does not expose them clearly,
-    # fall back to five equal columns.
-    if len(vertical_lines) == 5:
-        x_bounds = [0] + vertical_lines
-    else:
-        x_bounds = [
-            int(i * width / 5)
-            for i in range(6)
-        ]
-
-    # Make absolutely sure the list contains six boundaries.
-    if len(x_bounds) != 6:
-        x_bounds = [
-            int(i * width / 5)
-            for i in range(6)
-        ]
-
-    # ---------------------------------------------------------
-    # HEADER BOTTOM
-    # ---------------------------------------------------------
-    # The school timetable has a dark-green header followed by
-    # a white timetable body. Find that transition instead of
-    # assuming a fixed pixel height.
+    # The dark-green header occupies roughly the first 7.5% of the
+    # timetable image. Find the white-body transition where possible,
+    # but keep a safe proportional fallback.
     gray = image.convert("L")
-    row_average = [
-        value
-        for value in gray.resize((1, height)).getdata()
-    ]
+    small = gray.resize((1, height))
+    row_average = [pixel for pixel in small.getdata()]
 
     content_top = int(height * 0.075)
 
-    for y in range(10, min(height, int(height * 0.25))):
-        if row_average[y] > 220:
+    # Find the first sustained light row after the header.
+    for y in range(max(1, int(height * 0.04)),
+                   min(height, int(height * 0.20))):
+        if row_average[y] > 205:
             if all(
-                row_average[min(height - 1, y + offset)] > 210
-                for offset in range(3)
+                row_average[min(height - 1, y + offset)] > 195
+                for offset in range(4)
             ):
                 content_top = y
                 break
 
-    # ---------------------------------------------------------
-    # TIMETABLE BODY ROWS
-    # ---------------------------------------------------------
-    horizontal_lines = [
-        y for y in _timetable_line_centers(
-            image,
-            "horizontal"
-        )
-        if y >= content_top + 20
+    # Five equal day columns. The supplied timetable has equal-width
+    # columns, so this is substantially more reliable than trying to
+    # detect vertical text/grid edges.
+    x_bounds = [
+        int(i * width / 5)
+        for i in range(6)
     ]
 
-    # The body contains 9 rows and therefore 9 lower boundaries.
-    if len(horizontal_lines) >= 9:
-        # Keep the nine boundaries nearest to the expected row
-        # positions. This removes stray lines caused by text.
-        expected = [
-            content_top + ((i + 1) * (height - content_top) / 9)
-            for i in range(9)
-        ]
-
-        selected = []
-        remaining = horizontal_lines[:]
-
-        for target in expected:
-            nearest = min(
-                remaining,
-                key=lambda value: abs(value - target)
-            )
-            selected.append(nearest)
-            remaining.remove(nearest)
-
-        horizontal_lines = sorted(selected)
-
-    else:
-        horizontal_lines = [
-            int(
-                content_top
-                + (i * (height - content_top) / 9)
-            )
-            for i in range(1, 10)
-        ]
-
-    y_bounds = [content_top] + horizontal_lines
-
-    if len(y_bounds) != 10:
-        y_bounds = [
-            int(
-                content_top
-                + (i * (height - content_top) / 9)
-            )
-            for i in range(10)
-        ]
+    # Nine equal body rows:
+    # 0 Form
+    # 1 Period 1
+    # 2 Period 2
+    # 3 Interval
+    # 4 Period 3
+    # 5 Period 4
+    # 6 Lunch
+    # 7 Period 5
+    # 8 AS
+    y_bounds = [
+        int(content_top + i * (height - content_top) / 9)
+        for i in range(10)
+    ]
 
     return x_bounds, y_bounds
-
 
 def _find_subject_in_ocr(text):
     """Extract a Burnside-style Year 13 subject code from OCR."""
