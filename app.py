@@ -280,6 +280,7 @@ google = oauth.register(
 
 SCHOOL_EMAIL_DOMAIN = (
     "@burnside.school.nz"
+    "@uclive.ac.nz"
 )
 
 
