@@ -1308,65 +1308,261 @@ def parse_timetable_ocr(ocr_text):
 # TIMETABLE
 # =========================================================
 
+def _timetable_line_centers(image, axis):
+    """Find the cyan timetable grid lines used by the school timetable."""
+    rgb = image.convert("RGB")
+    width, height = rgb.size
+
+    if axis == "vertical":
+        positions = range(width)
+        limit = height
+    else:
+        positions = range(height)
+        limit = width
+
+    scores = []
+
+    for pos in positions:
+        count = 0
+
+        if axis == "vertical":
+            for y in range(0, height, 2):
+                r, g, b = rgb.getpixel((pos, y))
+                if g > r + 25 and b > r + 25 and g > 120:
+                    count += 1
+        else:
+            for x in range(0, width, 2):
+                r, g, b = rgb.getpixel((x, pos))
+                if g > r + 25 and b > r + 25 and g > 120:
+                    count += 1
+
+        scores.append(count)
+
+    # A real grid line runs across most of the image.
+    threshold = max(20, int((limit / 2) * 0.45))
+    candidates = [
+        i for i, score in enumerate(scores)
+        if score >= threshold
+    ]
+
+    centers = []
+    if candidates:
+        group = [candidates[0]]
+
+        for value in candidates[1:]:
+            if value <= group[-1] + 2:
+                group.append(value)
+            else:
+                centers.append(int(sum(group) / len(group)))
+                group = [value]
+
+        centers.append(int(sum(group) / len(group)))
+
+    return centers
+
+
+def _find_timetable_grid(image):
+    """Return 5 day columns and 9 timetable rows.
+
+    The timetable has this fixed row structure:
+        Form, 1, 2, Int, 3, 4, Lunch, 5, AS
+    """
+    width, height = image.size
+
+    # ---------------------------------------------------------
+    # DAY COLUMNS
+    # ---------------------------------------------------------
+    vertical_lines = _timetable_line_centers(
+        image,
+        "vertical"
+    )
+
+    # The normal timetable has five visible internal/right
+    # boundaries. If the image does not expose them clearly,
+    # fall back to five equal columns.
+    if len(vertical_lines) == 5:
+        x_bounds = [0] + vertical_lines
+    else:
+        x_bounds = [
+            int(i * width / 5)
+            for i in range(6)
+        ]
+
+    # Make absolutely sure the list contains six boundaries.
+    if len(x_bounds) != 6:
+        x_bounds = [
+            int(i * width / 5)
+            for i in range(6)
+        ]
+
+    # ---------------------------------------------------------
+    # HEADER BOTTOM
+    # ---------------------------------------------------------
+    # The school timetable has a dark-green header followed by
+    # a white timetable body. Find that transition instead of
+    # assuming a fixed pixel height.
+    gray = image.convert("L")
+    row_average = [
+        value
+        for value in gray.resize((1, height)).getdata()
+    ]
+
+    content_top = int(height * 0.075)
+
+    for y in range(10, min(height, int(height * 0.25))):
+        if row_average[y] > 220:
+            if all(
+                row_average[min(height - 1, y + offset)] > 210
+                for offset in range(3)
+            ):
+                content_top = y
+                break
+
+    # ---------------------------------------------------------
+    # TIMETABLE BODY ROWS
+    # ---------------------------------------------------------
+    horizontal_lines = [
+        y for y in _timetable_line_centers(
+            image,
+            "horizontal"
+        )
+        if y >= content_top + 20
+    ]
+
+    # The body contains 9 rows and therefore 9 lower boundaries.
+    if len(horizontal_lines) >= 9:
+        # Keep the nine boundaries nearest to the expected row
+        # positions. This removes stray lines caused by text.
+        expected = [
+            content_top + ((i + 1) * (height - content_top) / 9)
+            for i in range(9)
+        ]
+
+        selected = []
+        remaining = horizontal_lines[:]
+
+        for target in expected:
+            nearest = min(
+                remaining,
+                key=lambda value: abs(value - target)
+            )
+            selected.append(nearest)
+            remaining.remove(nearest)
+
+        horizontal_lines = sorted(selected)
+
+    else:
+        horizontal_lines = [
+            int(
+                content_top
+                + (i * (height - content_top) / 9)
+            )
+            for i in range(1, 10)
+        ]
+
+    y_bounds = [content_top] + horizontal_lines
+
+    if len(y_bounds) != 10:
+        y_bounds = [
+            int(
+                content_top
+                + (i * (height - content_top) / 9)
+            )
+            for i in range(10)
+        ]
+
+    return x_bounds, y_bounds
+
+
+def _find_subject_in_ocr(text):
+    """Extract a Burnside-style Year 13 subject code from OCR."""
+    if not text:
+        return None
+
+    # Tesseract sometimes reads the leading '13' incorrectly.
+    raw_words = re.findall(
+        r"[A-Za-z0-9¢]+",
+        text
+    )
+
+    for raw_word in raw_words:
+        cleaned = clean_subject(raw_word)
+
+        if is_subject_code(cleaned):
+            return cleaned
+
+        fixed = cleaned.replace("I3", "13")
+        fixed = fixed.replace("L3", "13")
+        fixed = fixed.replace("B3", "13")
+
+        if is_subject_code(fixed):
+            return fixed
+
+    # Last-resort search in the complete OCR text.
+    compact_text = re.sub(
+        r"[^A-Za-z0-9]",
+        " ",
+        text.upper()
+    )
+
+    for word in compact_text.split():
+        fixed = word.replace("I3", "13")
+        fixed = fixed.replace("L3", "13")
+        fixed = fixed.replace("B3", "13")
+
+        if is_subject_code(fixed):
+            return fixed
+
+    return None
+
+
+def _find_time_in_ocr(text):
+    """Extract the first timetable start time from a cell."""
+    if not text:
+        return None
+
+    match = re.search(
+        r"\b(\d{1,2}:\d{2}\s*(?:am|pm))\b",
+        text,
+        re.IGNORECASE
+    )
+
+    if not match:
+        return None
+
+    return match.group(1).replace(" ", "").lower()
+
+
 @app.route(
     "/timetable",
     methods=["GET", "POST"]
 )
 @login_required
 def timetable():
-
     student_id = session.get("user_id")
 
-    # =====================================================
-    # GET
-    # =====================================================
-
     if request.method == "GET":
-
         return render_template(
             "timetable.html"
         )
 
-    # =====================================================
-    # POST
-    # =====================================================
-
     try:
-
-        # -------------------------------------------------
-        # WEEK
-        # -------------------------------------------------
-
         week = request.form.get(
             "week",
             "A"
         ).upper().strip()
 
         if week not in ("A", "B"):
-
             return jsonify({
-                "message":
-                    "Invalid timetable week."
+                "message": "Invalid timetable week."
             }), 400
 
-        # -------------------------------------------------
-        # FILE
-        # -------------------------------------------------
-
-        file = request.files.get(
-            "timetable"
-        )
+        file = request.files.get("timetable")
 
         if not file or not file.filename:
-
             return jsonify({
-                "message":
-                    "Please select a timetable image."
+                "message": "Please select a timetable image."
             }), 400
-
-        # -------------------------------------------------
-        # FILE TYPE
-        # -------------------------------------------------
 
         allowed_extensions = {
             "png",
@@ -1376,10 +1572,8 @@ def timetable():
         }
 
         if "." not in file.filename:
-
             return jsonify({
-                "message":
-                    "Invalid file type."
+                "message": "Invalid file type."
             }), 400
 
         extension = (
@@ -1389,16 +1583,14 @@ def timetable():
         )
 
         if extension not in allowed_extensions:
-
             return jsonify({
                 "message":
                     "Please upload a PNG, JPG, JPEG or WEBP image."
             }), 400
 
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # SAVE IMAGE
-        # -------------------------------------------------
-
+        # -----------------------------------------------------
         filename = secure_filename(
             f"{student_id}_week_{week}.{extension}"
         )
@@ -1410,132 +1602,44 @@ def timetable():
 
         file.save(filepath)
 
-        print(
-            "TIMETABLE IMAGE SAVED:",
-            filepath,
-            flush=True
-        )
-
-        # -------------------------------------------------
+        # -----------------------------------------------------
         # CHECK TESSERACT
-        # -------------------------------------------------
-
+        # -----------------------------------------------------
         try:
-
-            tesseract_version = (
-                pytesseract
-                .get_tesseract_version()
-            )
-
-            print(
-                "TESSERACT VERSION:",
-                tesseract_version,
-                flush=True
-            )
-
-        except Exception as e:
-
-            print(
-                "TESSERACT NOT AVAILABLE:",
-                repr(e),
-                flush=True
-            )
-
+            pytesseract.get_tesseract_version()
+        except Exception:
             return jsonify({
                 "message":
                     "OCR is not available on the server."
             }), 500
 
-        # -------------------------------------------------
-        # OPEN ORIGINAL IMAGE
-        # -------------------------------------------------
-
+        # -----------------------------------------------------
+        # OPEN IMAGE
+        # -----------------------------------------------------
         try:
-
-            original_image = Image.open(
-                filepath
-            )
-
-            print(
-                "ORIGINAL IMAGE SIZE:",
-                original_image.size,
-                flush=True
-            )
-
-            # Convert once.
-            original_image = original_image.convert(
-                "L"
-            )
-
-        except Exception as e:
-
-            print(
-                "IMAGE OPEN ERROR:",
-                repr(e),
-                flush=True
-            )
-
+            image = Image.open(filepath).convert("RGB")
+        except Exception:
             return jsonify({
                 "message":
                     "Could not open the timetable image."
             }), 400
 
-        # -------------------------------------------------
-        # LIMIT IMAGE SIZE
-        # -------------------------------------------------
-        #
-        # We don't need a huge image for timetable OCR.
-        #
-        # Keeping the largest dimension around 1000 pixels
-        # prevents Tesseract from doing unnecessary work.
+        # Keep enough resolution for the individual lesson cells,
+        # but prevent giant phone photos from using excessive RAM.
+        max_dimension = 1400
 
-        max_dimension = 1000
-
-        if max(original_image.size) > max_dimension:
-
+        if max(image.size) > max_dimension:
             ratio = (
-                max_dimension /
-                max(original_image.size)
+                max_dimension / max(image.size)
             )
 
-            new_size = (
-                max(
-                    1,
-                    int(original_image.width * ratio)
+            image = image.resize(
+                (
+                    max(1, int(image.width * ratio)),
+                    max(1, int(image.height * ratio))
                 ),
-                max(
-                    1,
-                    int(original_image.height * ratio)
-                )
-            )
-
-            original_image = original_image.resize(
-                new_size,
                 Image.Resampling.LANCZOS
             )
-
-        print(
-            "OCR BASE IMAGE SIZE:",
-            original_image.size,
-            flush=True
-        )
-
-        # -------------------------------------------------
-        # CONTRAST
-        # -------------------------------------------------
-
-        original_image = ImageEnhance.Contrast(
-            original_image
-        ).enhance(1.6)
-
-        # -------------------------------------------------
-        # OCR EACH DAY COLUMN
-        # -------------------------------------------------
-
-        print(
-            f"STARTING OCR FOR WEEK {week}...",
-            flush=True
-        )
 
         days = [
             "Monday",
@@ -1545,225 +1649,145 @@ def timetable():
             "Friday"
         ]
 
-        ocr_parts = []
+        # These are the actual body rows in the school timetable.
+        # Row 0 = Form
+        # Row 1 = Period 1
+        # Row 2 = Period 2
+        # Row 3 = Interval
+        # Row 4 = Period 3
+        # Row 5 = Period 4
+        # Row 6 = Lunch
+        # Row 7 = Period 5
+        # Row 8 = AS
+        period_rows = {
+            1: 1,
+            2: 2,
+            3: 4,
+            4: 5,
+            5: 7
+        }
 
-        image_width, image_height = (
-            original_image.size
-        )
+        x_bounds, y_bounds = _find_timetable_grid(image)
 
-        column_width = (
-            image_width / len(days)
-        )
+        raw_ocr_parts = []
+        canonical_lines = []
+        parsed_count = 0
 
-        try:
+        for day_index, day in enumerate(days):
+            canonical_lines.append(day)
 
-            for index, day in enumerate(days):
+            for period, row_index in period_rows.items():
+                left = x_bounds[day_index]
+                right = x_bounds[day_index + 1]
+                top = y_bounds[row_index]
+                bottom = y_bounds[row_index + 1]
 
-                # -----------------------------------------
-                # CALCULATE COLUMN
-                # -----------------------------------------
+                # Keep grid lines out of the OCR crop.
+                padding_x = max(3, int((right - left) * 0.025))
+                padding_y = max(3, int((bottom - top) * 0.05))
 
-                left = int(
-                    index * column_width
-                )
+                left += padding_x
+                right -= padding_x
+                top += padding_y
+                bottom -= padding_y
 
-                right = int(
-                    (index + 1) * column_width
-                )
-
-                # Small padding prevents grid lines
-                # directly touching the OCR area.
-
-                padding = 3
-
-                left = max(
-                    0,
-                    left + padding
-                )
-
-                right = min(
-                    image_width,
-                    right - padding
-                )
-
-                if right <= left:
-
-                    print(
-                        f"SKIPPING {day}: invalid crop",
-                        flush=True
-                    )
-
+                if right <= left or bottom <= top:
                     continue
 
-                # -----------------------------------------
-                # CROP
-                # -----------------------------------------
+                cell = image.crop(
+                    (left, top, right, bottom)
+                )
 
-                column = original_image.crop(
+                # Individual cells are small. A moderate upscale
+                # gives Tesseract much better subject recognition.
+                cell = cell.resize(
                     (
-                        left,
-                        0,
-                        right,
-                        image_height
-                    )
-                )
-
-                print(
-                    f"OCR {day} column:",
-                    column.size,
-                    flush=True
-                )
-
-                # -----------------------------------------
-                # MODERATE UPSCALE
-                # -----------------------------------------
-                #
-                # Previous code doubled the image.
-                # That was expensive on Render.
-                #
-                # 1.25x gives Tesseract slightly more
-                # resolution without making the image
-                # enormous.
-
-                upscale = 1.25
-
-                new_width = max(
-                    1,
-                    int(column.width * upscale)
-                )
-
-                new_height = max(
-                    1,
-                    int(column.height * upscale)
-                )
-
-                column = column.resize(
-                    (
-                        new_width,
-                        new_height
+                        max(1, cell.width * 2),
+                        max(1, cell.height * 2)
                     ),
                     Image.Resampling.LANCZOS
                 )
 
-                # -----------------------------------------
-                # CONTRAST
-                # -----------------------------------------
-
-                column = ImageEnhance.Contrast(
-                    column
+                cell = ImageEnhance.Contrast(
+                    cell
                 ).enhance(1.5)
 
-                # -----------------------------------------
-                # OCR
-                # -----------------------------------------
-                #
-                # PSM 6 works well for a timetable column
-                # because it treats the image as a block
-                # of text.
-                #
-                # timeout prevents one bad OCR operation
-                # from hanging forever.
-
                 try:
-
-                    column_text = (
-                        pytesseract.image_to_string(
-                            column,
-                            lang="eng",
-                            config="--psm 6",
-                            timeout=5
-                        )
+                    cell_text = pytesseract.image_to_string(
+                        cell,
+                        lang="eng",
+                        config="--psm 6",
+                        timeout=3
                     )
+                except RuntimeError:
+                    cell_text = ""
 
-                except RuntimeError as e:
-
-                    print(
-                        f"OCR TIMEOUT/ERROR FOR {day}:",
-                        repr(e),
-                        flush=True
-                    )
-
-                    column_text = ""
-
-                # -----------------------------------------
-                # SAVE RESULT
-                # -----------------------------------------
-
-                ocr_parts.append(
-                    f"{day}\n{column_text}"
+                raw_ocr_parts.append(
+                    f"{day} - Period {period}\n{cell_text.strip()}"
                 )
 
-                print(
-                    f"OCR {day} COMPLETE",
-                    flush=True
+                subject = _find_subject_in_ocr(
+                    cell_text
                 )
 
-                # Explicitly release the crop before
-                # processing the next column.
+                if not subject:
+                    # This catches cells such as Wednesday Period 1
+                    # where the timetable says FORM instead of a
+                    # subject code.
+                    if re.search(
+                        r"\bFORM\b",
+                        cell_text,
+                        re.IGNORECASE
+                    ):
+                        subject = "FORM"
+                    else:
+                        continue
 
-                del column
+                start_time = _find_time_in_ocr(
+                    cell_text
+                )
 
-        finally:
+                if start_time:
+                    canonical_lines.append(
+                        f"{period} {start_time}"
+                    )
+                else:
+                    canonical_lines.append(
+                        str(period)
+                    )
 
-            # Release the large image before parsing.
+                canonical_lines.append(subject)
+                parsed_count += 1
 
-            del original_image
-
-        # -------------------------------------------------
-        # COMBINE OCR
-        # -------------------------------------------------
-
-        ocr_text = "\n\n".join(
-            ocr_parts
-        )
-
-        print(
-            "OCR FINISHED",
-            flush=True
-        )
-
-        print(
-            "OCR TEXT:",
-            repr(ocr_text),
-            flush=True
-        )
-
-        # -------------------------------------------------
-        # PARSE
-        # -------------------------------------------------
+        # IMPORTANT:
+        # This is deliberately a clean, machine-readable OCR result.
+        # /save-timetable reparses this exact text, so it is much safer
+        # than sending Tesseract's messy raw output to the parser.
+        ocr_text = "\n".join(canonical_lines)
+        raw_ocr = "\n\n".join(raw_ocr_parts)
 
         parsed_rows = parse_timetable_ocr(
             ocr_text
         )
 
-        print(
-            "PARSED TIMETABLE:",
-            parsed_rows,
-            flush=True
-        )
-
-        # -------------------------------------------------
-        # RETURN
-        # -------------------------------------------------
+        if not parsed_rows:
+            return jsonify({
+                "message":
+                    "Could not find any timetable subjects. "
+                    "Make sure the whole timetable is visible."
+            }), 400
 
         return jsonify({
-
             "message":
                 f"Week {week} timetable read successfully.",
-
-            "week":
-                week,
-
-            "ocr_text":
-                ocr_text,
-
-            "parsed":
-                parsed_rows
-
+            "week": week,
+            "ocr_text": ocr_text,
+            "raw_ocr": raw_ocr,
+            "parsed": parsed_rows,
+            "entries_found": parsed_count
         })
 
     except Exception as e:
-
         print(
             "TIMETABLE OCR ERROR:",
             repr(e),
@@ -1771,10 +1795,8 @@ def timetable():
         )
 
         return jsonify({
-
             "message":
                 f"Could not read timetable: {str(e)}"
-
         }), 500
 
 
