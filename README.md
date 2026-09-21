@@ -99,7 +99,7 @@ python app.py
 
 The app will normally be available at:
 
-http://localhost:5000
+https://attendance-app-dqs8.onrender.com/
 Google Login
 
 The application uses Google OAuth for authentication.
@@ -126,9 +126,7 @@ Example:
 
 SCHOOL_NETWORKS = {
     "Burnside WiFi": [
-        "202.150.123.193/32",
-        "122.63.129.201/32",
-        "202.36.179.108/32",
+        "202.150.123.193/32"
     ],
 }
 
